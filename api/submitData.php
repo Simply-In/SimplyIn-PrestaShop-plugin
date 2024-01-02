@@ -16,9 +16,9 @@ $apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
 $body['api_token'] = $apiKey;
 
 if (!empty($token)) {
-	$url = 'https://stage.backend.simplyin.app/' . $endpoint . '?api_token=' . urlencode($token);
+	$url = 'https://prod.backend.simplyin.app/' . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = 'https://stage.backend.simplyin.app/' . $endpoint;
+	$url = 'https://prod.backend.simplyin.app/' . $endpoint;
 }
 
 $headers = array('Content-Type: application/json');

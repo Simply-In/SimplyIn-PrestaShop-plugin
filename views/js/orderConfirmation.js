@@ -79,7 +79,7 @@ $(document).ready(async function () {
     {
       addressName: billing_address.company.trim().substring(0, 15) || "",
       street: (billing_address.address1 || "").trim(),
-      appartmentNumber: (billing_address.address2 || "").trim(),
+      appartmentNumber: (billing_address.address2 || "").trim() || "",
       city: (billing_address.city || "").trim(),
       postalCode: (billing_address.postcode || "").trim(),
       country: (billing_country.iso_code || "").trim(),
@@ -96,7 +96,7 @@ $(document).ready(async function () {
     {
       addressName: billing_address.company.trim().substring(0, 15) || "",
       street: (delivery_address.address1 || "").trim(),
-      appartmentNumber: (delivery_address.address2 || "").trim(),
+      appartmentNumber: (delivery_address.address2 || "").trim() || "",
       city: (delivery_address.city || "").trim(),
       postalCode: (delivery_address.postcode || "").trim(),
       country: (delivery_country.iso_code || "").trim(),
@@ -180,7 +180,7 @@ $(document).ready(async function () {
     const indexOfUndefined = arrayOfId.indexOf(undefined);
 
     const arrayOfIdBilling = userData.billingAddresses.map((el) => el._id);
-    const indexOfUndefinedBilling = arrayOfId.indexOf(undefined);
+    const indexOfUndefinedBilling = arrayOfIdBilling.indexOf(undefined);
 
     middlewareApi({
       endpoint: "userData",
@@ -223,10 +223,8 @@ $(document).ready(async function () {
             (item) => !arrayOfIdBilling.includes(item._id)
           )[0];
 
-          console.log("idNotInModel", idNotInModel);
-
           newItemBilling = res.data.billingAddresses.find((item) => {
-            if ("_id" in idNotInModel) {
+            if (idNotInModel && "_id" in idNotInModel) {
               return item._id === idNotInModel._id;
             }
           });
@@ -241,6 +239,9 @@ $(document).ready(async function () {
           if (!newItemBilling.taxId) {
             newItemBilling.taxId = "";
           }
+          if (!newItemBilling.appartmentNumber) {
+            newItemBilling.appartmentNumber = "";
+          }
           //   console.log("2 newItem", newItem);
           //nie ma nowego elementu
         }
@@ -249,7 +250,6 @@ $(document).ready(async function () {
         let newItemParcel;
         if (indexOfUndefinedParcel !== -1) {
           //jest nowy element
-
           const idNotInModel = res.data.parcelLockers.filter(
             (item) => !arrayOfIdParcel.includes(item._id)
           )[0];
