@@ -3,7 +3,7 @@
 const SimplyBrandIcon = () => {
 	return (
 
-		<div style={{ display: "flex", flexDirection: "column", fontSize: "14px", width: "auto" }}>
+		<div style={{ padding: "8px 16px", display: "flex", flexDirection: "column", fontSize: "14px", width: "auto" }}>
 			<svg height="30" width="164">
 				<text x="50%" y="70%" fill="black" font-weight="600" font-size="14px" text-anchor="middle" alignment-baseline="middle">Szybko i bezpiecznie z</text>
 			</svg>

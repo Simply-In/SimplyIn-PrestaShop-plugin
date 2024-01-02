@@ -70,7 +70,7 @@ export const selectPickupPointInpost = async ({ deliveryPointID }: IselectIPicku
 	let flag = false;
 
 	const selectDeliveryPoint = (status: string) => {
-
+		console.log(status);
 		return new Promise<boolean>((resolve, reject): void => {
 
 			waitForElementToRender({ selector: `#delivery_option_${shippingMethodId}` }).then((shippingRadioButton: any) => {
