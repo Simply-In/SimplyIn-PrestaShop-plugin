@@ -180,7 +180,7 @@ export const PhoneField = () => {
 		{!simplyinToken && <>
 			<CheckboxContainer>
 				<Checkbox
-						style={{ paddingLeft: 0 }}
+						style={{ marginLeft: "-11px" }}
 					id="simply-save-checkbox"
 					name="simply-save-checkbox"
 					checked={simplyinToken ? !!simplyinToken : checked}
@@ -212,17 +212,18 @@ export const PhoneField = () => {
 				{checked && <>
 					<PhoneInputDescription>
 					Następnym razem, gdy dokonasz płatności tutaj lub w innych sklepach używających
-					<PhoneInputDescriptionLink href="https://simply.in/">{" "}Simply.IN{" "}</PhoneInputDescriptionLink>
+						<PhoneInputDescriptionLink href="https://simply.in/" target="_blank">{" "}Simply.IN{" "}</PhoneInputDescriptionLink>
 					, otrzymasz kod SMS-em i będziesz mógł bezpiecznie robić zakupy za pomocą
-					<PhoneInputDescriptionLink href="https://simply.in/">{" "}Simply.IN.</PhoneInputDescriptionLink>
+
+						<PhoneInputDescriptionLink href={"./"} target="_blank">{" "}Simply.IN.</PhoneInputDescriptionLink>
 				</PhoneInputDescription>
 				<PhoneInputDescriptionSecondary>
-					Klikając przycisk „Zamawiam” lub analogiczny, potwierdzam że zapoznałem się i akceptuję Regulamin
-					<PhoneInputDescriptionLink href="https://simply.in/terms-and-conditions">{" "}Simply.In.{" "}</PhoneInputDescriptionLink >
+						Klikając przycisk „Zamawiam” lub analogiczny, potwierdzam że zapoznałem się i akceptuję<PhoneInputDescriptionLink href="https://simply.in/terms-and-conditions" target="_blank">{" "}Regulamin
+							{" "}Simply.In.{" "}</PhoneInputDescriptionLink >
 					Administratorem Twoich danych osobowych jest
-					<PhoneInputDescriptionLink href="https://simply.in/">{" "}Simply.In.</PhoneInputDescriptionLink>
+						<PhoneInputDescriptionLink href="https://simply.in/" target="_blank">{" "}Simply.In.</PhoneInputDescriptionLink>
 					Zobacz więcej w
-					<PhoneInputDescriptionLink href="https://simply.in/gdpr-rules">{" "}Polityce Prywatności. </PhoneInputDescriptionLink>
+						<PhoneInputDescriptionLink href="https://simply.in/gdpr-rules" target="_blank">{" "}Polityce Prywatności. </PhoneInputDescriptionLink>
 				</PhoneInputDescriptionSecondary>
 
 

@@ -121,9 +121,20 @@ export const Step2Form = ({
 	useEffect(() => {
 		const countryList: any = [];
 
-		const billingCountrySelect = document.querySelector('select#billing_country');
-		const countrySelect: any = billingCountrySelect
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore
+		const countrySelect: any = Object.values(countries_list).sort((a: any, b: any) => {
+			const nameA = a?.name.toUpperCase() || ""; // Convert names to uppercase for case-insensitive sorting
+			const nameB = b?.name.toUpperCase() || "";
 
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+			return 0;
+		}) || [];
 
 		if (!countrySelect) {
 			console.error('Country select element not found');
@@ -131,10 +142,10 @@ export const Step2Form = ({
 		}
 
 		// eslint-disable-next-line prefer-const
-		for (let option of countrySelect.options) {
+		for (let option of countrySelect) {
 			const country = {
-				code: option.value,
-				name: option.textContent
+				code: option?.iso_code || "",
+				name: option?.name || option?.country || option?.iso_code || ""
 			};
 
 			if (country.code !== "") {

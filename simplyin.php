@@ -462,6 +462,7 @@ class Simplyin extends Module
 	public function hookHeader($params)
 	{
 		$base_url = __PS_BASE_URI__;
+		
 		$shippingMethods = $this->fetchAllAvailableShippingMethods();
 		$countries_list = Country::getCountries($this->context->language->id);
 		Media::addJsDef([
@@ -469,8 +470,11 @@ class Simplyin extends Module
 			'shippingMethods' => $shippingMethods,
 			'base_url' => $base_url,
 			'files_url' => $this->_path,
-			'inpost_api_key' => Configuration::get('INPOST_SECRET_KEY')
-			
+			'inpost_api_key' => Configuration::get('INPOST_SECRET_KEY'),
+			'shop_url' => $base_url,
+			'full_shop_url' => Tools::getShopDomain() . $base_url
+
+
 		]);
 
 		$this->context->controller->addJS($this->_path . '/views/js/front.js');
