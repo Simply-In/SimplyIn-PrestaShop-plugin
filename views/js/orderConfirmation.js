@@ -309,6 +309,8 @@ $(document).ready(async function () {
         sessionStorage.removeItem("UserData");
         sessionStorage.removeItem("BillingIndex");
         sessionStorage.removeItem("ShippingIndex");
+        sessionStorage.removeItem("ParcelIndex");
+        sessionStorage.removeItem("CustomChanges");
         sessionStorage.removeItem("inpost-delivery-point");
       });
 
@@ -394,6 +396,8 @@ $(document).ready(async function () {
       sessionStorage.removeItem("UserData");
       sessionStorage.removeItem("BillingIndex");
       sessionStorage.removeItem("ShippingIndex");
+      sessionStorage.removeItem("ParcelIndex");
+      sessionStorage.removeItem("CustomChanges");
       sessionStorage.removeItem("inpost-delivery-point");
     })
     .catch((error) => {

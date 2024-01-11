@@ -86,7 +86,7 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 
 	const handleDeleteConfirmed = () => {
 
-		const selectedRadioItem = userData[property].find((el: any) => el._id === userData[property][selectedPropertyIndex]._id)
+		const selectedRadioItem = userData[property].find((el: any) => el._id === userData[property][selectedPropertyIndex]?._id) || null
 
 		const selectedId = userData[property][item]._id
 		const updatedProperty = userData[property]?.filter((el: any) => {
@@ -111,13 +111,13 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 				//selection of previously selected radio element
 				if (res.data[property].length) {
 					const filteredPropertyArray = res.data[property].filter((el: any, id: number) => {
-						if (el._id === selectedRadioItem._id) {
+						if (selectedRadioItem && el._id === selectedRadioItem._id) {
 							setSelectedPropertyIndex(id)
 						}
-						return el._id === selectedRadioItem._id
+						return el._id === selectedRadioItem?._id
 					})
 
-					if (!filteredPropertyArray.length) {
+					if (selectedRadioItem && !filteredPropertyArray.length) {
 						console.log('no length', filteredPropertyArray);
 						setSelectedPropertyIndex(0)
 

@@ -113,20 +113,27 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 		if (deliveryType === "address") {
 
-		// resetDeliveryMethod()
+			// resetDeliveryMethod()
 			setSelectedUserData((prev: any) => {
+				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+				sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
+				sessionStorage.setItem("ParcelIndex", `null`)
 				return ({
 					...prev,
 					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
+					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
+					parcelLockers: null
 				})
 			})
 		} else {
 			setSelectedUserData((prev: any) => {
+				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+				sessionStorage.setItem("ShippingIndex", `null`)
+				sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
 				return ({
 					...prev,
 					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					// shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
+					shippingAddresses: null,
 					parcelLockers: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId || null
 				})
 			})
@@ -136,9 +143,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 
 		}
-		sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-		sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
-		sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
+
 
 		saveDataSessionStorage({ key: 'isParcelAdded', data: false })
 
@@ -156,7 +161,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		if (billingData) { handlePhpScript(billingData, 'billingAddressesId') }
 		if (shippingData) { handlePhpScript(shippingData, 'shippingAddressesId') }
 
-		sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
+
 
 
 
@@ -165,9 +170,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 		}
 
-
 		handleClosePopup()
-		console.log('close');
+
 	}
 
 
@@ -364,7 +368,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 											<FormControlLabel value={index} control={<Radio />}
 												label={
 													<DataValueContainer>
-														<DataValueTitle>{el?.addressName ?? <>Adres{" "}{index + 1}</>}</DataValueTitle>
+														<DataValueTitle>{el?.addressName ? el.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
 														<DataValueLabel>{el.street}{" "}{el.appartmentNumber},{" "}{el.postalCode},{" "}{el.city}</DataValueLabel>
 													</DataValueContainer>
 												} style={{ marginBottom: 0 }} />
@@ -413,94 +417,94 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				</FormControl>
 
 				{deliveryType === "address" && <>
-				<CardActions disableSpacing sx={{ padding: 0 }}>
-					<SectionTitle>Dane dostawy</SectionTitle>
-					<ExpandMore
-						expand={expanded.shipping}
-						onClick={() => handleExpandClick("shipping")}
-						aria-expanded={expanded.shipping}
-						aria-label="show more"
-					>
-						<ExpandMoreIcon />
-					</ExpandMore>
-				</CardActions>
-				<FormGroup>
-					<FormControlLabel sx={{
-						textAlign: 'left',
-						fontFamily: 'Inter, sans-serif',
-						'& .MuiTypography-root': {
-							fontFamily: 'Inter, sans-serif'
-						}
-					}} style={{ textAlign: 'left', fontFamily: "Inter, sans-serif" }} control={<Checkbox checked={sameDeliveryAddress} onChange={handleChangeShippingCheckbox} />} label="Dane dostawy są takie same jak dane rozliczeniowe." />
-
-				</FormGroup>
-				<Collapse in={!expanded.shipping} timeout="auto" unmountOnExit>
-					{userData?.shippingAddresses?.length
-						?
-						<DataValueContainer style={{ padding: 8 }}>
-							{!sameDeliveryAddress && (selectedShippingIndex !== null && !isNaN(selectedShippingIndex)) &&
-								<>
-									<DataValueTitle>
-										{userData?.shippingAddresses[selectedShippingIndex]?.addressName ?? <>Adres {+selectedShippingIndex + 1}</>}
-									</DataValueTitle>
-									{userData?.shippingAddresses &&
-										<DataValueLabel>
-											{userData?.shippingAddresses[selectedShippingIndex]?.street || ""}{" "}{userData?.shippingAddresses[selectedShippingIndex]?.appartmentNumber || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.postalCode || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.city || ""}
-										</DataValueLabel>
-									}
-								</>
-
-
-							}
-						</DataValueContainer>
-						:
-						null
-					}
-
-				</Collapse>
-				<Collapse in={expanded.shipping} timeout="auto" unmountOnExit sx={{ padding: '0px !important' }}>
-					<CardContent sx={{ padding: '8px', paddingBottom: '0px !important' }}>
-						<RadioGroup
-							value={selectedShippingIndex}
-							aria-labelledby="demo-radio-buttons-group-label"
-							name="radio-buttons-group"
-							onChange={(e) => handleChange(e, "shipping")}
-
+					<CardActions disableSpacing sx={{ padding: 0 }}>
+						<SectionTitle>Dane dostawy</SectionTitle>
+						<ExpandMore
+							expand={expanded.shipping}
+							onClick={() => handleExpandClick("shipping")}
+							aria-expanded={expanded.shipping}
+							aria-label="show more"
 						>
-							{userData?.shippingAddresses?.length
-								?
-								userData?.shippingAddresses.map((el: any, index: number) => {
-									return (
-										<RadioElementContainer>
-											<FormControlLabel value={index} control={<Radio />}
-												label={
-													<DataValueContainer>
-														<DataValueTitle>{el?.addressName ?? <>Adres{" "}{index + 1}</>}</DataValueTitle>
-														<DataValueLabel>{el.street}{" "}{el.appartmentNumber},{" "}{el.postalCode},{" "}{el.city}</DataValueLabel>
-													</DataValueContainer>
-												} style={{ marginBottom: 0 }} />
-											<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"shippingAddresses"} userData={userData}
-												selectedPropertyIndex={selectedShippingIndex}
-												setSelectedPropertyIndex={setSelectedShippingIndex} />
-										</RadioElementContainer>)
-
-								})
-								:
-
-								<NoDataLabel>Brak danych</NoDataLabel>
-
+							<ExpandMoreIcon />
+						</ExpandMore>
+					</CardActions>
+					<FormGroup>
+						<FormControlLabel sx={{
+							textAlign: 'left',
+							fontFamily: 'Inter, sans-serif',
+							'& .MuiTypography-root': {
+								fontFamily: 'Inter, sans-serif'
 							}
+						}} style={{ textAlign: 'left', fontFamily: "Inter, sans-serif" }} control={<Checkbox checked={sameDeliveryAddress} onChange={handleChangeShippingCheckbox} />} label="Dane dostawy są takie same jak dane rozliczeniowe." />
 
-						</RadioGroup>
+					</FormGroup>
+					<Collapse in={!expanded.shipping} timeout="auto" unmountOnExit>
+						{userData?.shippingAddresses?.length
+							?
+							<DataValueContainer style={{ padding: 8 }}>
+								{!sameDeliveryAddress && (selectedShippingIndex !== null && !isNaN(selectedShippingIndex)) &&
+									<>
+										<DataValueTitle>
+											{userData?.shippingAddresses[selectedShippingIndex]?.addressName ?? <>Adres {+selectedShippingIndex + 1}</>}
+										</DataValueTitle>
+										{userData?.shippingAddresses &&
+											<DataValueLabel>
+												{userData?.shippingAddresses[selectedShippingIndex]?.street || ""}{" "}{userData?.shippingAddresses[selectedShippingIndex]?.appartmentNumber || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.postalCode || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.city || ""}
+											</DataValueLabel>
+										}
+									</>
 
 
-					</CardContent>
+								}
+							</DataValueContainer>
+							:
+							null
+						}
 
-				</Collapse>
-				<AddNewData onClick={() => handleAddNewData("shippingAddresses")}>
-					<PlusIcon />
-					<AddNewDataText>Dodaj nowe dane dostawy</AddNewDataText>
-				</AddNewData>
+					</Collapse>
+					<Collapse in={expanded.shipping} timeout="auto" unmountOnExit sx={{ padding: '0px !important' }}>
+						<CardContent sx={{ padding: '8px', paddingBottom: '0px !important' }}>
+							<RadioGroup
+								value={selectedShippingIndex}
+								aria-labelledby="demo-radio-buttons-group-label"
+								name="radio-buttons-group"
+								onChange={(e) => handleChange(e, "shipping")}
+
+							>
+								{userData?.shippingAddresses?.length
+									?
+									userData?.shippingAddresses.map((el: any, index: number) => {
+										return (
+											<RadioElementContainer>
+												<FormControlLabel value={index} control={<Radio />}
+													label={
+														<DataValueContainer>
+															<DataValueTitle>{el?.addressName ? el?.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
+															<DataValueLabel>{el.street}{" "}{el.appartmentNumber},{" "}{el.postalCode},{" "}{el.city}</DataValueLabel>
+														</DataValueContainer>
+													} style={{ marginBottom: 0 }} />
+												<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"shippingAddresses"} userData={userData}
+													selectedPropertyIndex={selectedShippingIndex}
+													setSelectedPropertyIndex={setSelectedShippingIndex} />
+											</RadioElementContainer>)
+
+									})
+									:
+
+									<NoDataLabel>Brak danych</NoDataLabel>
+
+								}
+
+							</RadioGroup>
+
+
+						</CardContent>
+
+					</Collapse>
+					<AddNewData onClick={() => handleAddNewData("shippingAddresses")}>
+						<PlusIcon />
+						<AddNewDataText>Dodaj nowe dane dostawy</AddNewDataText>
+					</AddNewData>
 				</>}
 
 				{deliveryType === "machine" &&
@@ -592,10 +596,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 																	height: '42px'
 																}} />
 															</div>
-														<DataValueContainer>
+															<DataValueContainer>
 																<DataValueTitle>{el?.addressName ?? el?.lockerId ?? <>Punkt{" "}{index + 1}</>}</DataValueTitle>
-															<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
-														</DataValueContainer>
+																<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
+															</DataValueContainer>
 														</div>
 													} style={{ marginBottom: 0 }} />
 												<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"parcelLockers"} userData={userData}
@@ -611,11 +615,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 							</RadioGroup>
 						</CardContent>
 
-					</Collapse>
-					<AddNewData onClick={() => handleAddNewData("parcelLockers")}>
-						<PlusIcon />
-						<AddNewDataText>Dodaj nowe dane paczkomatu lub punktu</AddNewDataText>
-					</AddNewData></>}
+						</Collapse>
+						<AddNewData onClick={() => handleAddNewData("parcelLockers")}>
+							<PlusIcon />
+							<AddNewDataText>Dodaj nowe dane paczkomatu lub punktu</AddNewDataText>
+						</AddNewData></>}
 
 
 				<div style={{
