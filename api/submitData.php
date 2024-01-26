@@ -13,12 +13,13 @@ $token = $data['token'];
 
 
 $apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
-$body['api_token'] = $apiKey;
+$body['apiKey'] = $apiKey;
+
 
 if (!empty($token)) {
-	$url = 'https://stage.backend.simplyin.app/' . $endpoint . '?api_token=' . urlencode($token);
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = 'https://stage.backend.simplyin.app/' . $endpoint;
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
 }
 
 $headers = array('Content-Type: application/json');

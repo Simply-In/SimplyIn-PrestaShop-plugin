@@ -1,13 +1,19 @@
 import { useContext, useEffect, useState } from 'react'
 
-import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary } from '../SimplyID.styled'
+import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain } from '../SimplyID.styled'
 import { middlewareApi } from '../../../services/middlewareApi'
 import { PopupTextError } from '../../PhoneField/PhoneField.styled'
 import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi'
 import { SelectedDataContext } from '../SimplyID'
 import { selectPickupPointInpost } from '../../../functions/selectInpostPoint'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
+import { Link } from '@mui/material'
+import Countdown from 'react-countdown'
 
+const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
+	return <span>{minutes}:{seconds}</span>;
+};
+const countdownTimeSeconds = 10
 interface IStep1 {
 	handleClosePopup: () => void;
 	phoneNumber: string;
@@ -15,12 +21,15 @@ interface IStep1 {
 	setUserData: any
 	setToken: any
 	setSelectedUserData: any
+	simplyInput: string
 
 
 }
 
-export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData }: IStep1) => {
+export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData, simplyInput }: IStep1) => {
+	const [countdown, setCountdown] = useState<boolean>(false)
 
+	const [countdownTime, setCountdownTime] = useState<number>(0)
 	const [modalError, setModalError] = useState("")
 	const [pinCode, setPinCode] = useState('');
 	const {
@@ -223,6 +232,25 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 
 	}, [phoneNumber])
+
+	const handleSendPinAgain = (e: any) => {
+		setCountdown(true)
+		setCountdownTime(Date.now() + countdownTimeSeconds * 1000)
+		middlewareApi({
+			endpoint: "checkout/resend-checkout-code-via-email",
+			method: 'POST',
+			requestBody: { "email": simplyInput }
+		}).catch((err) => {
+
+			console.log(err);
+
+		})
+
+	}
+	const handleCountdownCompleted = () => {
+		setCountdown(false)
+	}
+
 	return (
 		<>
 			<PopupTitle> Potwierdź, że to Ty </PopupTitle>
@@ -247,6 +275,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 								borderRadius: "8px",
 								fontSize: "30px",
 								textAlign: "center",
+								padding: 0
 
 							}}
 							isInputNum={true}
@@ -262,7 +291,10 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 					</form>
 				</div>
-				{/* } */}
+
+
+
+
 			</PinInputContainer>
 			<PopupTextError >
 				{modalError}
@@ -270,6 +302,43 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			<PopupTextSecondary>
 				Będziesz mógł edytować swoje dane po zalogowaniu.
 			</PopupTextSecondary>
+
+
+			{(countdown) ?
+				<>
+					<PopupCountDownContainer>
+						<PopupCodeNotDelivered>
+							Kod został ponownie wysłany
+						</PopupCodeNotDelivered>
+
+						<Countdown daysInHours={false} renderer={countdownRenderer} zeroPadTime={2} zeroPadDays={2}
+							date={countdownTime} onComplete={handleCountdownCompleted} /></PopupCountDownContainer>
+				</>
+				:
+				<>
+					<PopupCodeNotDelivered>
+						Kod nie dotarł?
+					</PopupCodeNotDelivered>
+					<PopupSendAgain>
+						{/* <Link component="button" id="send-again-btn" underline="hover" onClick={
+							handleSendPinAgain
+						}>
+							Wyślij ponownie
+						</Link>
+						&nbsp; lub &nbsp; */}
+						<Link
+							component="button"
+							id="send-again-email-btn"
+							value="mail"
+							onClick={handleSendPinAgain}
+							underline="hover"
+						>
+							Wyślij e-mailem
+						</Link>
+					</PopupSendAgain>
+				</>
+			}
+
 
 		</>
 	)

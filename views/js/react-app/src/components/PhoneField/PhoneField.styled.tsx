@@ -5,9 +5,13 @@ export const CheckboxContainer = styled.div`
 	margin-bottom:12px;`
 
 export const CheckboxLabel = styled.div`
-display:flex;
-align-items: center;
 cursor: pointer;
+	font-size: 20px;
+	font-family: Inter, sans-serif;
+	& span{
+		font-weight:700;
+		font-family: Inter, sans-serif;
+	}
 `
 export const PhoneInputDescription = styled.div`
 	font-size: 16px;

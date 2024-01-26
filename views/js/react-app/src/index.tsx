@@ -9,15 +9,49 @@ import { loadDataFromSessionStorage } from "./services/sessionStorageApi";
 // import { selectIPickupPointInpost } from "./functions/selectInpostPoint";
 import SimplyBrandIcon from "./assets/SimplyBrandIcon";
 import { selectPickupPointInpost } from "./functions/selectInpostPoint";
+import { middlewareApi } from "./services/middlewareApi";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const listOfCountries = Object.keys(countries_list).map((key) => countries_list[key]).sort((a, b) => a.name.localeCompare(b.name));
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
+	let isValid = true
+	const testRequest = await middlewareApi({
+		endpoint: "checkout/submitEmail",
+		method: 'POST',
+		requestBody: { "email": "" }
+	}).then(res => {
+		console.log('test request');
+		console.log(res);
+		return res
+	})
 
 
+	const deleteSimplyContent = () => {
+		console.log('delete content simply');
+		document.querySelector("#simplyLogoContainer")?.remove()
+		document.querySelector("#phoneAppContainer")?.remove()
+
+	}
+
+
+	console.log(testRequest);
+	// if (testRequest === "Unauthorized") {
+	if (testRequest.message === "Merchant api key not found") {
+		console.log("SIMPLYIN API KEY INVALID");
+		isValid = false
+		deleteSimplyContent()
+		return
+		// } else if (testRequest === "Simplyin apikey is empty") {
+	}
+	else {
+		isValid = true
+		console.log("SIMPLYIN API KEY VALID");
+		// deleteSimplyContent()
+		// return
+	}
 	if ($('#checkout').length > 0) {
 
 		const personalInformation = document.getElementById('checkout-personal-information-step');
@@ -29,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 		ReactDOM.render(
-			<SimplyBrandIcon />,
+			isValid && <SimplyBrandIcon />,
 			document.getElementById("simplyLogoContainer")
 		);
 
@@ -71,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		formContainer?.appendChild(reactAppContainer);
 
 		ReactDOM.render(
-			<SimplyID listOfCountries={listOfCountries} />,
+			isValid && <SimplyID listOfCountries={listOfCountries} />,
 			document.getElementById("reactAppContainer")
 		);
 
@@ -84,9 +118,16 @@ document.addEventListener('DOMContentLoaded', function () {
 		paymentContentSection?.insertBefore(phoneAppContainer, paymentContentSection.childNodes[4]);
 
 		ReactDOM.render(
-			<PhoneField />,
+			isValid && <PhoneField />,
 			document.getElementById("phoneAppContainer")
 		);
+
+
+
+
+
+
+
 
 	}
 

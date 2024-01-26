@@ -23,19 +23,25 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
-use InPost\Shipping\Hook\Traits\GetPointDataByCartIdTrait;
-use InPost\Shipping\Presenter\PointAddressPresenter;
+
 use Order;
 
-if (!defined('_PS_VERSION_')) {
-	exit;
-}
+// use InPost\Shipping\Presenter\PointAddressPresenter;
+
+// use InPost\Shipping\Hook\Traits\GetPointDataByCartIdTrait;
 
 class Simplyin extends Module
-{
-	use GetPointDataByCartIdTrait;
-	protected $config_form = false;
 
+{
+
+	// use GetPointDataByCartIdTrait;
+
+
+
+
+
+	protected $config_form = false;
+	
 	public function __construct()
 	{
 
@@ -53,7 +59,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('wersja 15.12 17:20');
+		$this->description = $this->l('wersja 26.01.2024 17:00');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -176,7 +182,7 @@ class Simplyin extends Module
 			'id_order' => (int) $order->id,
 			'reference' => $order->reference,
 			'total_paid' => $order->total_paid,
-			'quantity' => $order->quantity,
+			'quantity' => intval($order->quantity),
 			'id_customer' => $this->context->customer->id,
 			'data-order' => $params->order,
 		);
@@ -204,14 +210,15 @@ class Simplyin extends Module
 			$productDescription = strip_tags($productObj->description);
 
 			$productLink = $context->link->getProductLink($product);
-			$productThumbnailUrl = $context->link->getImageLink($productName, $productThumbnailId, 'small_default');
+			$thumbnailUrl = $context->link->getImageLink($productName, $productThumbnailId, 'small_default');
 			$customer_info['products'][] = array(
 				'name' => $product['product_name'],
-				'quantity' => $product['product_quantity'],
+				'quantity' => intval($product['product_quantity']),
 				'price' => $product['product_price'],
 				'productDescription' => $productDescription,
-				'link' => $productLink,
-				'productThumbnailUrl' => $productThumbnailUrl,
+				'url' => $productLink,
+				'thumbnailUrl' => $thumbnailUrl,
+				'currency' => $currencyISO
 			);
 		}
 
@@ -260,8 +267,6 @@ class Simplyin extends Module
 			$customerChoiceDataProvider = $module->getService('inpost.shipping.data_provider.customer_choice');
 			$deliveryPoint = $customerChoiceDataProvider->getDataByCartId($order->id_cart)->point;
 		}
-
-
 
 		Media::addJsDef(
 			array(

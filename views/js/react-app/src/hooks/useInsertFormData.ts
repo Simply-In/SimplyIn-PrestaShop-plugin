@@ -35,7 +35,9 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			removeDataSessionStorage({ key: "billingAddressesId" })
+			console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+			// removeDataSessionStorage({ key: "billingAddressesId" })
+
 		}
 
 		if (billingId === "last") {
@@ -50,7 +52,8 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 				const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 				pinWithHighestValue?.dispatchEvent(event);
-				removeDataSessionStorage({ key: "billingAddressesId" })
+				console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+				// removeDataSessionStorage({ key: "billingAddressesId" })
 			}
 
 		}
@@ -71,7 +74,8 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			removeDataSessionStorage({ key: "shippingAddressesId" })
+			console.log('shippingAddressesId', loadDataFromSessionStorage({ key: "shippingAddressesId" }));
+			// removeDataSessionStorage({ key: "shippingAddressesId" })
 		}
 
 	}

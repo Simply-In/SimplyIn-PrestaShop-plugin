@@ -1,4 +1,4 @@
-const middlewareApi = async ({ endpoint, method, requestBody, token }) => {
+const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const baseUrl = base_url || ".";
@@ -33,7 +33,7 @@ const middlewareApi = async ({ endpoint, method, requestBody, token }) => {
   }
 };
 
-const loadDataFromSessionStorage = ({ key }) => {
+const loadDataFromSessionStorageTwo = ({ key }) => {
   try {
     const serializedData = sessionStorage.getItem(key);
     if (serializedData === null) {
@@ -129,7 +129,7 @@ $(document).ready(async function () {
   const parcelLockers = [
     {
       addressName: "",
-      label: "",
+      label: "INPOST",
       lockerId: deliveryPoint,
       address: `${inpostPointData?.address?.line1 || ""}, ${
         inpostPointData?.address?.line2 || ""
@@ -137,15 +137,15 @@ $(document).ready(async function () {
     },
   ];
 
-  const createAccount = loadDataFromSessionStorage({
+  const createAccount = loadDataFromSessionStorageTwo({
     key: "createSimplyAccount",
   });
 
-  const phoneNumber = loadDataFromSessionStorage({ key: "phoneNumber" });
+  const phoneNumber = loadDataFromSessionStorageTwo({ key: "phoneNumber" });
   const simplyinToken = sessionStorage.getItem("simplyinToken");
 
   if (!!simplyinToken) {
-    const userData = loadDataFromSessionStorage({
+    const userData = loadDataFromSessionStorageTwo({
       key: "UserData",
     });
 
@@ -182,7 +182,7 @@ $(document).ready(async function () {
     const arrayOfIdBilling = userData.billingAddresses.map((el) => el._id);
     const indexOfUndefinedBilling = arrayOfIdBilling.indexOf(undefined);
 
-    middlewareApi({
+    middlewareApiTwo({
       endpoint: "userData",
       method: "PATCH",
       requestBody: userData,
@@ -199,13 +199,13 @@ $(document).ready(async function () {
           )[0];
 
           newItem = res.data.shippingAddresses.find(
-            (item) => item._id === idNotInModel._id
+            (item) => item._id === idNotInModel?._id
           );
         } else {
-          const ShippingIndex = loadDataFromSessionStorage({
+          const ShippingIndex = loadDataFromSessionStorageTwo({
             key: "ShippingIndex",
           });
-          const BillingIndex = loadDataFromSessionStorage({
+          const BillingIndex = loadDataFromSessionStorageTwo({
             key: "BillingIndex",
           });
           newItem =
@@ -225,23 +225,29 @@ $(document).ready(async function () {
 
           newItemBilling = res.data.billingAddresses.find((item) => {
             if (idNotInModel && "_id" in idNotInModel) {
-              return item._id === idNotInModel._id;
+              return item._id === idNotInModel?._id;
             }
           });
         } else {
-          const BillingIndex = loadDataFromSessionStorage({
+          const BillingIndex = loadDataFromSessionStorageTwo({
             key: "BillingIndex",
           });
           newItemBilling = res.data?.billingAddresses[BillingIndex];
-          if (!newItemBilling.state) {
-            newItemBilling.state = "";
-          }
-          if (!newItemBilling.taxId) {
-            newItemBilling.taxId = "";
-          }
-          if (!newItemBilling.appartmentNumber) {
-            newItemBilling.appartmentNumber = "";
-          }
+
+          newItemBilling.state =
+            newItemBilling.state !== undefined && newItemBilling.state !== null
+              ? newItemBilling.state
+              : "";
+          newItemBilling.taxId =
+            newItemBilling.taxId !== undefined && newItemBilling.taxId !== null
+              ? newItemBilling.taxId
+              : "";
+          newItemBilling.appartmentNumber =
+            newItemBilling.appartmentNumber !== undefined &&
+            newItemBilling.appartmentNumber !== null
+              ? newItemBilling.appartmentNumber
+              : "";
+
           //   console.log("2 newItem", newItem);
           //nie ma nowego elementu
         }
@@ -258,7 +264,7 @@ $(document).ready(async function () {
             (item) => item._id === idNotInModel._id
           );
         } else {
-          const ParcelIndex = loadDataFromSessionStorage({
+          const ParcelIndex = loadDataFromSessionStorageTwo({
             key: "ParcelIndex",
           });
 
@@ -267,7 +273,7 @@ $(document).ready(async function () {
           //nie ma nowego elementu
         }
 
-        middlewareApi({
+        middlewareApiTwo({
           endpoint: "checkout/createOrder",
           method: "POST",
           token: simplyinToken,
@@ -325,7 +331,7 @@ $(document).ready(async function () {
     ? [
         {
           addressName: "",
-          label: "",
+          label: "INPOST",
           lockerId: deliveryPoint,
           address: `${inpostPointData?.address?.line1 || ""}, ${
             inpostPointData?.address?.line2 || ""
@@ -334,7 +340,7 @@ $(document).ready(async function () {
       ]
     : [];
 
-  middlewareApi({
+  middlewareApiTwo({
     endpoint: "checkout/createUserData",
     method: "POST",
     requestBody: {
@@ -372,7 +378,7 @@ $(document).ready(async function () {
           }
         : { shippingData: res?.data?.shippingAddresses[0] };
 
-      middlewareApi({
+      middlewareApiTwo({
         endpoint: "checkout/createOrder",
         method: "POST",
         token: res.authToken,

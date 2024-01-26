@@ -1,5 +1,21 @@
 type ISessionStorageData = {
-	key: 'UserData' | "simplyinToken" | "phoneToken" | "phoneNumber" | "inpost-delivery-point" | "ShippingIndex" | "delivery-address" | "invoice-address" | "customChanges" | "billingAddressesId" | "shippingAddressesId" | "useParcel" | "ParcelIndex" | "isParcelAdded" | "isInpostKeyValid"
+	key:
+	'UserData' |
+	"simplyinToken" |
+	"phoneToken" |
+	"phoneNumber" |
+	"inpost-delivery-point" |
+	"ShippingIndex" |
+	"BillingIndex" |
+	"delivery-address" |
+	"invoice-address" |
+	"customChanges" |
+	"billingAddressesId" |
+	"shippingAddressesId" |
+	"useParcel" |
+	"ParcelIndex" |
+	"isParcelAdded" |
+	"isInpostKeyValid" 
 	data: any
 } | {
 	key: "createSimplyAccount"

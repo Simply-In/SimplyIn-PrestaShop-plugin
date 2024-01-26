@@ -187,7 +187,7 @@ export const PhoneField = () => {
 					onChange={handleChangeCheckbox}
 					inputProps={{ 'aria-label': 'controlled' }} />
 				<CheckboxLabel onClick={() => handleChangeCheckbox()}>
-					Zapisz moje dane aby jeszcze szybciej się logować i płacić.
+						<span>Nowość!</span> Zapisz swoje dane w Simply.IN aby łatwo i prosto kupować w tym i w innych sklepach.
 				</CheckboxLabel>
 			</CheckboxContainer>
 

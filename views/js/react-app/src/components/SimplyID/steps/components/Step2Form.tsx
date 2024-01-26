@@ -88,7 +88,7 @@ export const Step2Form = ({
 			address: editData?.address,
 			lockerId: editData?.lockerId,
 			_id: editData?._id || null,
-			label: ""
+			label: editData?.label || ""
 		} : {
 			_id: editData?._id || null,
 			addressName: editData?.addressName || null,

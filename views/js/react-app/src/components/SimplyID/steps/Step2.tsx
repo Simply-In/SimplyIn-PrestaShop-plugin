@@ -11,7 +11,7 @@ import { styled } from '@mui/material/styles';
 import { PlusIcon } from '../../../assets/PlusIcon';
 import ContextMenu from '../ContextMenu';
 import { SelectedDataContext } from '../SimplyID';
-import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
+import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
 import { selectPickupPointInpost } from '../../../functions/selectInpostPoint';
 import { getLogo } from './functions';
@@ -56,9 +56,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		deliveryPoint: true
 	});
 
-
-
-
 	const {
 		selectedBillingIndex,
 		setSelectedBillingIndex,
@@ -71,6 +68,22 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		pickupPointDelivery,
 		setPickupPointDelivery,
 		simplyInput } = useContext(SelectedDataContext)
+
+
+	useEffect(() => {
+		console.log('SELECT MODAL DATA');
+		if (loadDataFromSessionStorage({ key: "ShippingIndex" })) {
+			setSelectedShippingIndex(loadDataFromSessionStorage({ key: "ShippingIndex" }))
+		}
+		if (loadDataFromSessionStorage({ key: "BillingIndex" })) {
+			setSelectedBillingIndex(loadDataFromSessionStorage({ key: "BillingIndex" }))
+			setSameDeliveryAddress(false)
+		}
+		if (loadDataFromSessionStorage({ key: 'ParcelIndex' })) {
+			setSelectedDeliveryPointIndex(loadDataFromSessionStorage({ key: 'ParcelIndex' }))
+		}
+	}, [])
+
 
 	const handleExpandClick = (property: "billing" | "shipping" | "deliveryPoint", value?: boolean) => {
 
@@ -150,20 +163,12 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		removeDataSessionStorage({ key: 'delivery-address' })
 		removeDataSessionStorage({ key: 'invoice-address' })
 		removeDataSessionStorage({ key: 'inpost-delivery-point' })
-		// removeDataSessionStorage({ key: 'customChanges' })
-
-
 
 		const billingData = userData?.billingAddresses[selectedBillingIndex || 0]
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
-
 		if (billingData) { handlePhpScript(billingData, 'billingAddressesId') }
 		if (shippingData) { handlePhpScript(shippingData, 'shippingAddressesId') }
-
-
-
-
 
 		if (selectedDeliveryPointIndex !== undefined) {
 			removeDataSessionStorage({ key: 'isParcelAdded' })
@@ -187,29 +192,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 			return (event.target.checked)
 		});
 	};
-	// const handleChangeDeliveryCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
-
-	// 	setPickupPointDelivery(() => {
-	// 		handleExpandClick("parcelLockers", !event.target.checked)
-	// 		if (event.target.checked) {
-	// 			setSelectedDeliveryPointIndex(0)
-	// 			handleExpandClick("parcelLockers", true)
-	// 			saveDataSessionStorage({
-	// 				key: 'useParcel',
-	// 				data: true
-	// 			});
-	// 		}
-	// 		else {
-	// 			handleExpandClick("parcelLockers", false)
-	// 			setSelectedDeliveryPointIndex(null)
-	// 			saveDataSessionStorage({
-	// 				key: 'useParcel',
-	// 				data: false
-	// 			});
-	// 		}
-	// 		return (event.target.checked)
-	// 	});
-	// };
 
 	interface IAddress {
 		addressName: string,
@@ -301,12 +283,12 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 			return setDeliveryType("machine")
 		}
-		console.log('address');
+		// console.log('address');
 		setDeliveryType("address")
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	console.log('modal data', userData);
+
 	return (
 		<>
 			{!editItemIndex?.property &&
@@ -342,7 +324,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 							</DataValueTitle>
 							{userData?.billingAddresses &&
 								<DataValueLabel>
-									{userData?.billingAddresses[selectedBillingIndex || 0]?.street}{" "}{userData?.billingAddresses[selectedBillingIndex || 0]?.appartmentNumber},{" "}{userData?.billingAddresses[selectedBillingIndex || 0]?.postalCode},{" "}{userData?.billingAddresses[selectedBillingIndex || 0]?.city}
+									{userData?.billingAddresses[selectedBillingIndex || 0]?.street || ""}
+									{userData?.billingAddresses[selectedBillingIndex || 0]?.appartmentNumber.length ? "/" + userData?.billingAddresses[selectedBillingIndex || 0]?.appartmentNumber : ""}
+									{", " + userData?.billingAddresses[selectedBillingIndex || 0]?.city || ""}
 								</DataValueLabel>
 							}
 						</DataValueContainer>
@@ -369,7 +353,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 												label={
 													<DataValueContainer>
 														<DataValueTitle>{el?.addressName ? el.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
-														<DataValueLabel>{el.street}{" "}{el.appartmentNumber},{" "}{el.postalCode},{" "}{el.city}</DataValueLabel>
+														<DataValueLabel>{el?.street || ""}
+															{el?.appartmentNumber.length ? "/" + el?.appartmentNumber : ""}
+															{", " + el?.city || ""}</DataValueLabel>
 													</DataValueContainer>
 												} style={{ marginBottom: 0 }} />
 											<ContextMenu userData={userData} setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={'billingAddresses'}
@@ -448,8 +434,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 											{userData?.shippingAddresses[selectedShippingIndex]?.addressName ?? <>Adres {+selectedShippingIndex + 1}</>}
 										</DataValueTitle>
 										{userData?.shippingAddresses &&
-											<DataValueLabel>
-												{userData?.shippingAddresses[selectedShippingIndex]?.street || ""}{" "}{userData?.shippingAddresses[selectedShippingIndex]?.appartmentNumber || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.postalCode || ""},{" "}{userData?.shippingAddresses[selectedShippingIndex]?.city || ""}
+										<DataValueLabel>
+											{userData?.shippingAddresses[selectedShippingIndex]?.street || ""}
+											{userData?.shippingAddresses[selectedShippingIndex]?.appartmentNumber.length ? "/" + userData?.shippingAddresses[selectedShippingIndex]?.appartmentNumber : ""}
+											{", " + userData?.shippingAddresses[selectedShippingIndex]?.city || ""}
 											</DataValueLabel>
 										}
 									</>
@@ -480,7 +468,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 													label={
 														<DataValueContainer>
 															<DataValueTitle>{el?.addressName ? el?.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
-															<DataValueLabel>{el.street}{" "}{el.appartmentNumber},{" "}{el.postalCode},{" "}{el.city}</DataValueLabel>
+															<DataValueLabel>
+																{el?.street || ""}
+																{el?.appartmentNumber.length ? "/" + el?.appartmentNumber : ""}
+																{", " + el?.city || ""}
+															</DataValueLabel>
 														</DataValueContainer>
 													} style={{ marginBottom: 0 }} />
 												<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"shippingAddresses"} userData={userData}
