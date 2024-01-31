@@ -8,19 +8,25 @@ import { loadDataFromSessionStorage, saveDataSessionStorage } from "../../servic
 import { useInsertFormData } from "../../hooks/useInsertFormData.ts";
 import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
 
+
+
 interface ISimplyID {
 	listOfCountries: any
+	// isUserLoggedIn: boolean
 }
 
 
 export const ApiContext = createContext("");
 export const SelectedDataContext = createContext<any>(null);
-
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+// const customerEmail = customer?.email
+// isUserLoggedIn
 
 export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 
 	const [simplyInput, setSimplyInput] = useState(loadDataFromSessionStorage({ key: "UserData" })?.email || "");
+	// const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 	const [attributeObject, setAttributeObject] = useState({});
 	const [visible, setVisible] = useState<boolean>(true)
 	const [phoneNumber, setPhoneNumber] = useState("")
@@ -195,6 +201,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 				simplyInput
 			}}>
 				<SimplyIn className="REACT_APP">
+
 					<SimplyinContainer>
 						<input autoComplete="off"
 							{...attributeObject}
@@ -219,6 +226,10 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 						setUserData={setUserData}
 
 					/>}
+
+
+
+
 				</SimplyIn >
 			</SelectedDataContext.Provider>
 		</ApiContext.Provider>

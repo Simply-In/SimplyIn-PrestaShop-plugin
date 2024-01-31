@@ -1,0 +1,19 @@
+{
+	"translation": {
+		"headerTitle": "Quick and safe with",
+		"payment": {
+			"paymentTitle-1": "New!",
+			"paymentTitle-2": "Save your details with Simply.IN to quickly and safely purchase products here and at other stores",
+			"createAccountDescription-1": "Next time you make a payment here or at other stores using",
+			"createAccountDescription-2": ", you will receive a code by SMS and can safely shop using",
+			"createAccountDescription-3": "By clicking the \"Order\" button or analogous button, I confirm that I have read and accept",
+			"createAccountDescription-4": "Terms and Conditions",
+			"createAccountDescription-5": " The administrator of your personal data is",
+			"createAccountDescription-6": " See more at",
+			"createAccountDescription-7": "Privacy Policy.",
+			"phoneNumberIncorrect": "The phone number is incorrect.",
+			"checkPhoneNumber": "Check the inserted phone number",
+			"phoneNumberError": "Wystąpił błąd, wprowadź numer ręcznie"
+		}
+	}
+}

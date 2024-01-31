@@ -10,11 +10,21 @@ import { loadDataFromSessionStorage } from "./services/sessionStorageApi";
 import SimplyBrandIcon from "./assets/SimplyBrandIcon";
 import { selectPickupPointInpost } from "./functions/selectInpostPoint";
 import { middlewareApi } from "./services/middlewareApi";
+import './i18n.ts'
+
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+// console.log('customer', customer);
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const listOfCountries = Object.keys(countries_list).map((key) => countries_list[key]).sort((a, b) => a.name.localeCompare(b.name));
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+// const isUserLoggedIn = !!(customer?.email)
+// const hasSimplyAlreadyBeenCalled = loadDataFromSessionStorage({ key: "hasSimplyAlreadyBeenCalled" })
 
 document.addEventListener('DOMContentLoaded', async () => {
 	let isValid = true
@@ -36,9 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	}
 
-
-	console.log(testRequest);
-	// if (testRequest === "Unauthorized") {
 	if (testRequest.message === "Merchant api key not found") {
 		console.log("SIMPLYIN API KEY INVALID");
 		isValid = false
@@ -108,6 +115,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 			isValid && <SimplyID listOfCountries={listOfCountries} />,
 			document.getElementById("reactAppContainer")
 		);
+		// const formContainer2 = document.getElementById("simplyLogoContainer")?.parentNode;
+		// const reactAppContainer2 = document.createElement("div");
+		// reactAppContainer2.setAttribute("id", "reactAppContainer2");
+
+		// formContainer2?.appendChild(reactAppContainer2);
+
+		// 		isUserLoggedIn
+		//  	hasUserData
+
 
 		const paymentSection = document.getElementById("checkout-payment-step");
 		const paymentContentSection = paymentSection?.querySelector(".content")
@@ -126,12 +142,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+		// if (!isUserLoggedIn) {
+		// console.log('render normal')
+		// ReactDOM.render(
+		// 	isValid && <SimplyID listOfCountries={listOfCountries} />,
+		// 	document.getElementById("reactAppContainer")
+		// );
+		// }
+		// if (isUserLoggedIn) {
+		// 	console.log('render customer logged in');
+		// 	ReactDOM.render(
+		// 		isValid && <SimplyID listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
+		// 		document.getElementById("reactAppContainer2")
+		// 	);
+		// }
 
 
 
 	}
 
 });
+
 
 
 

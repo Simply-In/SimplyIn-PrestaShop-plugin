@@ -233,7 +233,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 	}, [phoneNumber])
 
-	const handleSendPinAgain = (e: any) => {
+	const handleSendPinAgain = () => {
 		setCountdown(true)
 		setCountdownTime(Date.now() + countdownTimeSeconds * 1000)
 		middlewareApi({

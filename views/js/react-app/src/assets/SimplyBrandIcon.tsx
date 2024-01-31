@@ -1,11 +1,15 @@
+import { useTranslation } from "react-i18next";
 
 
 const SimplyBrandIcon = () => {
+	const { t } = useTranslation();
 	return (
 
 		<div style={{ padding: "8px 16px", display: "flex", flexDirection: "column", fontSize: "14px", width: "auto" }}>
 			<svg height="30" width="164">
-				<text x="50%" y="70%" fill="black" font-weight="600" font-size="14px" text-anchor="middle" alignment-baseline="middle">Szybko i bezpiecznie z</text>
+				<text x="50%" y="70%" fill="black" font-weight="600" font-size="14px" text-anchor="middle" alignment-baseline="middle">
+					{t('headerTitle')}
+				</text>
 			</svg>
 			<svg width="164" height="39" viewBox="0 0 164 39" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M144.5 0H19.5C8.73045 0 0 8.73045 0 19.5C0 30.2696 8.73045 39 19.5 39H144.5C155.27 39 164 30.2696 164 19.5C164 8.73045 155.27 0 144.5 0Z" fill="url(#paint0_linear_1857_8431)" />

@@ -15,7 +15,8 @@ type ISessionStorageData = {
 	"useParcel" |
 	"ParcelIndex" |
 	"isParcelAdded" |
-	"isInpostKeyValid" 
+	"isInpostKeyValid" |
+	"hasSimplyAlreadyBeenCalled"
 	data: any
 } | {
 	key: "createSimplyAccount"

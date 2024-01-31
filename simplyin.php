@@ -59,7 +59,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('wersja 26.01.2024 17:00');
+		$this->description = $this->l('wersja 31.01.2024 19:00');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -467,9 +467,16 @@ class Simplyin extends Module
 	public function hookHeader($params)
 	{
 		$base_url = __PS_BASE_URI__;
-		
 		$shippingMethods = $this->fetchAllAvailableShippingMethods();
 		$countries_list = Country::getCountries($this->context->language->id);
+
+		$context = Context::getContext();
+
+		// Get the current language object
+		$currentLanguage = $context->language;
+		$customer = $context->customer;
+
+
 		Media::addJsDef([
 			'countries_list' => $countries_list,
 			'shippingMethods' => $shippingMethods,
@@ -477,7 +484,9 @@ class Simplyin extends Module
 			'files_url' => $this->_path,
 			'inpost_api_key' => Configuration::get('INPOST_SECRET_KEY'),
 			'shop_url' => $base_url,
-			'full_shop_url' => Tools::getShopDomain() . $base_url
+			'full_shop_url' => Tools::getShopDomain() . $base_url,
+			'currentLanguage' => $currentLanguage,
+			'customer' => $customer,
 
 
 		]);
