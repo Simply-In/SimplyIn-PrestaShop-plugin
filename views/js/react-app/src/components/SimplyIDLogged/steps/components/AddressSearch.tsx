@@ -10,7 +10,6 @@ import { DataValueContainer, DataValueTitle, DataValueLabel, NoDataLabel } from 
 
 import NoData from '../../../../assets/NoData.svg';
 import { CalculateSquareCoordinate, Coordinates, calculateSquareCorners, getLogo, getPoints } from '../functions';
-
 import { useTranslation } from 'react-i18next';
 
 
@@ -43,7 +42,7 @@ export const AddressSearch = ({
 
 		axios.get(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchInput)}&format=json`)
 			.then((res) => {
-				console.log(res?.data);
+				console.log('nominatim', res?.data);
 				setAddressOptions(res?.data || []);
 			})
 			.catch((error) => {
@@ -56,7 +55,7 @@ export const AddressSearch = ({
 		setMachineData([])
 		getAddress();
 		return () => getAddress.cancel();
-	}, [searchInput, getAddress]);
+	}, [searchInput]);
 
 
 	const handleAutocompleteChange = (_: any, val: any) => {
@@ -67,7 +66,7 @@ export const AddressSearch = ({
 
 			const coordsObject: CalculateSquareCoordinate[] = calculateSquareCorners({ latitude: val?.lat, longitude: val?.lon }, 500)
 
-
+			console.log('search points')
 			getPoints(coordsObject)
 				.then(response => {
 					if (!response.ok) {

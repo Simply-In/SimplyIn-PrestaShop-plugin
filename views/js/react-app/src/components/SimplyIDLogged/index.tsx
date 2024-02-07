@@ -1,0 +1,1 @@
+export { default as SimplyIDLogged } from './SimplyIdLogged';

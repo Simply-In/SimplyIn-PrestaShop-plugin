@@ -20,6 +20,7 @@ export const middlewareApi = ({ endpoint, method, requestBody, token }: IMiddlew
 		...(token ? { token } : {}),
 	})
 		.then((response) => {
+			console.log(response);
 			return response.data
 		})
 		.catch((error) => {

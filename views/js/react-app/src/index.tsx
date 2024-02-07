@@ -3,19 +3,28 @@ import ReactDOM from "react-dom";
 import { SimplyID } from "./components/SimplyID";
 
 import { PhoneField } from "./components/PhoneField/PhoneField";
-// import { selectIPickupPointInpost } from "./functions/selectInpostPoint";
-import { loadDataFromSessionStorage } from "./services/sessionStorageApi";
 
-// import { selectIPickupPointInpost } from "./functions/selectInpostPoint";
+import { loadDataFromSessionStorage, saveDataSessionStorage } from "./services/sessionStorageApi";
+
+
 import SimplyBrandIcon from "./assets/SimplyBrandIcon";
 import { selectPickupPointInpost } from "./functions/selectInpostPoint";
 import { middlewareApi } from "./services/middlewareApi";
 import './i18n.ts'
+import SimplyIDLogged from "./components/SimplyIDLogged/SimplyIdLogged.tsx";
+
+
 
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 // console.log('customer', customer);
+
+const isCheckoutPage = document.getElementById('checkout')
+
+if (!isCheckoutPage) {
+	saveDataSessionStorage({ key: "isSimplyDataSelected", data: false })
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -23,7 +32,7 @@ const listOfCountries = Object.keys(countries_list).map((key) => countries_list[
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-// const isUserLoggedIn = !!(customer?.email)
+const isUserLoggedIn = !!(customer?.email)
 // const hasSimplyAlreadyBeenCalled = loadDataFromSessionStorage({ key: "hasSimplyAlreadyBeenCalled" })
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -51,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		isValid = false
 		deleteSimplyContent()
 		return
-		// } else if (testRequest === "Simplyin apikey is empty") {
 	}
 	else {
 		isValid = true
@@ -81,26 +89,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const parcelId = userData?.parcelLockers[parcelIndex]?.lockerId
 
 		if (!isNaN(parcelIndex) && !isParcelAdded) {
-
 			selectPickupPointInpost({ deliveryPointID: parcelId });
 
 		}
 
 
 
-		//saving inpost delivery point 
 
 		const parent = document.querySelector('#customer-form>div');
 		const divs = parent?.getElementsByClassName('form-group row');
 
-		// Check if there are at least 4 divs
-
 		if (divs && divs.length >= 4) {
-
-			const fourthDiv = divs[3];  // 4th div, index is 3 because it's zero-based
-
-			const secondDiv = divs[0];  // 2nd div
-
+			const fourthDiv = divs[3];
+			const secondDiv = divs[0];  
 			parent?.insertBefore(fourthDiv, secondDiv);
 		}
 
@@ -111,19 +112,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		formContainer?.appendChild(reactAppContainer);
 
-		ReactDOM.render(
-			isValid && <SimplyID listOfCountries={listOfCountries} />,
-			document.getElementById("reactAppContainer")
-		);
-		// const formContainer2 = document.getElementById("simplyLogoContainer")?.parentNode;
-		// const reactAppContainer2 = document.createElement("div");
-		// reactAppContainer2.setAttribute("id", "reactAppContainer2");
 
-		// formContainer2?.appendChild(reactAppContainer2);
+		const formContainer2 = document.getElementById("simplyLogoContainer")?.parentNode;
+		const reactAppContainer2 = document.createElement("div");
+		reactAppContainer2.setAttribute("id", "reactAppContainer2");
 
-		// 		isUserLoggedIn
-		//  	hasUserData
+		formContainer2?.appendChild(reactAppContainer2);
 
+
+
+		if (!isUserLoggedIn) {
+			ReactDOM.render(
+				isValid && <SimplyID listOfCountries={listOfCountries} />,
+				document.getElementById("reactAppContainer")
+			);
+		}
+		if (isUserLoggedIn) {
+			ReactDOM.render(
+				isValid && <SimplyIDLogged listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
+				document.getElementById("reactAppContainer2")
+			);
+		}
 
 		const paymentSection = document.getElementById("checkout-payment-step");
 		const paymentContentSection = paymentSection?.querySelector(".content")
@@ -133,32 +142,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		paymentContentSection?.insertBefore(phoneAppContainer, paymentContentSection.childNodes[4]);
 
+
+
 		ReactDOM.render(
 			isValid && <PhoneField />,
 			document.getElementById("phoneAppContainer")
 		);
-
-
-
-
-
-		// if (!isUserLoggedIn) {
-		// console.log('render normal')
-		// ReactDOM.render(
-		// 	isValid && <SimplyID listOfCountries={listOfCountries} />,
-		// 	document.getElementById("reactAppContainer")
-		// );
-		// }
-		// if (isUserLoggedIn) {
-		// 	console.log('render customer logged in');
-		// 	ReactDOM.render(
-		// 		isValid && <SimplyID listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
-		// 		document.getElementById("reactAppContainer2")
-		// 	);
-		// }
-
-
-
 	}
 
 });

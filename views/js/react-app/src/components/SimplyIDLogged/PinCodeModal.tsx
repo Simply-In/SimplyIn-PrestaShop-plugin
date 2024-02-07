@@ -6,6 +6,7 @@ import { CloseContainer, PopupContainer, PopupHeader, StyledBox } from './Simply
 
 import { CloseIcon } from '../../assets/CloseIcon';
 import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerIcon';
+import { saveDataSessionStorage } from '../../services/sessionStorageApi';
 // import { useInsertFormData } from '../../hooks/useInsertFormData';
 
 
@@ -48,14 +49,12 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 		setToken("")
 		setUserData({})
 		setModalStep(1)
+		console.log('modal step 1, simplyInput change');
 	}, [simplyInput])
 
 
 	useEffect(() => {
-		setModalStep(1)
-	}, [phoneNumber])
-
-	useEffect(() => {
+		console.log('set step 2, token present');
 		const UserDataFromStorage = sessionStorage.getItem("UserData") ? JSON.parse(sessionStorage.getItem("UserData") || "") : null
 		setUserData(UserDataFromStorage)
 		if (UserDataFromStorage) {
@@ -86,7 +85,7 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 
 	const handleClosePopup = () => {
 		setVisible(false)
-		console.log('cloooose');
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 	}
 
 	const emailInput = document.getElementById("field-email")
@@ -111,13 +110,13 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 			<StyledBox id="containerSimply"
 				style={{ maxWidth: editItemIndex?.property === "parcelLockers" ? "650px" : "400px" }}
 			>
-					<PopupHeader>
+				<PopupHeader>
 
-						<SimplyinSmsPopupOpenerIcon style={{ marginBottom: "20px" }} />
-						<CloseContainer onClick={handleClosePopup}>
-							<CloseIcon />
-						</CloseContainer>
-					</PopupHeader>
+					<SimplyinSmsPopupOpenerIcon style={{ marginBottom: "20px" }} />
+					<CloseContainer onClick={handleClosePopup}>
+						<CloseIcon />
+					</CloseContainer>
+				</PopupHeader>
 				<PopupContainer>
 					{modalStep === 1 &&
 						<Step1

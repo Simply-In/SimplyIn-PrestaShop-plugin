@@ -82,15 +82,15 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 	if (data) {
 
-		const formContainer = document.getElementById(formId)
+		const formContainer = document?.getElementById(formId)
 
 		if (!formContainer) return
 
 		if ("name" in data && formContainer.querySelector('#field-firstname')) {
-			(formContainer.querySelector('#field-firstname') as HTMLInputElement).value = customChanges.fieldFirstname || data.name || ""
+			formContainer.querySelector('#field-firstname').value = customChanges.fieldFirstname || data.name || ""
 		}
 		if ("surname" in data && formContainer.querySelector('#field-lastname')) {
-			(formContainer.querySelector('#field-lastname') as HTMLInputElement).value = customChanges.fieldLastname || data.surname || ""
+			formContainer.querySelector('#field-lastname').value = customChanges.fieldLastname || data.surname || ""
 		}
 		if ("city" in data && formContainer.querySelector('#field-city')) { (formContainer.querySelector('#field-city') as HTMLInputElement).value = customChanges.fieldCity || data.city || "" }
 		if ("companyName" in data && formContainer.querySelector('#field-company')) { (formContainer.querySelector('#field-company') as HTMLInputElement).value = customChanges.fieldCompany || data.companyName || "" }
@@ -172,11 +172,14 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			return
 		}
 
-		if ("name" in userData && document.getElementById("customer-form").querySelector('#field-firstname')) {
-			(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
-		}
-		if ("surname" in userData && document.getElementById("customer-form").querySelector('#field-lastname')) {
-			(document.getElementById("customer-form").querySelector('#field-lastname') as HTMLInputElement).value = customChanges?.customerForm?.fieldLastname || userData.surname || ""
+		console.log('document?.getElementById("customer-form")', document?.getElementById("customer-form"));
+		if (document?.getElementById("customer-form")) {
+			if ("name" in userData && document?.getElementById("customer-form")?.querySelector('#field-firstname')) {
+				(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
+			}
+			if ("surname" in userData && document?.getElementById("customer-form")?.querySelector('#field-lastname')) {
+				(document.getElementById("customer-form").querySelector('#field-lastname') as HTMLInputElement).value = customChanges?.customerForm?.fieldLastname || userData.surname || ""
+			}
 		}
 
 

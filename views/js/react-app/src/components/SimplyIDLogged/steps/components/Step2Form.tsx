@@ -1,12 +1,10 @@
 import { Grid } from '@mui/material'
 import { useState, useEffect, useContext, useRef } from 'react'
-
 import { EditFormTitle } from '../../SimplyID.styled';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { ApiContext } from '../../SimplyID';
-
+import { ApiContext } from '../../SimplyIdLogged';
 import { middlewareApi } from '../../../../services/middlewareApi';
 import { saveDataSessionStorage } from '../../../../services/sessionStorageApi';
 import { debounce } from 'lodash';
@@ -62,15 +60,15 @@ export const Step2Form = ({
 		label: Yup.string().notRequired(),
 	} : {
 		addressName: Yup.string().notRequired(),
-			name: Yup.string().required(t('modal-form.nameError')),
-			surname: Yup.string().required(t('modal-form.surnameError')),
+		name: Yup.string().required(t('modal-form.nameError')),
+		surname: Yup.string().required(t('modal-form.surnameError')),
 		companyName: Yup.string().notRequired(),
 		taxId: Yup.string().notRequired(),
-			street: Yup.string().required(t('modal-form.streetError')),
+		street: Yup.string().required(t('modal-form.streetError')),
 		appartmentNumber: Yup.string().notRequired(),
-			postalCode: Yup.string().required(t('modal-form.postalCodeError')),
-			city: Yup.string().required(t('modal-form.cityError')),
-			country: Yup.string().required(t('modal-form.countryError')),
+		postalCode: Yup.string().required(t('modal-form.postalCodeError')),
+		city: Yup.string().required(t('modal-form.cityError')),
+		country: Yup.string().required(t('modal-form.countryError')),
 		_id: Yup.string().notRequired(),
 
 
@@ -90,7 +88,7 @@ export const Step2Form = ({
 			_id: editData?._id || undefined,
 			label: editData?.label || ""
 		} : {
-				_id: editData?._id || undefined,
+			_id: editData?._id || undefined,
 			addressName: editData?.addressName || null,
 			name: editData?.name,
 			surname: editData?.surname,
@@ -346,7 +344,7 @@ export const Step2Form = ({
 							setLockerIdValue={setLockerIdValue}
 							setValue={setValue}
 							setAdditionalInfo={setAdditionalInfo}
-					/>
+						/>
 					}
 
 

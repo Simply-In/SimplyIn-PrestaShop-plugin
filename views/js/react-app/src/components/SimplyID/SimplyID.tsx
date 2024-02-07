@@ -12,21 +12,16 @@ import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
 
 interface ISimplyID {
 	listOfCountries: any
-	// isUserLoggedIn: boolean
+	isUserLoggedIn?: boolean
 }
 
 
 export const ApiContext = createContext("");
 export const SelectedDataContext = createContext<any>(null);
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-// const customerEmail = customer?.email
-// isUserLoggedIn
+
 
 export const SimplyID = ({ listOfCountries }: ISimplyID) => {
-
 	const [simplyInput, setSimplyInput] = useState(loadDataFromSessionStorage({ key: "UserData" })?.email || "");
-	// const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 	const [attributeObject, setAttributeObject] = useState({});
 	const [visible, setVisible] = useState<boolean>(true)
 	const [phoneNumber, setPhoneNumber] = useState("")
@@ -50,6 +45,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 	const myRef = useRef();
 
 	useEffect(() => {
+
 		if (!myRef.current) return
 
 		const observer = new IntersectionObserver(
@@ -70,6 +66,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 		// Clean up function
 		return () => { observer?.unobserve((myRef as any)?.current) }
 	}, []);
+
 
 
 	useEffect(() => {
@@ -97,8 +94,6 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 
 		const simplyinTokenFromStorage = sessionStorage.getItem("simplyinToken")
 
-
-
 		setSimplyinToken(simplyinTokenFromStorage as string)
 
 		const simplyinPhoneFromStorage = () => {
@@ -111,10 +106,8 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 		}
 
 
-		setPhoneNumber(simplyinPhoneFromStorage() || "")
+		setPhoneNumber(simplyinPhoneFromStorage() ?? "")
 	}, [])
-
-
 
 	const handleOpenSmsPopup = () => {
 		setVisible((prev) => !prev)
@@ -132,6 +125,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 	}
 
 	useEffect(() => {
+
 		setVisible(false)
 
 		setSelectedBillingIndex(0)
@@ -172,20 +166,15 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 	}, [simplyInput, isSimplyIdVisible]);
 
 
-
-
-
 	useInsertFormData(userData, listOfCountries)
-
-	// console.log('render');
 
 	useEffect(() => {
 		setUserData(JSON.parse(sessionStorage.getItem("UserData") as string))
 	}, [])
 
 
-
 	return (
+
 		<ApiContext.Provider value={simplyinToken}>
 			<SelectedDataContext.Provider value={{
 				selectedBillingIndex,
@@ -202,7 +191,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 			}}>
 				<SimplyIn className="REACT_APP">
 
-					<SimplyinContainer>
+					{<SimplyinContainer>
 						<input autoComplete="off"
 							{...attributeObject}
 							value={simplyInput}
@@ -213,7 +202,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 
 
 						{phoneNumber && <SimplyinSmsPopupOpenerIcon onClick={handleOpenSmsPopup} simplyinToken={simplyinToken} />}
-					</SimplyinContainer>
+					</SimplyinContainer>}
 
 					{phoneNumber && isSimplyIdVisible && <PinCodeModal
 						simplyInput={simplyInput}
@@ -226,6 +215,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 						setUserData={setUserData}
 
 					/>}
+
 
 
 
