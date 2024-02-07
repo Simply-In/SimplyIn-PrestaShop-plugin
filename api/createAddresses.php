@@ -1,7 +1,8 @@
 <?php
 require(dirname(__FILE__) . '/../../../config/config.inc.php');
 require(dirname(__FILE__) . '/../../../init.php');
-define('_DB_PREFIX_', 'ps_');
+
+define("_DB_PREFIX_", "ps_");
 $context = Context::getContext();
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -65,4 +66,3 @@ $json_data = json_encode($data);
 echo $json_data;
 
 
-?>

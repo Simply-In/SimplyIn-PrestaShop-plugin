@@ -26,45 +26,38 @@
 
 use Order;
 
-// use InPost\Shipping\Presenter\PointAddressPresenter;
-
-// use InPost\Shipping\Hook\Traits\GetPointDataByCartIdTrait;
-
 class Simplyin extends Module
 
 {
-
-	// use GetPointDataByCartIdTrait;
-
-
-
-
-
-	protected $config_form = false;
 	
+
+	
+	protected $config_form = false;
+
+
 	public function __construct()
 	{
-
+		
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
 		$this->version = '1.0.1';
 		$this->author = 'Blesu';
 		$this->need_instance = 1;
-
 		/**
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
 		 */
 		$this->bootstrap = true;
-
+		
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
 		$this->description = $this->l('wersja 31.01.2024 19:00');
-
+		
 		$this->confirmUninstall = $this->l('');
-
+		
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-
+		
+		
 	}
 
 	/**
@@ -476,7 +469,6 @@ class Simplyin extends Module
 		$currentLanguage = $context->language;
 		$customer = $context->customer;
 
-
 		Media::addJsDef([
 			'countries_list' => $countries_list,
 			'shippingMethods' => $shippingMethods,
@@ -486,7 +478,8 @@ class Simplyin extends Module
 			'shop_url' => $base_url,
 			'full_shop_url' => Tools::getShopDomain() . $base_url,
 			'currentLanguage' => $currentLanguage,
-			'customer' => $customer,
+			'customer' => $customer
+
 
 
 		]);
@@ -526,4 +519,8 @@ class Simplyin extends Module
 		/* Place your code here. */
 	}
 
+
+
 }
+
+

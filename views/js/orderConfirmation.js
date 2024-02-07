@@ -318,6 +318,7 @@ $(document).ready(async function () {
         sessionStorage.removeItem("ParcelIndex");
         sessionStorage.removeItem("CustomChanges");
         sessionStorage.removeItem("inpost-delivery-point");
+        sessionStorage.removeItem("isSimplyDataSelected");
       });
 
     return;
@@ -405,6 +406,7 @@ $(document).ready(async function () {
       sessionStorage.removeItem("ParcelIndex");
       sessionStorage.removeItem("CustomChanges");
       sessionStorage.removeItem("inpost-delivery-point");
+      sessionStorage.removeItem("isSimplyDataSelected");
     })
     .catch((error) => {
       console.log(error);

@@ -1,10 +1,8 @@
 <?php
 
 
-require(dirname(__FILE__).'/../../../config/config.inc.php');
-require(dirname(__FILE__) . '/../../../init.php');
-
-
+require(dirname(__FILE__) . "/../../../config/config.inc.php");
+require(dirname(__FILE__) . "/../../../init.php");
 $data = json_decode(file_get_contents("php://input"), true);
 $endpoint = $data['endpoint'];
 $method = strtoupper($data['method']);
@@ -13,13 +11,21 @@ $token = $data['token'];
 
 
 $apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
+
+if (empty($apiKey)) {
+	http_response_code(400);  // Bad Request
+	echo "Error: Simplyin API key is empty";
+	return;
+}
+
+
 $body['apiKey'] = $apiKey;
 
 
 if (!empty($token)) {
-	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint;
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
 }
 
 $headers = array('Content-Type: application/json');
@@ -27,17 +33,17 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 
 switch ($method) {
-    case 'GET':
-        curl_setopt($ch, CURLOPT_HTTPGET, 1);
-        break;
-    case 'POST':
-        curl_setopt($ch, CURLOPT_POST, 1);
-        break;
-    case 'PATCH':
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        break;
-    default:
-        break;
+	case 'GET':
+		curl_setopt($ch, CURLOPT_HTTPGET, 1);
+		break;
+	case 'POST':
+		curl_setopt($ch, CURLOPT_POST, 1);
+		break;
+	case 'PATCH':
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+		break;
+	default:
+		break;
 }
 
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
@@ -50,4 +56,3 @@ curl_close($ch);
 
 echo $response;
 
-?>
