@@ -9,6 +9,7 @@ import { selectPickupPointInpost } from '../../../functions/selectInpostPoint'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
 import { Link } from '@mui/material'
 import Countdown from 'react-countdown'
+import { useTranslation } from "react-i18next";
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
 	return <span>{minutes}:{seconds}</span>;
@@ -27,6 +28,8 @@ interface IStep1 {
 }
 
 export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData, simplyInput }: IStep1) => {
+	const { t } = useTranslation();
+
 	const [countdown, setCountdown] = useState<boolean>(false)
 
 	const [countdownTime, setCountdownTime] = useState<number>(0)
@@ -50,9 +53,9 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			removeDataSessionStorage({ key: 'customChanges' })
 			console.log(res);
 			setModalError("")
-			if (res.error) {
-				setModalError('Błędny kod weryfikacyjny')
-				throw new Error(res.error)		
+			if (res.message === "Code doesnt exist") {
+				setModalError(t('modal-step-1.codeInvalid'))
+				throw new Error(res.message)
 
 			} else if (res.data) {
 				console.log('RES DATA', res.data);
@@ -253,8 +256,8 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 	return (
 		<>
-			<PopupTitle> Potwierdź, że to Ty </PopupTitle>
-			<PopupTextMain> Wpisz kod przesłany na numer </PopupTextMain>
+			<PopupTitle> {t('modal-step-1.confirm')} </PopupTitle>
+			<PopupTextMain>{t('modal-step-1.insertCode')} </PopupTextMain>
 			<PopupTextMain> {phoneNumber} </PopupTextMain>
 
 
@@ -300,32 +303,26 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				{modalError}
 			</PopupTextError>
 			<PopupTextSecondary>
-				Będziesz mógł edytować swoje dane po zalogowaniu.
+				{t('modal-step-1.editAfterLogin')}
 			</PopupTextSecondary>
 
 
 			{(countdown) ?
-				<>
+
 					<PopupCountDownContainer>
 						<PopupCodeNotDelivered>
-							Kod został ponownie wysłany
+						{t('modal-step-1.codeHasBeenSent')}
 						</PopupCodeNotDelivered>
 
 						<Countdown daysInHours={false} renderer={countdownRenderer} zeroPadTime={2} zeroPadDays={2}
 							date={countdownTime} onComplete={handleCountdownCompleted} /></PopupCountDownContainer>
-				</>
+
 				:
 				<>
 					<PopupCodeNotDelivered>
-						Kod nie dotarł?
+						{t('modal-step-1.codeNotArrived')}
 					</PopupCodeNotDelivered>
 					<PopupSendAgain>
-						{/* <Link component="button" id="send-again-btn" underline="hover" onClick={
-							handleSendPinAgain
-						}>
-							Wyślij ponownie
-						</Link>
-						&nbsp; lub &nbsp; */}
 						<Link
 							component="button"
 							id="send-again-email-btn"
@@ -333,7 +330,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 							onClick={handleSendPinAgain}
 							underline="hover"
 						>
-							Wyślij e-mailem
+							{t('modal-step-1.sendViaEmail')}
 						</Link>
 					</PopupSendAgain>
 				</>

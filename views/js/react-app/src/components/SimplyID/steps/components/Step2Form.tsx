@@ -50,9 +50,6 @@ export const Step2Form = ({
 	const { t } = useTranslation();
 
 
-	// console.log('editItem', editItem);
-
-	// editItem?.property === "parcelLockers"
 
 	const SignupSchema = Yup.object().shape(editItem?.property === "parcelLockers" ? {
 		addressName: Yup.string().notRequired(),
@@ -60,6 +57,7 @@ export const Step2Form = ({
 		lockerId: Yup.string().required(t('modal-form.lockerIdError')),
 		_id: Yup.string().notRequired(),
 		label: Yup.string().notRequired(),
+
 	} : {
 		addressName: Yup.string().notRequired(),
 			name: Yup.string().required(t('modal-form.nameError')),
@@ -88,7 +86,8 @@ export const Step2Form = ({
 			address: editData?.address,
 			lockerId: editData?.lockerId,
 			_id: editData?._id || undefined,
-			label: editData?.label || ""
+			label: editData?.label || "",
+			logoUrl: editData?.logoUrl || ""
 		} : {
 				_id: editData?._id || undefined,
 			addressName: editData?.addressName || null,

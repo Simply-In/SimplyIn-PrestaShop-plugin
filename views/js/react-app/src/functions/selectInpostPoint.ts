@@ -1,5 +1,4 @@
 import axios from "axios";
-// import { loadDataFromSessionStorage, saveDataSessionStorage } from "../services/sessionStorageApi";
 
 interface IselectIPickupPointInpost {
 	deliveryPointID: string
@@ -14,7 +13,7 @@ type data = {
 
 const waitForElementToRender = ({ selector, timeout = 5000 }: data) => {
 	const checkElement = (resolve: any, reject: any) => {
-		const element = document.querySelector(selector || "");
+		const element = document.querySelector(selector ?? "");
 		if (element) {
 			resolve(element);
 		} else if (timeout <= 0) {
@@ -41,8 +40,6 @@ export const selectPickupPointInpost = async ({ deliveryPointID }: IselectIPicku
 	const shippingMethod = shippingMethods.find((el) => el.external_module_name === "inpostshipping")
 
 	const shippingMethodId = shippingMethod.id_carrier
-	// console.log(shippingMethod);
-
 
 
 	if (!deliveryPointID) return
@@ -117,7 +114,6 @@ export const selectPickupPointInpost = async ({ deliveryPointID }: IselectIPicku
 		selectDeliveryPoint('first try').then((status) => {
 			flag = status;
 			console.log('end with status', status);
-		// console.log('first try end');
 		});
 
 

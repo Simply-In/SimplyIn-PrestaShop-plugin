@@ -1,16 +1,19 @@
 import TextField from '@material-ui/core/TextField';
-import axios from 'axios';
 import { debounce } from 'lodash';
-import { useEffect, useState } from 'react';
-import geolib from 'geolib';
+import { useContext, useEffect, useState } from 'react';
+
 import { RadioElementContainerSelectMachine, StyledAddressSearchContainer, StyledRadioContainer, StyledRadioGroupSelectMachine, StyledSearchField } from './components.styled';
 import { FormControlLabel, Radio } from '@mui/material';
 
 import { DataValueContainer, DataValueTitle, DataValueLabel, NoDataLabel } from '../../SimplyID.styled';
 
 import NoData from '../../../../assets/NoData.svg';
-import { CalculateSquareCoordinate, Coordinates, calculateSquareCorners, getLogo, getPoints } from '../functions';
+
 import { useTranslation } from 'react-i18next';
+import { ApiContext } from '../../SimplyIdLogged';
+import { getPlaceholder } from '../functions';
+import { middlewareApi } from '../../../../services/middlewareApi';
+
 
 
 
@@ -33,21 +36,28 @@ export const AddressSearch = ({
 	const [addressOptions, setAddressOptions] = useState<any[]>([]);
 	const [selectedValue, setSelectedValue] = useState<any>(null);
 	const [machineData, setMachineData] = useState<any[]>([])
+	const apiToken = useContext(ApiContext);
 
 	const handleChangeSearchInput = (_: any, val: string) => {
 		setSearchInput(val)
 	}
 
 	const getAddress = debounce(() => {
-
-		axios.get(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchInput)}&format=json`)
-			.then((res) => {
-				console.log('nominatim', res?.data);
-				setAddressOptions(res?.data || []);
-			})
+		middlewareApi({
+			endpoint: "addresses/find",
+			method: 'POST',
+			requestBody: {
+				"searchAddressBy": searchInput,
+				token: apiToken
+			},
+			token: apiToken
+		}).then((res) => {
+			setAddressOptions(res?.data || []);
+		})
 			.catch((error) => {
 				console.error("Error fetching address:", error);
 			});
+
 	}, 300);
 
 
@@ -59,70 +69,33 @@ export const AddressSearch = ({
 
 
 	const handleAutocompleteChange = (_: any, val: any) => {
-
 		setSelectedValue(val)
 
-		if (val?.lat && val?.lon && val) {
+		middlewareApi({
+			endpoint: "parcelLockers/getClosest",
+			method: 'POST',
+			requestBody: {
+				lng: val?.geometry?.location?.lng,
+				lat: val?.geometry?.location?.lat,
+				token: apiToken
 
-			const coordsObject: CalculateSquareCoordinate[] = calculateSquareCorners({ latitude: val?.lat, longitude: val?.lon }, 500)
+			},
+			token: apiToken
+		}).then((res) => {
 
-			console.log('search points')
-			getPoints(coordsObject)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(`HTTP error! Status: ${response.status}`);
-					}
-					return response.json();
-				})
-
-				.then(({ data }) => {
-					if (data.length) {
-						return { data: data }
-					} else {
-						return getPoints(calculateSquareCorners({ latitude: val?.lat, longitude: val?.lon }, 5000)).then(response => {
-							if (!response.ok) {
-								throw new Error(`HTTP error! Status: ${response.status}`);
-							}
-							return response.json();
-						})
-					}
-				})
-				.then(({ data }) => {
-
-					const calculateDistance = (item: Coordinates) => {
-						if (val?.lat && val?.lon) {
-							return geolib.getDistance({ latitude: val?.lat, longitude: val?.lon }, { latitude: item.latitude, longitude: item.longitude })
-						}
-
-						return null
-					}
-
-					const pointsWithDistance = data.map((item: Coordinates) => {
-						return { ...item, distance: calculateDistance(item) }
-					})
-
-
-					const sortedFromClosest = pointsWithDistance.sort((a: any, b: any) => a?.distance - b?.distance);
-
-					setMachineData(sortedFromClosest)
-
-				})
-				.catch(error => {
-					console.error("Error fetching machines:", error);
-				});
-		}
-
-
+			setMachineData(res.data)
+		})
 	}
 
 	const handleChangeMachine = (e: any) => {
 
 		const selectedPoint = machineData[e.target.value]
-		setLockerIdValue(selectedPoint?.foreign_access_point_id || "")
-		setValue("lockerId", selectedPoint.foreign_access_point_id || "")
-		setValue('address', `${selectedPoint?.street || ""} ${selectedPoint?.house_number || ""} ${selectedPoint?.postal_code || ""} ${selectedPoint?.city || ""}`)
-		setValue('label', selectedPoint?.supplier || "")
-		setAdditionalInfo(selectedPoint?.name || "")
+		setLockerIdValue(selectedPoint?.locker?.lockerId || "")
+		setValue("lockerId", selectedPoint.locker?.lockerId || "")
+		setValue('address', selectedPoint?.locker?.address || "")
+		setValue('label', selectedPoint?.info?.provider?.name || "")
+		setValue('logoUrl', selectedPoint?.info?.provider?.logoUrl || "")
+		setAdditionalInfo(selectedPoint?.locker?.desc || "")
 
 		if (addressNameRef?.current) {
 
@@ -159,7 +132,8 @@ export const AddressSearch = ({
 				filterOptions={x => x}
 				onInputChange={handleChangeSearchInput}
 				options={addressOptions}
-				getOptionLabel={(option: any) => option?.display_name}
+				getOptionLabel={(option: any) => option?.formatted_address}
+
 				renderInput={(params) => <TextField {...params} label={t('modal-form.searchAddress')} variant="outlined" />}
 			/>
 
@@ -187,15 +161,16 @@ export const AddressSearch = ({
 														width: "50px",
 														marginRight: "8px"
 													}}>
-													<img src={getLogo({ label: machine?.supplier || "" }) || ""} alt={machine?.supplier || ""} style={{
+													<img src={machine?.info?.provider?.logoUrl || getPlaceholder()} alt={machine?.info?.provider?.name || ""} style={{
+
 														width: '42px',
 														height: '42px'
 													}} />
 												</div>
 												<DataValueContainer>
-													<DataValueTitle>{machine?.foreign_access_point_id}</DataValueTitle>
-													<DataValueLabel>{machine?.street?.charAt(0).toUpperCase() + machine?.street?.slice(1).toLowerCase()}{" "}{machine?.house_number}{" "}{machine?.postal_code}{" "}{machine?.city.charAt(0).toUpperCase() + machine?.city.slice(1).toLowerCase()}</DataValueLabel>
-													<DataValueLabel>{t('modal-form.distance')}: {machine?.distance}m</DataValueLabel>
+													<DataValueTitle>{machine?.locker?.lockerId || ""}</DataValueTitle>
+													<DataValueLabel>{machine?.locker?.address || ""}</DataValueLabel>
+													<DataValueLabel>{t('modal-form.distance')}: {Math.floor(machine?.info.distance * 1000) + "m" || "-"}</DataValueLabel>
 												</DataValueContainer>
 											</div>
 										} style={{ marginBottom: 0 }} />

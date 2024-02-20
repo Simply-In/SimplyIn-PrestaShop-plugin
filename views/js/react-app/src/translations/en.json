@@ -1,5 +1,7 @@
 {
 	"translation": {
+		"taxID": "Tax ID",
+		"emailPlaceholder": "Insert your email. 🤠🙈💥",
 		"headerTitle": "Quick and safe with",
 		"payment": {
 			"paymentTitle-1": "New!",
@@ -14,33 +16,39 @@
 			"phoneNumberIncorrect": "The phone number is incorrect.",
 			"checkPhoneNumber": "Check the inserted phone number",
 			"phoneNumberError": "An error has occurred, enter the number manually"
-			},
-			"modal-step-1": {
-				"confirm": "Confirm that it is you",
-				"insertCode": "Insert code sent to number",
-				"editAfterLogin": "You will be able to edit your data after login",
-				"codeNotArrived": "Code not received?",
-				"sendViaEmail": "Send via email",
-				"codeHasBeenSent": "The code was resent"
+		},
+		"modal": {
+			"addressDelete": "Address delete",
+			"addressDeleteConfirmation": "Are you sure you want to delete this address?"
+		},
+		"modal-step-1": {
+			"confirm": "Confirm that it is you",
+			"insertCode": "Insert code sent to number",
+			"editAfterLogin": "You will be able to edit your data after login",
+			"codeNotArrived": "Code not received?",
+			"sendViaEmail": "Send via email",
+			"codeHasBeenSent": "The code was resent",
+			"codeInvalid": "Verification code invalid"
 			},
 			"modal-step-2": {
-				"select": "Select",
-				"edit": "Edit",
-				"delete": "Delete",
-				"noData": "No data",
-				"selectData": "Select data",
-				"billingData": "Billing data",
-				"addNewBillingData": "Add new billing data",
-				"shippingData": "Shipping data",
-				"addNewShippingData": "Add new shipping data",
-				"doorDelivery": "Door Delivery",
-				"parcelDelivery": "Delivery to a pick-up point",
-				"parcelMachines": "Pick-up points",
-				"addNewParcelData": "Add new pick-up point",
-				"sameData": "Billing data is the same as delivery data",
-				"notSelectedDeliveryPoint": "The pick-up point has not been selected",
-				"delivery": "Delivery",
-				"point": "Point"
+			"address": "Address",
+			"select": "Select",
+			"edit": "Edit",
+			"delete": "Delete",
+			"noData": "No data",
+			"selectData": "Select data",
+			"billingData": "Billing data",
+			"addNewBillingData": "Add new billing data",
+			"shippingData": "Shipping data",
+			"addNewShippingData": "Add new shipping data",
+			"doorDelivery": "Door Delivery",
+			"parcelDelivery": "Delivery to a pick-up point",
+			"parcelMachines": "Pick-up points",
+			"addNewParcelData": "Add new pick-up point",
+			"sameData": "Billing data is the same as delivery data",
+			"notSelectedDeliveryPoint": "The pick-up point has not been selected",
+			"delivery": "Delivery",
+			"point": "Point"
 			},
 			"modal-form": {
 				"addressNamePlaceholder": "Address name",

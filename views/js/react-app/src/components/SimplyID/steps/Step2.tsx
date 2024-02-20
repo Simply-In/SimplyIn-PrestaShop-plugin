@@ -14,7 +14,7 @@ import { SelectedDataContext } from '../SimplyID';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
 import { selectPickupPointInpost } from '../../../functions/selectInpostPoint';
-import { getLogo } from './functions';
+import { getPlaceholder } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 
@@ -87,8 +87,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 	const handleExpandClick = (property: "billing" | "shipping" | "deliveryPoint", value?: boolean) => {
 
+
 		setExpanded((prev) => {
-			return ({ ...prev, [property]: value ? value : !prev[property] })
+			return ({ ...prev, [property]: value || !prev[property] })
 		});
 	};
 	type DeliveryType = "address" | "machine"
@@ -281,7 +282,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		if (selectedDeliveryPointIndex !== null && selectedShippingIndex == null) {
 			return setDeliveryType("machine")
 		}
-		// console.log('address');
 		setDeliveryType("address")
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -346,7 +346,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 								?
 								userData?.billingAddresses.map((el: any, index: number) => {
 									return (
-										<RadioElementContainer>
+										<RadioElementContainer key={index}>
 											<FormControlLabel value={index} control={<Radio />}
 												label={
 													<DataValueContainer>
@@ -461,7 +461,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									?
 									userData?.shippingAddresses.map((el: any, index: number) => {
 										return (
-											<RadioElementContainer>
+											<RadioElementContainer key={index}>
 												<FormControlLabel value={index} control={<Radio />}
 													label={
 														<DataValueContainer>
@@ -498,7 +498,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				</>}
 
 				{deliveryType === "machine" &&
-					<><CardActions disableSpacing sx={{ padding: 0 }}>
+					<>
+						<CardActions disableSpacing sx={{ padding: 0 }}>
 						<SectionTitle>Automaty paczkowe</SectionTitle>
 					<ExpandMore
 						expand={expanded.deliveryPoint}
@@ -567,7 +568,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									?
 									userData?.parcelLockers.map((el: any, index: number) => {
 										return (
-											<RadioElementContainer>
+											<RadioElementContainer key={el?._parcelLocker ?? index}>
 												<FormControlLabel value={index} control={<Radio />}
 													label={
 														<div style={{ display: "flex" }}>
@@ -581,7 +582,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 																	width: "50px",
 																	marginRight: "8px"
 																}}>
-																<img src={getLogo({ label: el.label || "" }) || ""} alt={el.label || "supplier logo"} style={{
+																<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
+
 																	width: '42px',
 																	height: '42px'
 																}} />
@@ -592,7 +594,12 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 															</DataValueContainer>
 														</div>
 													} style={{ marginBottom: 0 }} />
-												<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"parcelLockers"} userData={userData}
+												<ContextMenu
+													setUserData={setUserData}
+													item={index}
+													setEditItemIndex={setEditItemIndex}
+													property={"parcelLockers"}
+													userData={userData}
 													selectedPropertyIndex={selectedDeliveryPointIndex}
 													setSelectedPropertyIndex={setSelectedDeliveryPointIndex} />
 											</RadioElementContainer>)

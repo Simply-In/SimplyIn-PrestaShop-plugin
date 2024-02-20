@@ -53,9 +53,9 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			removeDataSessionStorage({ key: 'customChanges' })
 			console.log(res);
 			setModalError("")
-			if (res.error) {
-				setModalError('Błędny kod weryfikacyjny')
-				throw new Error(res.error)
+			if (res.message === "Code doesnt exist") {
+				setModalError(t('modal-step-1.codeInvalid'))
+				throw new Error(res.message)
 
 			} else if (res.data) {
 				console.log('RES DATA', res.data);
@@ -222,7 +222,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 	useEffect(() => {
 
-		const inputElement = document.querySelectorAll('#OTPForm input') as NodeListOf<HTMLInputElement>
+		const inputElement: NodeListOf<HTMLInputElement> = document.querySelectorAll('#OTPForm input')
 
 		if (inputElement[0]) {
 			inputElement[0].blur();
@@ -283,7 +283,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 							}}
 							isInputNum={true}
 							shouldAutoFocus="false"
-							renderInput={(props: any, id: any) => <input {...props} type="number" pattern="\d*" autoComplete='one-time-code' id={`otp-input-${id + 1}`} inputMode='numeric' />}
+							renderInput={(props: any, id: number) => <input {...props} type="number" pattern="\d*" autoComplete='one-time-code' id={`otp-input-${id + 1}`} inputMode='numeric' />}
 
 							inputType='numeric'
 							pattern="\d*"
@@ -308,7 +308,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 
 			{(countdown) ?
-				<>
+
 					<PopupCountDownContainer>
 						<PopupCodeNotDelivered>
 							{t('modal-step-1.codeHasBeenSent')}
@@ -316,19 +316,13 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 						<Countdown daysInHours={false} renderer={countdownRenderer} zeroPadTime={2} zeroPadDays={2}
 							date={countdownTime} onComplete={handleCountdownCompleted} /></PopupCountDownContainer>
-				</>
+
 				:
 				<>
 					<PopupCodeNotDelivered>
 						{t('modal-step-1.codeNotArrived')}
 					</PopupCodeNotDelivered>
 					<PopupSendAgain>
-						{/* <Link component="button" id="send-again-btn" underline="hover" onClick={
-							handleSendPinAgain
-						}>
-							Wyślij ponownie
-						</Link>
-						&nbsp; lub &nbsp; */}
 						<Link
 							component="button"
 							id="send-again-email-btn"

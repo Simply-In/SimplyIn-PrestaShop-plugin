@@ -14,7 +14,7 @@ import { SelectedDataContext } from '../SimplyIdLogged';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
 import { selectPickupPointInpost } from '../../../functions/selectInpostPoint';
-import { getLogo } from './functions';
+import { getPlaceholder } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import { useTranslation } from "react-i18next";
@@ -90,7 +90,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 	const handleExpandClick = (property: "billing" | "shipping" | "deliveryPoint", value?: boolean) => {
 
 		setExpanded((prev) => {
-			return ({ ...prev, [property]: value ? value : !prev[property] })
+			return ({ ...prev, [property]: value || !prev[property] })
 		});
 	};
 	type DeliveryType = "address" | "machine"
@@ -515,17 +515,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						>
 							<ExpandMoreIcon />
 						</ExpandMore>
-					</CardActions>
-						{/* <FormGroup>
-						<FormControlLabel sx={{
-							textAlign: 'left',
-							fontFamily: 'Inter, sans-serif',
-							'& .MuiTypography-root': {
-								fontFamily: 'Inter, sans-serif'
-							}
-						}} style={{ textAlign: 'left', fontFamily: "Inter, sans-serif" }} control={<Checkbox checked={pickupPointDelivery} onChange={handleChangeDeliveryCheckbox} />} label="Dostawa do paczkomatu" />
-
-					</FormGroup> */}
+				</CardActions>
 						<Collapse in={!expanded.deliveryPoint} timeout="auto" unmountOnExit>
 							{userData?.parcelLockers.length
 								?
@@ -588,7 +578,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 																		width: "50px",
 																		marginRight: "8px"
 																	}}>
-																	<img src={getLogo({ label: el.label || "" }) || ""} alt={el.label || "supplier logo"} style={{
+																	<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
 																		width: '42px',
 																		height: '42px'
 																	}} />

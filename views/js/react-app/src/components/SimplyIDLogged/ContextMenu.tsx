@@ -19,6 +19,7 @@ import { CloseContainer, DeleteItemTitle, DeleteItemText } from '../SimplyID/Sim
 import { middlewareApi } from '../../services/middlewareApi';
 import { ApiContext } from '../SimplyID/SimplyID';
 import { saveDataSessionStorage } from '../../services/sessionStorageApi';
+import { useTranslation } from 'react-i18next';
 
 const ContextMenuWrapper = styled.div`
 cursor:pointer;
@@ -50,6 +51,8 @@ interface IContextMenu {
 	setSelectedPropertyIndex: any
 }
 export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUserData, selectedPropertyIndex, setSelectedPropertyIndex }: IContextMenu) => {
+
+	const { t } = useTranslation();
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [openDialog, setOpenDialog] = useState(false);
@@ -151,15 +154,15 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 					'aria-labelledby': 'basic-button',
 				}}
 			>
-				<MenuItem onClick={handleEdit}><ContextMenuItemContentWrapper><EditIcon />Edytuj</ContextMenuItemContentWrapper></MenuItem>
-				{isDeletable() && <MenuItem onClick={handleDelete}><ContextMenuItemContentWrapper><DeleteIcon /> Usuń</ContextMenuItemContentWrapper></MenuItem>}
+				{property !== "parcelLockers" && <MenuItem onClick={handleEdit}><ContextMenuItemContentWrapper><EditIcon />{t('modal-step-2.edit')}</ContextMenuItemContentWrapper></MenuItem>}
+				{isDeletable() && <MenuItem onClick={handleDelete}><ContextMenuItemContentWrapper><DeleteIcon /> {t('modal-step-2.delete')}</ContextMenuItemContentWrapper></MenuItem>}
 			</Menu>
 			<Dialog open={openDialog} onClose={handleCloseDialog}>
 				<DialogTitle style={{ padding: "12px 24px" }}>
 					<Stack direction="row" justifyContent="space-between">
 
 						<DeleteItemTitle >
-							Usuwanie adresu
+							{t('modal.addressDelete')}
 						</DeleteItemTitle>
 						<CloseContainer onClick={handleCloseDialog}>
 							<CloseIcon />
@@ -168,12 +171,12 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 				</DialogTitle>
 				<DialogContent>
 					<DeleteItemText>
-						Czy na pewno chcesz usunąc ten adres?
+						{t('modal.addressDeleteConfirmation')}
 					</DeleteItemText>
 				</DialogContent>
 				<DialogActions>
-					<Button variant="outlined" color="primary" onClick={handleCloseDialog} fullWidth>Anuluj</Button>
-					<Button variant="contained" color="error" onClick={handleDeleteConfirmed} fullWidth>Usuń</Button>
+					<Button variant="outlined" color="primary" onClick={handleCloseDialog} fullWidth>{t('modal-form.cancel')}</Button>
+					<Button variant="contained" color="error" onClick={handleDeleteConfirmed} fullWidth>{t('modal-step-2.delete')}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
