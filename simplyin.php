@@ -51,7 +51,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('wersja 31.01.2024 19:00');
+		$this->description = $this->l('wersja 20.02.2024 15:00');
 		
 		$this->confirmUninstall = $this->l('');
 		
@@ -80,11 +80,7 @@ class Simplyin extends Module
 			$this->registerHook('displayPayment') &&
 			$this->registerHook('displayShoppingCart') &&
 			$this->registerHook('displayBeforeCarrier') &&
-			$this->registerHook('actionCarrierProcess') &&
-			$this->registerHook('actionValidateOrder') &&
-			$this->registerHook('actionCustomerFormBuilderModifier') &&
 			$this->registerHook('actionCarrierProcess');
-
 	}
 
 
