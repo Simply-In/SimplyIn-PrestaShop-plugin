@@ -14,14 +14,18 @@ interface ISimplyID {
 	listOfCountries: any
 	isUserLoggedIn?: boolean
 }
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const customerEmail = customer?.email
 
 export const ApiContext = createContext("");
 export const SelectedDataContext = createContext<any>(null);
 
 
-export const SimplyID = ({ listOfCountries }: ISimplyID) => {
-	const [simplyInput, setSimplyInput] = useState(loadDataFromSessionStorage({ key: "UserData" })?.email || "");
+export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
+	// const [simplyInput, setSimplyInput] = useState(loadDataFromSessionStorage({ key: "UserData" })?.email || "");
+	const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
+
 	const [attributeObject, setAttributeObject] = useState({});
 	const [visible, setVisible] = useState<boolean>(true)
 	const [phoneNumber, setPhoneNumber] = useState("")
@@ -43,6 +47,8 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 		setPickupPointDelivery } = useSelectedSimplyData();
 
 	const myRef = useRef();
+
+	const isSimplyModalSelected = loadDataFromSessionStorage({ key: "isSimplyDataSelected" }) === true ? true : false
 
 	useEffect(() => {
 
@@ -71,8 +77,9 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 
 	useEffect(() => {
 
+		if (!isUserLoggedIn) {
 		const YodaInput = document.getElementById("field-email");
-		YodaInput?.remove();
+			YodaInput?.remove()
 
 		const attributes: any = YodaInput?.attributes;
 		const attributeKeeper: any = {};
@@ -84,7 +91,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 		setAttributeObject(attributeKeeper);
 
 
-
+		}
 	}, []);
 
 
@@ -125,14 +132,61 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 	}
 
 	useEffect(() => {
+		console.log('use effect submit email');
+		setVisible(false)
+		setSelectedBillingIndex(0)
+		setSelectedShippingIndex(null)
+		setSelectedDeliveryPointIndex(null)
 
+		console.log('simplyinToken', simplyinToken);
+		console.log('isSimplyIdVisible', isSimplyIdVisible);
+		console.log('isSimplyModalSelected', isSimplyModalSelected);
+
+		if (!simplyinToken && (isSimplyIdVisible || !isSimplyModalSelected)) {
+
+			const debouncedRequest = debounce(() => {
+				middlewareApi({
+					endpoint: "checkout/submitEmail",
+					method: 'POST',
+					requestBody: { "email": simplyInput.trim().toLowerCase() }
+				}).then(res => {
+
+					console.log('response request', res);
+					setVisible(true)
+					setPhoneNumber(res.data)
+					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
+					setVisible(true)
+					console.log(res)
+
+					if (res.error) {
+
+						console.log('error', res.error);
+					}
+				}).catch((err) => {
+					console.log(err);
+				})
+			}, 500);
+
+			debouncedRequest();
+			return () => {
+				debouncedRequest.cancel();
+			};
+
+		}
+
+	}, [simplyInput, isSimplyIdVisible, isSimplyModalSelected, isUserLoggedIn]);
+
+	useEffect(() => {
+
+		console.log('request validate test 123123');
 		setVisible(false)
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
 
-		if (!simplyinToken && isSimplyIdVisible) {
+
+		if (!isSimplyModalSelected && !simplyinToken) {
 
 			const debouncedRequest = debounce(() => {
 				middlewareApi({
@@ -163,9 +217,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 
 		}
 
-	}, [simplyInput, isSimplyIdVisible]);
-
-
+	}, []);
 	useInsertFormData(userData, listOfCountries)
 
 	useEffect(() => {
@@ -191,7 +243,7 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 			}}>
 				<SimplyIn className="REACT_APP">
 
-					{<SimplyinContainer>
+					{!isUserLoggedIn && <SimplyinContainer>
 						<input autoComplete="off"
 							{...attributeObject}
 							value={simplyInput}
@@ -204,7 +256,20 @@ export const SimplyID = ({ listOfCountries }: ISimplyID) => {
 						{phoneNumber && <SimplyinSmsPopupOpenerIcon onClick={handleOpenSmsPopup} simplyinToken={simplyinToken} />}
 					</SimplyinContainer>}
 
-					{phoneNumber && isSimplyIdVisible && <PinCodeModal
+					{!isUserLoggedIn && phoneNumber && isSimplyIdVisible && <PinCodeModal
+						simplyInput={simplyInput}
+						setToken={setSimplyinToken}
+						phoneNumber={phoneNumber}
+						visible={visible}
+						setVisible={setVisible}
+						listOfCountries={listOfCountries}
+						userData={userData}
+						setUserData={setUserData}
+
+					/>}
+
+					{!isSimplyModalSelected && isUserLoggedIn && phoneNumber && <PinCodeModal
+						render={true}
 						simplyInput={simplyInput}
 						setToken={setSimplyinToken}
 						phoneNumber={phoneNumber}

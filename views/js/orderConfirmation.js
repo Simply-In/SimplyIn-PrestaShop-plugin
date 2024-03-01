@@ -129,7 +129,7 @@ $(document).ready(async function () {
   const parcelLockers = [
     {
       addressName: "",
-      label: "INPOST",
+      label: "inpost",
       lockerId: deliveryPoint,
       address: `${inpostPointData?.address?.line1 || ""}, ${
         inpostPointData?.address?.line2 || ""

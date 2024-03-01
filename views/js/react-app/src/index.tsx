@@ -11,14 +11,14 @@ import SimplyBrandIcon from "./assets/SimplyBrandIcon";
 import { selectPickupPointInpost } from "./functions/selectInpostPoint";
 import { middlewareApi } from "./services/middlewareApi";
 import './i18n.ts'
-import SimplyIDLogged from "./components/SimplyIDLogged/SimplyIdLogged.tsx";
+
 
 
 
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-// console.log('customer', customer);
+console.log('customer', customer);
 
 const isCheckoutPage = document.getElementById('checkout')
 
@@ -32,7 +32,7 @@ const listOfCountries = Object.keys(countries_list).map((key) => countries_list[
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-const isUserLoggedIn = !!(customer?.email)
+const isUserLoggedIn = (customer?.is_guest === "0")
 // const hasSimplyAlreadyBeenCalled = loadDataFromSessionStorage({ key: "hasSimplyAlreadyBeenCalled" })
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -106,11 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 
-		const formContainer = document.getElementById("field-email")?.parentNode;
-		const reactAppContainer = document.createElement("div");
-		reactAppContainer.setAttribute("id", "reactAppContainer");
-
-		formContainer?.appendChild(reactAppContainer);
 
 
 		const formContainer2 = document.getElementById("simplyLogoContainer")?.parentNode;
@@ -120,8 +115,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 		formContainer2?.appendChild(reactAppContainer2);
 
 
+		console.log('isUserLoggedIn', isUserLoggedIn);
 
 		if (!isUserLoggedIn) {
+			const formContainer = document.getElementById("field-email")?.parentNode;
+			const reactAppContainer = document.createElement("div");
+			reactAppContainer.setAttribute("id", "reactAppContainer");
+
+			formContainer?.appendChild(reactAppContainer);
+
 			ReactDOM.render(
 				isValid && <SimplyID listOfCountries={listOfCountries} />,
 				document.getElementById("reactAppContainer")
@@ -129,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 		if (isUserLoggedIn) {
 			ReactDOM.render(
-				isValid && <SimplyIDLogged listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
+				isValid && <SimplyID listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
 				document.getElementById("reactAppContainer2")
 			);
 		}

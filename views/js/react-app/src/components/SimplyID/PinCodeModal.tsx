@@ -6,6 +6,7 @@ import { CloseContainer, PopupContainer, PopupHeader, StyledBox } from './Simply
 
 import { CloseIcon } from '../../assets/CloseIcon';
 import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerIcon';
+import { saveDataSessionStorage } from '../../services/sessionStorageApi';
 // import { useInsertFormData } from '../../hooks/useInsertFormData';
 
 
@@ -86,6 +87,7 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 
 	const handleClosePopup = () => {
 		setVisible(false)
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		console.log('cloooose');
 	}
 

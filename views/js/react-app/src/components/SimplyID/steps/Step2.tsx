@@ -20,6 +20,9 @@ import Checkbox from '@mui/material/Checkbox';
 import { useTranslation } from 'react-i18next';
 
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const isUserLoggedIn = (customer?.is_guest === "0")
 
 interface IStep2 {
 	handleClosePopup: () => void;
@@ -177,9 +180,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 			removeDataSessionStorage({ key: 'isParcelAdded' })
 			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 		}
-
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		handleClosePopup()
-
+		if (isUserLoggedIn) {
+			location.reload();
+		}
 	}
 
 
