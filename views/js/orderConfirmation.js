@@ -47,26 +47,26 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
 };
 
 $(document).ready(async function () {
-  console.log("params", params);
-  console.log("order_carrier", order_carrier);
-  console.log("carrier", carrier);
+  //   console.log("params", params);
+  //   console.log("order_carrier", order_carrier);
+  //   console.log("carrier", carrier);
 
-  console.log("delivery_address", delivery_address);
-  console.log("delivery_State", delivery_State);
-  console.log("billing_address", billing_address);
-  console.log("billing_State", billing_State);
-  console.log("billing_country", billing_country);
-  console.log("delivery_country", delivery_country);
+  //   console.log("delivery_address", delivery_address);
+  //   console.log("delivery_State", delivery_State);
+  //   console.log("billing_address", billing_address);
+  //   console.log("billing_State", billing_State);
+  //   console.log("billing_country", billing_country);
+  //   console.log("delivery_country", delivery_country);
 
-  console.log("totalPaid", totalPaid);
-  console.log("currency", currency);
-  console.log("customer", customer);
-  console.log("orderProducts", orderProducts);
-  console.log("customer_data", customer_data);
+  //   console.log("totalPaid", totalPaid);
+  //   console.log("currency", currency);
+  //   console.log("customer", customer);
+  //   console.log("orderProducts", orderProducts);
+  //   console.log("customer_data", customer_data);
 
-  console.log("deliveryPoint", deliveryPoint);
+  //   console.log("deliveryPoint", deliveryPoint);
 
-  console.log("shopName", shopName);
+  //   console.log("shopName", shopName);
 
   const getLangBrowser = () => {
     if (navigator.languages !== undefined) return navigator.languages[0];
@@ -124,7 +124,7 @@ $(document).ready(async function () {
   //   console.error(`Failed to fetch data. Status: ${response.status}`);
   // }
 
-  console.log("inpostPointData", inpostPointData);
+  //   console.log("inpostPointData", inpostPointData);
 
   const parcelLockers = [
     {
@@ -189,8 +189,8 @@ $(document).ready(async function () {
       token: simplyinToken,
     })
       .then((res) => {
-        console.log("User data updated");
-        console.log(res);
+        // console.log("User data updated");
+        // console.log(res);
         let newItem;
 
         if (indexOfUndefined !== -1) {

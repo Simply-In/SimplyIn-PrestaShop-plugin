@@ -39,7 +39,7 @@ export const selectPickupPointInpost = async ({ deliveryPointID }: IselectIPicku
 	//@ts-ignore
 	const shippingMethod = shippingMethods.find((el) => el.external_module_name === "inpostshipping")
 
-	const shippingMethodId = shippingMethod.id_carrier
+	const shippingMethodId = shippingMethod?.id_carrier
 
 
 	if (!deliveryPointID) return

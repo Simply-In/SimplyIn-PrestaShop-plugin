@@ -33,7 +33,6 @@ const listOfCountries = Object.keys(countries_list).map((key) => countries_list[
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const isUserLoggedIn = (customer?.is_guest === "0")
-// const hasSimplyAlreadyBeenCalled = loadDataFromSessionStorage({ key: "hasSimplyAlreadyBeenCalled" })
 
 document.addEventListener('DOMContentLoaded', async () => {
 	let isValid = true
@@ -64,8 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	else {
 		isValid = true
 		console.log("SIMPLYIN API KEY VALID");
-		// deleteSimplyContent()
-		// return
+
 	}
 	if ($('#checkout').length > 0) {
 
@@ -139,12 +137,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const paymentSection = document.getElementById("checkout-payment-step");
 		const paymentContentSection = paymentSection?.querySelector(".content")
 		const phoneAppContainer = document.createElement("div");
+
 		phoneAppContainer.setAttribute("id", "phoneAppContainer");
-
-
 		paymentContentSection?.insertBefore(phoneAppContainer, paymentContentSection.childNodes[4]);
-
-
 
 		ReactDOM.render(
 			isValid && <PhoneField />,

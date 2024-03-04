@@ -27,17 +27,16 @@
 use Order;
 
 class Simplyin extends Module
-
 {
-	
 
-	
+
+
 	protected $config_form = false;
 
 
 	public function __construct()
 	{
-		
+
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
 		$this->version = '1.0.1';
@@ -47,17 +46,16 @@ class Simplyin extends Module
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
 		 */
 		$this->bootstrap = true;
-		
+
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
 		$this->description = $this->l('wersja 20.02.2024 15:00');
-		
+
 		$this->confirmUninstall = $this->l('');
-		
+
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-		
-		
+
 	}
 
 	/**
@@ -73,73 +71,38 @@ class Simplyin extends Module
 		return parent::install() &&
 			$this->registerHook('header') &&
 			$this->registerHook('displayBackOfficeHeader') &&
-			$this->registerHook('actionCartSave') &&
-			$this->registerHook('actionOrderDetail') &&
-			$this->registerHook('actionPaymentConfirmation') &&
 			$this->registerHook('displayOrderConfirmation') &&
-			$this->registerHook('displayPayment') &&
-			$this->registerHook('displayShoppingCart') &&
 			$this->registerHook('displayBeforeCarrier') &&
-			$this->registerHook('actionCarrierProcess');
+			$this->registerHook('actionCarrierProcess') &&
+			$this->registerHook('updateOrderStatus') &&
+			$this->registerHook('actionValidateOrder');
 	}
 
-
-
-	public function hookDisplayAfterCarrier($params)
+	public function hookDisplayBeforePayment()
 	{
-
-		$this->context->smarty->assign([
-			'greetingsFront' => 'Hello Front from MyExtraCarrierBranch !',
-		]);
-
-
-		return $this->display('modules/' . $this->name . '/views/templates/hook/additional_field.tpl');
+		// return $this->display(__FILE__, 'views/templates/front/payment.tpl');
+		return $this->display(__FILE__, 'views/templates/hook/order_confirmation.tpl');
 	}
-	public function hookDisplayBeforeCarrier($params)
+
+
+
+
+
+
+
+
+	public function hookActionValidateOrder($params)
 	{
-
-		$this->context->controller->registerJavascript(
-			'simplyin',
-			// Unique id
-			'modules/' . $this->name . '/views/js/checkout.js',
-			// JS file location
-			['position' => 'bottom', 'priority' => 150] // Position and priority
-		);
-
-
+		$orderId = $params['order']->id;
+		$customerId = $params['customer']->id;
+		PrestaShopLogger::addLog("ACTION VALIDATE ORDER Order $orderId created for customer $customerId", 1, null, 'Order', $orderId, true);
 	}
-
-
-	public function hookActionCarrierProcess($params)
-	{
-		$this->context->controller->registerJavascript(
-			'simplyin',
-			// Unique id
-			'modules/' . $this->name . '/views/js/actionCarrierProcess.js',
-			// JS file location
-			['position' => 'bottom', 'priority' => 150] // Position and priority
-		);
-		$cart = $params['cart'];
-		if (!($cart instanceof Cart))
-			return;
-
-		$cart->myField = Tools::getValue('myFieldName');
-	}
-	public function hookDisplayPDFInvoice(array $params)
-	{
-		$order_invoice = $params['object'];
-		if (!($order_invoice instanceof OrderInvoice))
-			return;
-
-		$order = new Order((int) $order_invoice->id_order);
-		$cart = new Cart($order->id_cart);
-
-		return 'My field data was :' . $cart->myField;
-	}
-
 
 	public function hookDisplayOrderConfirmation($params)
 	{
+		$orderId = $params['order']->id;
+		$customerId = $params['customer']->id;
+		PrestaShopLogger::addLog("Order $orderId created for customer $customerId", 1, null, 'Order', $orderId, true);
 
 		$context = Context::getContext();
 		$shopName = Configuration::get('PS_SHOP_NAME');
@@ -367,26 +330,6 @@ class Simplyin extends Module
 				),
 				'input' => array(
 					array(
-						'type' => 'switch',
-						'label' => $this->l('Live mode'),
-						'name' => 'SIMPLYIN_LIVE_MODE',
-						'is_bool' => true,
-						'desc' => $this->l('Use this module in live mode'),
-						'values' => array(
-							array(
-								'id' => 'active_on',
-								'value' => true,
-								'label' => $this->l('Enabled')
-							),
-							array(
-								'id' => 'active_off',
-								'value' => false,
-								'label' => $this->l('Disabled')
-							)
-						),
-					),
-
-					array(
 						'type' => 'password',
 						'name' => 'SIMPLYIN_SECRET_KEY',
 						'label' => $this->l('Secret Key SimplyIn'),
@@ -436,7 +379,7 @@ class Simplyin extends Module
 	public function hookDisplayBackOfficeHeader()
 	{
 		if (Tools::getValue('configure') == $this->name) {
-			$this->context->controller->addJS($this->_path . 'views/js/back.js');
+			// $this->context->controller->addJS($this->_path . 'views/js/back.js');
 			$this->context->controller->addCSS($this->_path . 'views/css/back.css');
 		}
 	}
@@ -480,43 +423,49 @@ class Simplyin extends Module
 
 		]);
 
-		$this->context->controller->addJS($this->_path . '/views/js/front.js');
+		// $this->context->controller->addJS($this->_path . '/views/js/front.js');
 		$this->context->controller->addJS($this->_path . '/views/js/react-app/dist/bundle.js');
 		$this->context->controller->addCSS($this->_path . '/views/css/front.css');
 	}
 
-	public function hookActionCartSave()
-	{
-		/* Place your code here. */
-	}
 
-	public function hookActionOrderDetail()
-	{
-		/* Place your code here. */
-	}
 
-	public function hookActionPaymentConfirmation()
-	{
-		/* Place your code here. */
-	}
-
-	// public function hookDisplayOrderConfirmation()
+	// private function logMessage($message, $fileName)
 	// {
-	// 	/* Place your code here. */
+	// 	$logFile = dirname(__FILE__) . '/' . $fileName;
+	// 	$fileHandle = fopen($logFile, 'a');
+
+	// 	if ($fileHandle) {
+	// 		fwrite($fileHandle, $message . PHP_EOL);
+	// 		fclose($fileHandle);
+	// 	} else {
+	// 		// Handle potential errors (e.g., log to separate error log)
+	// 	}
 	// }
 
-	public function hookDisplayPayment()
-	{
-		/* Place your code here. */
-	}
+	// public function hookActionValidateOrder($params)
+	// {
+	// 	error_log("Order created");
+	// 	$details = $params['order'];
 
-	public function hookDisplayShoppingCart()
-	{
-		/* Place your code here. */
-	}
+	// 	echo "<pre>";
+	// 	print_r($details);
+	// 	echo "<pre>";
+	// }
 
 
 
+	// public function hookUpdateOrderStatus($params) //This is working fine
+	// {
+	// 	error_log("Order Status Changes");
+	// }
+
+
+	// public function hookActionValidateOrder($params)
+	// {
+	// 	// For now, simply log a message for debugging
+	// 	PrestaShopLogger::addLog('Simplyin module: order created action executed!', 1, null, 'Order', (int) $params['order']->id, true);
+	// }
 }
 
 

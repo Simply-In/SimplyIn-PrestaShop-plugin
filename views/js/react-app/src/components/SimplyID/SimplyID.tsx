@@ -23,7 +23,6 @@ export const SelectedDataContext = createContext<any>(null);
 
 
 export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
-	// const [simplyInput, setSimplyInput] = useState(loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 	const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 
 	const [attributeObject, setAttributeObject] = useState({});
@@ -138,10 +137,6 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
 
-		console.log('simplyinToken', simplyinToken);
-		console.log('isSimplyIdVisible', isSimplyIdVisible);
-		console.log('isSimplyModalSelected', isSimplyModalSelected);
-
 		if (!simplyinToken && (isSimplyIdVisible || !isSimplyModalSelected)) {
 
 			const debouncedRequest = debounce(() => {
@@ -177,10 +172,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	}, [simplyInput, isSimplyIdVisible, isSimplyModalSelected, isUserLoggedIn]);
 
 	useEffect(() => {
-
-		console.log('request validate test 123123');
 		setVisible(false)
-
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)

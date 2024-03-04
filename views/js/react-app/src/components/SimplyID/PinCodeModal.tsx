@@ -128,15 +128,15 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							handleClosePopup={handleClosePopup}
 							setModalStep={setModalStep}
 							setUserData={setUserData}
-							setSelectedUserData={setSelectedUserData}
+						setSelectedUserData={setSelectedUserData}
 							simplyInput={simplyInput} />}
 					{modalStep === 2 &&
 						<Step2
 							listOfCountries={listOfCountries}
 							handleClosePopup={handleClosePopup}
 							userData={userData}
-							setUserData={setUserData}
-							setSelectedUserData={setSelectedUserData}
+						setUserData={setUserData}
+						setSelectedUserData={setSelectedUserData}
 							editItemIndex={editItemIndex}
 							setEditItemIndex={setEditItemIndex}
 
