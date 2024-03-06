@@ -4,7 +4,7 @@
 import { useEffect } from "react"
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from "../services/sessionStorageApi";
 import caseparser from 'caseparser';
-import { selectPickupPointInpost } from "../functions/selectInpostPoint";
+import { selectDeliveryMethod } from "../functions/selectDeliveryMethod";
 
 // const regexPattern = /^(?:[^0-9!<>,;?=+()\/\\@#"°*`{}_^$%:¤\[\]|\.。]|[\.。](?:\s|$))*$/;
 
@@ -35,7 +35,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+
 			// removeDataSessionStorage({ key: "billingAddressesId" })
 
 		}
@@ -46,13 +46,13 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 			if (allAddressPins.length) {
 				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current)
-				console.log("billingAddresIs", pinWithHighestValue);
+
 
 				pinWithHighestValue.checked = true;
 
 				const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 				pinWithHighestValue?.dispatchEvent(event);
-				console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+
 				// removeDataSessionStorage({ key: "billingAddressesId" })
 			}
 
@@ -74,7 +74,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			console.log('shippingAddressesId', loadDataFromSessionStorage({ key: "shippingAddressesId" }));
+
 			// removeDataSessionStorage({ key: "shippingAddressesId" })
 		}
 
@@ -172,7 +172,7 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			return
 		}
 
-		console.log('document?.getElementById("customer-form")', document?.getElementById("customer-form"));
+
 		if (document?.getElementById("customer-form")) {
 			if ("name" in userData && document?.getElementById("customer-form")?.querySelector('#field-firstname')) {
 				(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
@@ -185,6 +185,7 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 
 		const BillingIndex = sessionStorage.getItem("BillingIndex")
 		const ShippingIndex = sessionStorage.getItem("ShippingIndex")
+		const ParcelIndex = sessionStorage.getItem("ParcelIndex")
 
 
 		const sameAddressCheckbox = document.getElementById('use_same_address')
@@ -196,8 +197,10 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm(userData?.billingAddresses[BillingIndex || 0], "delivery-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
 			}
+
+
 
 		} else {
 
@@ -207,17 +210,23 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 
 
 			if (userData?.shippingAddresses?.length) {
-				fillForm(userData?.shippingAddresses[ShippingIndex || 0], "delivery-address", listOfCountries, customChanges.deliveryAddress)
+				fillForm({ ...userData?.shippingAddresses[ShippingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.deliveryAddress)
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm(userData?.billingAddresses[BillingIndex || 0], "invoice-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
+
+
 
 		}
 
+		if (ParcelIndex === "null") {
+			selectDeliveryMethod({ provider: "default" })
+		}
+
 		if (userData?.parcelLockers) {
-			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers?.lockerId })
+			selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers?.lockerId })
 		}
 
 	}, [userData])

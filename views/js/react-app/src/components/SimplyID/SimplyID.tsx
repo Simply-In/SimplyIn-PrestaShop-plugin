@@ -23,6 +23,7 @@ export const SelectedDataContext = createContext<any>(null);
 
 
 export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
+
 	const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 
 	const [attributeObject, setAttributeObject] = useState({});
@@ -77,17 +78,17 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	useEffect(() => {
 
 		if (!isUserLoggedIn) {
-		const YodaInput = document.getElementById("field-email");
+			const YodaInput = document.getElementById("field-email");
 			YodaInput?.remove()
 
-		const attributes: any = YodaInput?.attributes;
-		const attributeKeeper: any = {};
-		for (let i = 0; i < attributes.length; i++) {
-			const attributeName = attributes[i].name;
-			const attributeValue = attributes[i].value;
-			attributeKeeper[attributeName] = attributeValue;
-		}
-		setAttributeObject(attributeKeeper);
+			const attributes: any = YodaInput?.attributes;
+			const attributeKeeper: any = {};
+			for (let i = 0; i < attributes.length; i++) {
+				const attributeName = attributes[i].name;
+				const attributeValue = attributes[i].value;
+				attributeKeeper[attributeName] = attributeValue;
+			}
+			setAttributeObject(attributeKeeper);
 
 
 		}
@@ -131,7 +132,6 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	}
 
 	useEffect(() => {
-		console.log('use effect submit email');
 		setVisible(false)
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -143,7 +143,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
-					requestBody: { "email": simplyInput.trim().toLowerCase() }
+					requestBody: { "email": simplyInput?.trim().toLowerCase() || "" }
 				}).then(res => {
 
 					console.log('response request', res);
@@ -171,12 +171,13 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 	}, [simplyInput, isSimplyIdVisible, isSimplyModalSelected, isUserLoggedIn]);
 
+
 	useEffect(() => {
+
 		setVisible(false)
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
-
 
 		if (!isSimplyModalSelected && !simplyinToken) {
 
@@ -184,7 +185,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
-					requestBody: { "email": simplyInput.trim().toLowerCase() }
+					requestBody: { "email": simplyInput?.trim().toLowerCase() || "" }
 				}).then(res => {
 
 					setVisible(true)
@@ -210,11 +211,13 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		}
 
 	}, []);
+
 	useInsertFormData(userData, listOfCountries)
 
 	useEffect(() => {
 		setUserData(JSON.parse(sessionStorage.getItem("UserData") as string))
 	}, [])
+
 
 
 	return (
@@ -236,12 +239,13 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				<SimplyIn className="REACT_APP">
 
 					{!isUserLoggedIn && <SimplyinContainer>
-						<input autoComplete="off"
+						<input 
 							{...attributeObject}
 							value={simplyInput}
 							onChange={handleSimplyInputChange}
 							ref={myRef as any}
 							type="email"
+
 						></input>
 
 

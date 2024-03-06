@@ -13,7 +13,7 @@ import ContextMenu from '../ContextMenu';
 import { SelectedDataContext } from '../SimplyID';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
-import { selectPickupPointInpost } from '../../../functions/selectInpostPoint';
+import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod';
 import { getPlaceholder } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-const isUserLoggedIn = (customer?.is_guest === "0")
+const isUserLoggedIn = (customer?.is_guest === 0 || customer?.is_guest === "0")
 
 interface IStep2 {
 	handleClosePopup: () => void;
@@ -137,12 +137,14 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
 				sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
 				sessionStorage.setItem("ParcelIndex", `null`)
+				selectDeliveryMethod({ provider: "default" })
 				return ({
 					...prev,
 					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
 					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
 					parcelLockers: null
 				})
+
 			})
 		} else {
 			setSelectedUserData((prev: any) => {
@@ -157,7 +159,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				})
 			})
 			if (selectedDeliveryPointIndex !== undefined) {
-				selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
+				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 			}
 
 
@@ -173,12 +175,12 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		const billingData = userData?.billingAddresses[selectedBillingIndex || 0]
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
-		if (billingData) { handlePhpScript(billingData, 'billingAddressesId') }
-		if (shippingData) { handlePhpScript(shippingData, 'shippingAddressesId') }
+		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: userData?.phoneNumber || "" }, 'billingAddressesId') }
+		if (shippingData) { handlePhpScript({ ...shippingData, phoneNumber: userData?.phoneNumber || "" }, 'shippingAddressesId') }
 
 		if (selectedDeliveryPointIndex !== undefined) {
 			removeDataSessionStorage({ key: 'isParcelAdded' })
-			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
+			selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 		}
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		handleClosePopup()

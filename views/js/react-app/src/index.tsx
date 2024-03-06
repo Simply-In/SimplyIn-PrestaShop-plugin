@@ -4,11 +4,11 @@ import { SimplyID } from "./components/SimplyID";
 
 import { PhoneField } from "./components/PhoneField/PhoneField";
 
-import { loadDataFromSessionStorage, saveDataSessionStorage } from "./services/sessionStorageApi";
+import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from "./services/sessionStorageApi";
 
 
 import SimplyBrandIcon from "./assets/SimplyBrandIcon";
-import { selectPickupPointInpost } from "./functions/selectInpostPoint";
+import { selectDeliveryMethod } from "./functions/selectDeliveryMethod.ts";
 import { middlewareApi } from "./services/middlewareApi";
 import './i18n.ts'
 
@@ -24,6 +24,12 @@ const isCheckoutPage = document.getElementById('checkout')
 
 if (!isCheckoutPage) {
 	saveDataSessionStorage({ key: "isSimplyDataSelected", data: false })
+	removeDataSessionStorage({ key: "UserData" })
+	removeDataSessionStorage({ key: "BillingIndex" })
+	removeDataSessionStorage({ key: "ShippingIndex" })
+	removeDataSessionStorage({ key: "ParcelIndex" })
+	removeDataSessionStorage({ key: "simplyinToken" })
+	removeDataSessionStorage({ key: "phoneNumber" })
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,7 +38,7 @@ const listOfCountries = Object.keys(countries_list).map((key) => countries_list[
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-const isUserLoggedIn = (customer?.is_guest === "0")
+const isUserLoggedIn = (customer?.is_guest === 0 || customer?.is_guest === "0")
 
 document.addEventListener('DOMContentLoaded', async () => {
 	let isValid = true
@@ -41,7 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		method: 'POST',
 		requestBody: { "email": "" }
 	}).then(res => {
-		console.log('test request');
 		console.log(res);
 		return res
 	})
@@ -87,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const parcelId = userData?.parcelLockers[parcelIndex]?.lockerId
 
 		if (!isNaN(parcelIndex) && !isParcelAdded) {
-			selectPickupPointInpost({ deliveryPointID: parcelId });
+			selectDeliveryMethod({ deliveryPointID: parcelId });
 
 		}
 
@@ -112,8 +117,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		formContainer2?.appendChild(reactAppContainer2);
 
-
-		console.log('isUserLoggedIn', isUserLoggedIn);
 
 		if (!isUserLoggedIn) {
 			const formContainer = document.getElementById("field-email")?.parentNode;

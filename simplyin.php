@@ -50,7 +50,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('wersja 20.02.2024 15:00');
+		$this->description = $this->l('wersja 06.03.2024 15:00');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -76,27 +76,10 @@ class Simplyin extends Module
 			$this->registerHook('actionCarrierProcess') &&
 			$this->registerHook('updateOrderStatus') &&
 			$this->registerHook('actionValidateOrder');
-	}
-
-	public function hookDisplayBeforePayment()
-	{
-		// return $this->display(__FILE__, 'views/templates/front/payment.tpl');
-		return $this->display(__FILE__, 'views/templates/hook/order_confirmation.tpl');
+			
 	}
 
 
-
-
-
-
-
-
-	public function hookActionValidateOrder($params)
-	{
-		$orderId = $params['order']->id;
-		$customerId = $params['customer']->id;
-		PrestaShopLogger::addLog("ACTION VALIDATE ORDER Order $orderId created for customer $customerId", 1, null, 'Order', $orderId, true);
-	}
 
 	public function hookDisplayOrderConfirmation($params)
 	{
@@ -255,7 +238,6 @@ class Simplyin extends Module
 		return $this->display(__FILE__, 'orderConfirmation.tpl');
 		// }
 	}
-	// $this->context->controller->addJS($this->_path . '/views/js/front.js');
 
 
 
@@ -423,49 +405,16 @@ class Simplyin extends Module
 
 		]);
 
-		// $this->context->controller->addJS($this->_path . '/views/js/front.js');
 		$this->context->controller->addJS($this->_path . '/views/js/react-app/dist/bundle.js');
 		$this->context->controller->addCSS($this->_path . '/views/css/front.css');
+
+
+
 	}
 
 
 
-	// private function logMessage($message, $fileName)
-	// {
-	// 	$logFile = dirname(__FILE__) . '/' . $fileName;
-	// 	$fileHandle = fopen($logFile, 'a');
 
-	// 	if ($fileHandle) {
-	// 		fwrite($fileHandle, $message . PHP_EOL);
-	// 		fclose($fileHandle);
-	// 	} else {
-	// 		// Handle potential errors (e.g., log to separate error log)
-	// 	}
-	// }
-
-	// public function hookActionValidateOrder($params)
-	// {
-	// 	error_log("Order created");
-	// 	$details = $params['order'];
-
-	// 	echo "<pre>";
-	// 	print_r($details);
-	// 	echo "<pre>";
-	// }
-
-
-
-	// public function hookUpdateOrderStatus($params) //This is working fine
-	// {
-	// 	error_log("Order Status Changes");
-	// }
-
-
-	// public function hookActionValidateOrder($params)
-	// {
-	// 	// For now, simply log a message for debugging
-	// 	PrestaShopLogger::addLog('Simplyin module: order created action executed!', 1, null, 'Order', (int) $params['order']->id, true);
-	// }
 }
 
 
