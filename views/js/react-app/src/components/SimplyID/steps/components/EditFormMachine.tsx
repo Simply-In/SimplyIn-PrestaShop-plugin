@@ -39,7 +39,6 @@ const config = {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		'Authorization': `Bearer ${inpost_api_key || ""}`,
-		// 'Authorization': `s`,
 		"App-Referrer": domain,
 	},
 };

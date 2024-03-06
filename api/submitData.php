@@ -21,6 +21,7 @@ if (empty($apiKey)) {
 
 $body['apiKey'] = $apiKey;
 
+$body['merchantApiKey'] = $apiKey;
 
 if (!empty($token)) {
 	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);

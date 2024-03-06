@@ -10,7 +10,7 @@ import { ApiContext } from '../../SimplyID';
 import { middlewareApi } from '../../../../services/middlewareApi';
 import { saveDataSessionStorage } from '../../../../services/sessionStorageApi';
 import { debounce } from 'lodash';
-import { getInpostPointData } from '../../../../functions/selectInpostPoint';
+import { getInpostPointData } from '../../../../functions/selectDeliveryMethod';
 import { EditFormMachine } from './EditFormMachine';
 import { EditFormFooter } from './EditFormFooter';
 import { EditFormAddress } from './EditFormAddress';

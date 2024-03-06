@@ -23,26 +23,3 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<div class="panel">
-	<h3><i class="icon icon-credit-card"></i> {l s='simplyin' mod='simplyin'}</h3>
-	<p>
-		<strong>{l s='Here is my new generic module!' mod='simplyin'}</strong><br />
-		{l s='Thanks to PrestaShop, now I have a great module.' mod='simplyin'}<br />
-		{l s='I can configure it using the following configuration form.' mod='simplyin'}
-	</p>
-	<br />
-	<p>
-		{l s='This module will boost your sales!' mod='simplyin'}
-	</p>
-</div>
-
-<div class="panel">
-	<h3><i class="icon icon-tags"></i> {l s='Documentation' mod='simplyin'}</h3>
-	<p>
-		&raquo; {l s='You can get a PDF documentation to configure this module' mod='simplyin'} :
-		<ul>
-			<li><a href="#" target="_blank">{l s='English' mod='simplyin'}</a></li>
-			<li><a href="#" target="_blank">{l s='French' mod='simplyin'}</a></li>
-		</ul>
-	</p>
-</div>
