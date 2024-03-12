@@ -38,7 +38,7 @@ function addNewAddress($customerId, $addressData)
 
 	$address->vat_number = $addressData['taxId'];
 	$address->company = $addressData['companyName'];
-	$address->phone = $addressData['phone'];
+	$address->phone = $addressData['phoneNumber'];
 
 
 	// Save the address

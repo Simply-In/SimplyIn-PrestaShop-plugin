@@ -46,11 +46,10 @@ class Simplyin extends Module
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
 		 */
 		$this->bootstrap = true;
-
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('wersja 06.03.2024 15:00');
+		$this->description = $this->l('v 08.03.2024');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -70,14 +69,33 @@ class Simplyin extends Module
 
 		return parent::install() &&
 			$this->registerHook('header') &&
+			$this->registerHook('actionOrderStatusPostUpdate') &&
 			$this->registerHook('displayBackOfficeHeader') &&
 			$this->registerHook('displayOrderConfirmation') &&
 			$this->registerHook('displayBeforeCarrier') &&
 			$this->registerHook('actionCarrierProcess') &&
 			$this->registerHook('updateOrderStatus') &&
 			$this->registerHook('actionValidateOrder');
-			
+
 	}
+
+
+	public function hookActionOrderStatusPostUpdate($params)
+	{
+
+		// PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
+
+		$newOrderStatus = $params['newOrderStatus']->name[1];
+		$oldOrderStatus = $params['oldOrderStatus']->name;
+		$id_order = $params['id_order'];
+
+
+		PrestaShopLogger::addLog("order id $id_order; old status: $oldOrderStatus; order new status:  $newOrderStatus;", 1, null, 'Order', 10, true);
+		// PrestaShopLogger::addLog($logMessage, 1, null, 'Order', $order->id, true);
+
+	}
+
+
 
 
 
@@ -390,7 +408,12 @@ class Simplyin extends Module
 		$currentLanguage = $context->language;
 		$customer = $context->customer;
 
+		$prestashop_version = Configuration::get('PS_VERSION_DB');
+
+
 		Media::addJsDef([
+			'extension_version' => $this->version,
+			'prestashop_version' => $prestashop_version,
 			'countries_list' => $countries_list,
 			'shippingMethods' => $shippingMethods,
 			'base_url' => $base_url,

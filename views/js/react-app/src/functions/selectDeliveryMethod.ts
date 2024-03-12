@@ -1,4 +1,5 @@
 import axios from "axios";
+import { loadDataFromSessionStorage, saveDataSessionStorage } from "../services/sessionStorageApi";
 
 type IselectIPickupPointInpost = {
 	deliveryPointID?: string,
@@ -31,30 +32,45 @@ const waitForElementToRender = ({ selector, timeout = 5000 }: data) => {
 
 export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpostshipping" }: IselectIPickupPointInpost) => {
 
+	// const billingIndex = loadDataFromSessionStorage({ key: "BillingIndex" })
+	// const parcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" })
+	// const shippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" })
 
-	//selects first not inpost delivery method
+	const isShippingMethodSelected = loadDataFromSessionStorage({ key: "selectedShippingMethod" })
+
+
+	if (isShippingMethodSelected) {
+		return
+	}
+
+	if (provider !== "default" && deliveryPointID === undefined) {
+
+		return
+	}
+
 	if (provider === "default") {
-		console.log('select default provider');
+
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		const shippingMethodsWOProviders = shippingMethods.filter((el) => el.external_module_name !== "inpostshipping")
 
 		const firstNotInpostShippingMethod = shippingMethodsWOProviders[0].id_carrier
 
+
+
 		waitForElementToRender({ selector: `#delivery_option_${firstNotInpostShippingMethod}` }).then((shippingRadioButton: any) => {
 			if (shippingRadioButton) {
 				shippingRadioButton.checked = true;
 				const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 				shippingRadioButton.dispatchEvent(event);
+				saveDataSessionStorage({ key: 'selectedShippingMethod', data: true })
+
 			}
-
 		});
-
-
-
 	}
 
-	if (deliveryPointID && provider === "inpostshipping") {
+	if (deliveryPointID !== undefined && provider === "inpostshipping") {
+
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		const shippingMethod = shippingMethods.find((el) => el.external_module_name === "inpostshipping")
@@ -79,13 +95,15 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 
 		const inpostPointData = await getInpostPointData({ deliveryPointID: deliveryPointID })
 		if (!inpostPointData.name) {
-			console.log('Selected shipping point is invalid')
+
 			return;
 		}
 
 
 		let flag = false;
 
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore
 		const selectDeliveryPoint = (status: string) => {
 
 			return new Promise<boolean>((resolve, reject): void => {
@@ -105,6 +123,7 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 
 						if (isMachineSelected) {
 							resolve(true);
+							saveDataSessionStorage({ key: 'selectedShippingMethod', data: true })
 							return;
 						}
 
@@ -113,7 +132,6 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 							const form = document?.getElementById("js-delivery") as HTMLFormElement;
 							form.addEventListener('submit', function (e) {
 								e.preventDefault();
-								console.log('submit', e);
 							});
 							await form.submit();
 							resolve(true);
@@ -129,7 +147,6 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 		const startSelectDeliveryPoint = () => {
 			selectDeliveryPoint('first try').then((status) => {
 				flag = status;
-				console.log('end with status', status);
 			});
 
 

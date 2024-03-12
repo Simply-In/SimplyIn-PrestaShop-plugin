@@ -69,7 +69,6 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 	const handleEdit = () => {
 		setEditItemIndex({ property: property, itemIndex: item })
 		handleClose()
-		console.log('edit', item);
 	}
 
 
@@ -104,7 +103,6 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 			token: apiToken,
 			requestBody: requestData
 		}).then(res => {
-			console.log(res);
 			if (res.error) {
 				throw new Error(res.error)
 			} else if (res.data) {
@@ -120,7 +118,6 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 					})
 
 					if (selectedRadioItem && !filteredPropertyArray.length) {
-						console.log('no length', filteredPropertyArray);
 						setSelectedPropertyIndex(0)
 
 					}

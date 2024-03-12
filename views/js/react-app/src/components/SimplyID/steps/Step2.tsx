@@ -76,7 +76,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 
 	useEffect(() => {
-		console.log('SELECT MODAL DATA');
 		if (loadDataFromSessionStorage({ key: "ShippingIndex" })) {
 			setSelectedShippingIndex(loadDataFromSessionStorage({ key: "ShippingIndex" }))
 		}
@@ -126,6 +125,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 	const handleSelectData = () => {
 
+		removeDataSessionStorage({ key: "selectedShippingMethod" })
 		if (!userData?.billingAddresses[selectedBillingIndex]) {
 			return
 		}
@@ -158,7 +158,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 					parcelLockers: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId || null
 				})
 			})
-			if (selectedDeliveryPointIndex !== undefined) {
+			if (selectedDeliveryPointIndex !== undefined && userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId) {
+				removeDataSessionStorage({ key: 'isParcelAdded' })
 				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 			}
 
@@ -172,16 +173,24 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		removeDataSessionStorage({ key: 'invoice-address' })
 		removeDataSessionStorage({ key: 'inpost-delivery-point' })
 
+
+
 		const billingData = userData?.billingAddresses[selectedBillingIndex || 0]
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
-		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: userData?.phoneNumber || "" }, 'billingAddressesId') }
-		if (shippingData) { handlePhpScript({ ...shippingData, phoneNumber: userData?.phoneNumber || "" }, 'shippingAddressesId') }
+		let normalizedNumberFromDB = userData?.phoneNumber
 
-		if (selectedDeliveryPointIndex !== undefined) {
-			removeDataSessionStorage({ key: 'isParcelAdded' })
-			selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
+		if (billingData?.country.toLowerCase() == "PL".toLowerCase()) {
+			if (userData?.phoneNumber?.startsWith("+48")) {
+				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
+			}
 		}
+
+
+
+		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId') }
+		if (shippingData) { handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId') }
+
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		handleClosePopup()
 		if (isUserLoggedIn) {
@@ -221,7 +230,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
-
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		data.country = listOfCountries?.find((el: any) => el.iso_code === data?.country)?.id_country ?? 1
@@ -229,9 +237,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		if (!data.addressName) {
 			data.addressName = `Adres ${addresNameId === "billingAddressesId" ? selectedBillingIndex : selectedShippingIndex}`
 		}
-
-
-		console.log(data);
 
 		const dataToSend = {
 			email: simplyInput,
@@ -242,10 +247,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		const baseUrl = base_url || '.'
-		console.log(dataToSend);
+
 		// return
 		// axios.post('../modules/simplyin/api/createAddresses.php', { //stage
-		axios.post(`${baseUrl}/modules/simplyin/api/createAddresses.php`, {	//dev
+		axios.post(`${baseUrl}./modules/simplyin/api/createAddresses.php`, {	//dev
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
@@ -253,13 +258,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 		})
 			.then(response => {
-				console.log(response.data);
 				saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
 
 				if (!shippingData) {
 					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
-
-
 				}
 				if (response.data.status === 'success') {
 					// Handle the success response

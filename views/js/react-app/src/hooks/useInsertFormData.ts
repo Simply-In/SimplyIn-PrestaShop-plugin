@@ -6,7 +6,6 @@ import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionSt
 import caseparser from 'caseparser';
 import { selectDeliveryMethod } from "../functions/selectDeliveryMethod";
 
-// const regexPattern = /^(?:[^0-9!<>,;?=+()\/\\@#"°*`{}_^$%:¤\[\]|\.。]|[\.。](?:\s|$))*$/;
 
 const fillForm = (data, formId, listOfCountries, customChanges) => {
 
@@ -17,9 +16,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		const linkElement = document.querySelector('a[data-link-action="different-invoice-address"]');
 		if (linkElement) {
 			linkElement.click();
-		} else {
-			console.log("Element not found.");
-		}
+		} 
 	}
 
 	if (billingId) {
@@ -95,7 +92,15 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		if ("city" in data && formContainer.querySelector('#field-city')) { (formContainer.querySelector('#field-city') as HTMLInputElement).value = customChanges.fieldCity || data.city || "" }
 		if ("companyName" in data && formContainer.querySelector('#field-company')) { (formContainer.querySelector('#field-company') as HTMLInputElement).value = customChanges.fieldCompany || data.companyName || "" }
 		if ("taxId" in data && formContainer.querySelector('#field-vat_number')) { (formContainer.querySelector('#field-vat_number') as HTMLInputElement).value = customChanges.fieldVat_number || data.taxId || "" }
-		if ("phoneNumber" in data && formContainer.querySelector('#field-phone')) { (formContainer.querySelector('#field-phone') as HTMLInputElement).value = customChanges.fieldPhone || data.phoneNumber || "" }
+		if ("phoneNumber" in data && formContainer.querySelector('#field-phone')) {
+			let normalizedNumberFromDB = data.phoneNumber
+			if (data?.country.toLowerCase() == "PL".toLowerCase()) {
+				if (data.phoneNumber.startsWith("+48")) {
+					normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
+				}
+			}
+			(formContainer.querySelector('#field-phone') as HTMLInputElement).value = customChanges.fieldPhone || normalizedNumberFromDB || data.phoneNumber || ""
+		}
 		if ("street" in data && formContainer.querySelector('#field-address1')) { (formContainer.querySelector('#field-address1') as HTMLInputElement).value = customChanges.fieldAddress1 || `${data.street}` || "" }
 		if ("appartmentNumber" in data && formContainer.querySelector('#field-address2')) { (formContainer.querySelector('#field-address2') as HTMLInputElement).value = customChanges.fieldAddress2 || data.appartmentNumber || "" }
 		if ("postalCode" in data && formContainer.querySelector('#field-postcode')) { (formContainer.querySelector('#field-postcode') as HTMLInputElement).value = customChanges.fieldPostcode || data.postalCode || "" }
@@ -103,7 +108,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 
 			const countrySubstitute = listOfCountries.find((el) => el.iso_code === data?.country)
-
 
 			const options = Array.from(formContainer.querySelector('#field-id_country').options)
 
@@ -223,11 +227,12 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 
 		if (ParcelIndex === "null") {
 			selectDeliveryMethod({ provider: "default" })
-		}
-
-		if (userData?.parcelLockers) {
+		} else if (userData?.parcelLockers?.lockerId) {
 			selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers?.lockerId })
 		}
+
+
+
 
 	}, [userData])
 

@@ -56,9 +56,7 @@ export const PhoneField = () => {
 			const allAddressDataArray = addressData?.querySelector('.address')?.innerHTML.split("<br>")
 		let phoneInputField = ""
 		let phoneVal = ""
-			if (allAddressDataArray?.length) {
-				console.log(allAddressDataArray[allAddressDataArray.length - 1]);
-
+		if (allAddressDataArray?.length) {
 				phoneInputField = allAddressDataArray[allAddressDataArray.length - 1]
 				phoneVal = allAddressDataArray[allAddressDataArray.length - 1].replace(/^00|^0/, '+')
 
@@ -103,7 +101,7 @@ export const PhoneField = () => {
 				}
 				catch (err) {
 					setError(t('payment.phoneNumberError'))
-					console.log('błąd', err);
+					console.log(err);
 				}
 			}
 

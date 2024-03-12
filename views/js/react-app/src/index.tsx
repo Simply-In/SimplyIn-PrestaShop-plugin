@@ -15,11 +15,6 @@ import './i18n.ts'
 
 
 
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-console.log('customer', customer);
-
 const isCheckoutPage = document.getElementById('checkout')
 
 if (!isCheckoutPage) {
@@ -30,6 +25,8 @@ if (!isCheckoutPage) {
 	removeDataSessionStorage({ key: "ParcelIndex" })
 	removeDataSessionStorage({ key: "simplyinToken" })
 	removeDataSessionStorage({ key: "phoneNumber" })
+	removeDataSessionStorage({ key: "selectedShippingMethod" })
+
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -47,13 +44,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 		method: 'POST',
 		requestBody: { "email": "" }
 	}).then(res => {
-		console.log(res);
 		return res
 	})
 
 
 	const deleteSimplyContent = () => {
-		console.log('delete content simply');
 		document.querySelector("#simplyLogoContainer")?.remove()
 		document.querySelector("#phoneAppContainer")?.remove()
 
@@ -67,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 	else {
 		isValid = true
-		console.log("SIMPLYIN API KEY VALID");
 
 	}
 	if ($('#checkout').length > 0) {
@@ -91,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		const parcelId = userData?.parcelLockers[parcelIndex]?.lockerId
 
-		if (!isNaN(parcelIndex) && !isParcelAdded) {
+		if (!isNaN(parcelIndex) && !isParcelAdded && parcelId) {
 			selectDeliveryMethod({ deliveryPointID: parcelId });
 
 		}

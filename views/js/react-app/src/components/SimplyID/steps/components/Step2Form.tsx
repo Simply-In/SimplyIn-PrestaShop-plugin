@@ -91,8 +91,8 @@ export const Step2Form = ({
 		} : {
 				_id: editData?._id || undefined,
 			addressName: editData?.addressName || null,
-			name: editData?.name,
-			surname: editData?.surname,
+				name: editItem?.property === "billingAddresses" && isNewData ? userData?.name : editData?.name,
+				surname: editItem?.property === "billingAddresses" && isNewData ? userData?.surname : editData?.surname,
 			companyName: editData?.companyName,
 			taxId: editData?.taxId,
 			street: editData?.street,
@@ -185,7 +185,7 @@ export const Step2Form = ({
 
 				}
 				catch (err) {
-					console.log('ERROR', err);
+					console.log(err);
 				}
 			}, 1000);
 
@@ -204,7 +204,6 @@ export const Step2Form = ({
 
 		if (editItem && 'property' in editItem && 'itemIndex' in editItem) {
 
-			console.log('true');
 			const clonnedArray = [...userData[editItem.property]]
 			clonnedArray[editItem?.itemIndex] = {
 				...editedData

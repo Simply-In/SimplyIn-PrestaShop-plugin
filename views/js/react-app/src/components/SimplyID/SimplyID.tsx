@@ -58,11 +58,9 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			(entries) => {
 				if (entries[0].isIntersecting === true) {
 					setIsSimplyIdVisible(true)
-					console.log("Element is visible on screen");
 				}
 				else {
 					setIsSimplyIdVisible(false)
-					console.log("Element is not visible on screen");
 				}
 			},
 			{ threshold: [0] }
@@ -146,17 +144,11 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					requestBody: { "email": simplyInput?.trim().toLowerCase() || "" }
 				}).then(res => {
 
-					console.log('response request', res);
 					setVisible(true)
 					setPhoneNumber(res.data)
 					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
 					setVisible(true)
-					console.log(res)
 
-					if (res.error) {
-
-						console.log('error', res.error);
-					}
 				}).catch((err) => {
 					console.log(err);
 				})
@@ -192,12 +184,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					setPhoneNumber(res.data)
 					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
 					setVisible(true)
-					console.log(res)
 
-					if (res.error) {
-
-						console.log('error', res.error);
-					}
 				}).catch((err) => {
 					console.log(err);
 				})

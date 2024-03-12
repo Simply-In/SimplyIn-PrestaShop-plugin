@@ -88,7 +88,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 	const handleClosePopup = () => {
 		setVisible(false)
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
-		console.log('cloooose');
 	}
 
 	const emailInput = document.getElementById("field-email")

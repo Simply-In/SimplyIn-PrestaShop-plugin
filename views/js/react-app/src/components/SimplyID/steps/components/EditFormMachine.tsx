@@ -64,22 +64,16 @@ export const EditFormMachine = ({
 		const url = `${apiUrl}?${params}`;
 		fetch(url, config)
 			.then(response => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				//@ts-ignore
-				if (inpost_api_key) {
-					console.log("nie podano klucza API Inpost");
-				}
+
 				if (response.status === 200) {
 					setLoading(false)
 					setIsMapVisible(true)
 					saveDataSessionStorage({ key: 'isInpostKeyValid', data: true })
-					// console.log("object");
+
 				} else {
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore
-					if (inpost_api_key) {
-						console.log("Nieprawidłowy klucz API Inpost ");
-					}
+
 					setLoading(false)
 					setIsMapVisible(false)
 					saveDataSessionStorage({ key: 'isInpostKeyValid', data: false })

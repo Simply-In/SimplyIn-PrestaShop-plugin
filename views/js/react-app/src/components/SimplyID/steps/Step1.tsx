@@ -51,24 +51,21 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			requestBody: { "code": value }
 		}).then(res => {
 			removeDataSessionStorage({ key: 'customChanges' })
-			console.log(res);
 			setModalError("")
-			if (!res?.isCodeValid) {
+			if (res?.isCodeValid === false) {
 				setModalError(t('modal-step-1.codeInvalid'))
 				throw new Error(res.message)
 
-			} else if (res.data) {
-				console.log('RES DATA', res.data);
-
-
+			} else if (res?.data) {
 				if (res.data?.language) {
-					console.log(res.data?.language);
 					i18n.changeLanguage(res.data?.language.toLowerCase())
 				}
 
 
 				removeDataSessionStorage({ key: 'delivery-address' })
 				removeDataSessionStorage({ key: 'invoice-address' })
+				removeDataSessionStorage({ key: "selectedShippingMethod" })
+
 				setUserData({ ...res.data })
 				saveDataSessionStorage({ key: 'UserData', data: res.data })
 
@@ -221,7 +218,6 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 	};
 
 	useEffect(() => {
-		console.log('pinCode', pinCode);
 		if (pinCode?.length > 3) {
 			handlePinComplete(pinCode)
 		}

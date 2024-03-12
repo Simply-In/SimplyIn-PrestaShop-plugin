@@ -47,28 +47,7 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
 };
 
 $(document).ready(async function () {
-  //   console.log("params", params);
-  //   console.log("order_carrier", order_carrier);
-  //   console.log("carrier", carrier);
-
-  //   console.log("delivery_address", delivery_address);
-  //   console.log("delivery_State", delivery_State);
-  //   console.log("billing_address", billing_address);
-  //   console.log("billing_State", billing_State);
-  //   console.log("billing_country", billing_country);
-  //   console.log("delivery_country", delivery_country);
-
-  //   console.log("totalPaid", totalPaid);
-  //   console.log("currency", currency);
-  //   console.log("customer", customer);
-  //   console.log("orderProducts", orderProducts);
-  //   console.log("customer_data", customer_data);
-
-  //   console.log("deliveryPoint", deliveryPoint);
-
-  //   console.log("shopName", shopName);
-
-  const getLangBrowser = () => {
+   const getLangBrowser = () => {
     if (navigator.languages !== undefined) return navigator.languages[0];
     else return navigator.language;
   };
@@ -148,7 +127,6 @@ $(document).ready(async function () {
       method: "POST",
       requestBody: newAccountSendData,
     }).then((res) => {
-      console.log(res);
     });
   }
 
@@ -171,7 +149,6 @@ $(document).ready(async function () {
       requestBody: existingAccountSendData,
       token: simplyinToken,
     }).then((res) => {
-      console.log(res);
       sessionStorage.removeItem("isSimplyDataSelected");
       sessionStorage.removeItem("UserData");
       sessionStorage.removeItem("BillingIndex");
@@ -179,7 +156,7 @@ $(document).ready(async function () {
       sessionStorage.removeItem("ParcelIndex");
       sessionStorage.removeItem("phoneNumber");
       sessionStorage.removeItem("simplyinToken");
-      //   sessionStorage.removeItem("createSimplyAccount");
+      sessionStorage.removeItem("selectedShippingMethod");
       sessionStorage.removeItem("CustomChanges");
       sessionStorage.removeItem("inpost-delivery-point");
     });
