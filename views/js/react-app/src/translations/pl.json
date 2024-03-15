@@ -28,7 +28,8 @@
 			"codeNotArrived": "Kod nie dotarł?",
 			"sendViaEmail": "Wyślij e-mailem",
 			"codeHasBeenSent": "Kod został ponownie wysłany",
-			"codeInvalid": "Błędny kod weryfikacyjny"
+			"codeInvalid": "Błędny kod weryfikacyjny",
+			"checkInApp": "Sprawdź powiadomienia w aplikacji mobilnej i zatwierdź logowanie"
 		},
 		"modal-step-2": {
 			"address": "Adres",

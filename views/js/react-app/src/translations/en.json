@@ -28,7 +28,8 @@
 			"codeNotArrived": "Code not received?",
 			"sendViaEmail": "Send via email",
 			"codeHasBeenSent": "The code was resent",
-			"codeInvalid": "Verification code invalid"
+			"codeInvalid": "Verification code invalid",
+			"checkInApp": "Check notifications in the mobile app and confirm login"
 		},
 		"modal-step-2": {
 			"address": "Address",

@@ -1,15 +1,17 @@
 import { useContext, useEffect, useState } from 'react'
 
-import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain } from '../SimplyID.styled'
+import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain, MobileSystemsLinksContainer, SingleSystemLink } from '../SimplyID.styled'
 import { middlewareApi } from '../../../services/middlewareApi'
 import { PopupTextError } from '../../PhoneField/PhoneField.styled'
 import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi'
-import { SelectedDataContext } from '../SimplyID'
+import { SelectedDataContext, TypedLoginType } from '../SimplyID'
 import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
-import { Link } from '@mui/material'
+import { Divider, Link } from '@mui/material'
 import Countdown from 'react-countdown'
 import { useTranslation } from "react-i18next";
+import { AndroidIcon } from '../../../assets/AndroidIcon'
+import { IosIcon } from '../../../assets/IosIcon'
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
 	return <span>{minutes}:{seconds}</span>;
@@ -23,11 +25,12 @@ interface IStep1 {
 	setToken: any
 	setSelectedUserData: any
 	simplyInput: string
+	loginType: TypedLoginType
 
 
 }
 
-export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData, simplyInput }: IStep1) => {
+export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData, simplyInput, loginType }: IStep1) => {
 	const { t, i18n } = useTranslation();
 
 	const [countdown, setCountdown] = useState<boolean>(false)
@@ -233,11 +236,16 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 		if (inputElement[0]) {
 			inputElement[0].blur();
-
+			setTimeout(() => {
+				inputElement[0].focus()
+			}, 300)
 		}
+
 		inputElement.forEach((el) => {
 			el.pattern = "\\d*"
 			el.inputMode = "numeric"
+			el.type = "text"
+			el.ariaRequired = "false"
 		})
 
 
@@ -264,86 +272,111 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 	return (
 		<>
 			<PopupTitle> {t('modal-step-1.confirm')} </PopupTitle>
-			<PopupTextMain>{t('modal-step-1.insertCode')} </PopupTextMain>
-			<PopupTextMain> {phoneNumber} </PopupTextMain>
+			{loginType === "pinCode" &&
+				<>
+				<PopupTextMain>{t('modal-step-1.insertCode')} </PopupTextMain>
+				<PopupTextMain> {phoneNumber} </PopupTextMain>
 
 
-			<PinInputContainer  >
+				<PinInputContainer  >
 
 
-				<div>
-					<form id="OTPForm">
-						<OtpInputReactJS
-							value={pinCode}
-							onChange={setPinCode}
-							numInputs={4}
-							inputStyle={{
-								width: "40px",
-								height: "56px",
-								border: modalError ? "1px solid red" : "1px solid #D9D9D9",
-								borderRadius: "8px",
-								fontSize: "30px",
-								textAlign: "center",
-								padding: 0,
-								outlineWidth: "0px",
+					<div>
+						<form id="OTPForm">
+							<OtpInputReactJS
+								value={pinCode}
+								onChange={setPinCode}
+								numInputs={4}
+								inputStyle={{
+									width: "40px",
+									height: "56px",
+									border: modalError ? "1px solid red" : "1px solid #D9D9D9",
+									borderRadius: "8px",
+									fontSize: "30px",
+									textAlign: "center",
+									padding: 0,
+									outlineWidth: "0px",
 
-							}}
-							isInputNum={true}
-							shouldAutoFocus="false"
-							renderInput={(props: any, id: any) => <input {...props} type="number" pattern="\d*" autoComplete='one-time-code' id={`otp-input-${id + 1}`} inputMode='numeric' />}
+								}}
+								isInputNum={true}
+								shouldAutoFocus={true}
+								renderInput={
+									(props: any, id: any) =>
+										<input
+											{...props}
+											type="number"
+											pattern="\d*"
+											autoComplete='one-time-code'
+											id={`otp-input-${id + 1}`}
+											inputMode='numeric' />}
+								inputType='numeric'
+								inputMode='numeric'
+								pattern="\d*"
+							/>
+						</form>
+					</div>
 
-							inputType='numeric'
-							pattern="\d*"
+					</PinInputContainer>
+				</>
+			}
 
 
+			{loginType === "app" &&
 
-						/>
+				<PopupTextMain>
+					{t('modal-step-1.checkInApp')}
+				</PopupTextMain>
 
-					</form>
-				</div>
-
-
-
-
-			</PinInputContainer>
-			<PopupTextError >
-				{modalError}
-			</PopupTextError>
-			<PopupTextSecondary>
+			}
+			{modalError &&
+				<PopupTextError >
+					{modalError}
+				</PopupTextError>
+			}
+			<PopupTextSecondary style={{ paddingBottom: loginType === "app" ? '32px' : "inherit" }}>
 				{t('modal-step-1.editAfterLogin')}
 			</PopupTextSecondary>
 
-
-			{(countdown) ?
+			{loginType === "pinCode" && <> {
+				(countdown) ?
 
 					<PopupCountDownContainer>
 						<PopupCodeNotDelivered>
-						{t('modal-step-1.codeHasBeenSent')}
+							{t('modal-step-1.codeHasBeenSent')}
 						</PopupCodeNotDelivered>
 
 						<Countdown daysInHours={false} renderer={countdownRenderer} zeroPadTime={2} zeroPadDays={2}
 							date={countdownTime} onComplete={handleCountdownCompleted} /></PopupCountDownContainer>
 
-				:
+					:
+					<>
+						<PopupCodeNotDelivered>
+							{t('modal-step-1.codeNotArrived')}
+						</PopupCodeNotDelivered>
+						<PopupSendAgain>
+							<Link
+								component="button"
+								id="send-again-email-btn"
+								value="mail"
+								onClick={handleSendPinAgain}
+								underline="hover"
+							>
+								{t('modal-step-1.sendViaEmail')}
+							</Link>
+						</PopupSendAgain>
+					</>
+			}</>}
+			{loginType === "pinCode" &&
 				<>
-					<PopupCodeNotDelivered>
-						{t('modal-step-1.codeNotArrived')}
-					</PopupCodeNotDelivered>
-					<PopupSendAgain>
-						<Link
-							component="button"
-							id="send-again-email-btn"
-							value="mail"
-							onClick={handleSendPinAgain}
-							underline="hover"
-						>
-							{t('modal-step-1.sendViaEmail')}
-						</Link>
-					</PopupSendAgain>
-				</>
-			}
-
-
+					<Divider style={{ marginTop: 24, marginBottom: 12 }} />
+					<PopupTextSecondary>
+						Loguj się za pomocą aplikacji. Pobierz teraz.
+					</PopupTextSecondary>
+					<MobileSystemsLinksContainer>
+						<SingleSystemLink href='#'><AndroidIcon />Android</SingleSystemLink>
+						<SingleSystemLink href='#'><IosIcon />iOS</SingleSystemLink>
+					</MobileSystemsLinksContainer>
+				</>}
 		</>
 	)
 }

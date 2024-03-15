@@ -1,3 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const isUserLoggedIn = customer?.is_guest === 0 || customer?.is_guest === "0";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const userEmail = isUserLoggedIn ? customer?.email : "";
+
 const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -33,6 +40,13 @@ const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const extensionVersion = extension_version || "";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const prestashopVersion = prestashop_version || "";
+
 const loadDataFromSessionStorageTwo = ({ key }) => {
   try {
     const serializedData = sessionStorage.getItem(key);
@@ -47,17 +61,27 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
 };
 
 $(document).ready(async function () {
-   const getLangBrowser = () => {
+  const getLangBrowser = () => {
     if (navigator.languages !== undefined) return navigator.languages[0];
     else return navigator.language;
   };
 
   let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
 
-  const billingAddresses = {
-    icon: "🏡",
+  const BillingIndex = loadDataFromSessionStorageTwo({
+    key: "BillingIndex",
+  });
+  const ShippingIndex = loadDataFromSessionStorageTwo({
+    key: "ShippingIndex",
+  });
+  const UserData = loadDataFromSessionStorageTwo({
+    key: "UserData",
+  });
 
-    addressName: billing_address.company.trim().substring(0, 15) || "",
+  const billingAddresses = {
+    _id: UserData?.billingAddresses[BillingIndex]?._id,
+    icon: "🏡",
+    addressName: "",
     street: (billing_address.address1 || "").trim(),
     appartmentNumber: (billing_address.address2 || "").trim() || "",
     city: (billing_address.city || "").trim(),
@@ -71,8 +95,15 @@ $(document).ready(async function () {
   };
 
   const shippingAddresses = {
+    _id: UserData?.shippingAddresses[
+      ShippingIndex !== null &&
+      ShippingIndex !== undefined &&
+      ShippingIndex !== "null"
+        ? ShippingIndex
+        : BillingIndex
+    ]?._id,
     icon: "🏡",
-    addressName: billing_address.company.trim().substring(0, 15) || "",
+    addressName: "",
     street: (delivery_address.address1 || "").trim(),
     appartmentNumber: (delivery_address.address2 || "").trim() || "",
     city: (delivery_address.city || "").trim(),
@@ -118,16 +149,18 @@ $(document).ready(async function () {
         placedDuringAccountCreation: true,
         billingData: billingAddresses,
         shopName: shopName || "",
+        ...orderShippingParcelInfoNewAccount,
       },
-      ...orderShippingParcelInfoNewAccount,
+      plugin_version: extensionVersion,
+      shopVersion: prestashopVersion,
+      shopUserEmail: userEmail || undefined,
     };
 
     middlewareApiTwo({
       endpoint: "checkout/createOrderAndAccount",
       method: "POST",
       requestBody: newAccountSendData,
-    }).then((res) => {
-    });
+    }).then((res) => {});
   }
 
   if (simplyinToken) {
@@ -141,6 +174,9 @@ $(document).ready(async function () {
         ...orderShippingParcelInfoNewAccount,
         shopName: shopName || "",
       },
+      plugin_version: extensionVersion,
+      shopVersion: prestashopVersion,
+      shopUserEmail: userEmail || undefined,
     };
 
     middlewareApiTwo({

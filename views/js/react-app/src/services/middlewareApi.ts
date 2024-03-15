@@ -12,17 +12,35 @@ interface IMiddlewareApi {
 	token?: string
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const isUserLoggedIn = (customer?.is_guest === 0 || customer?.is_guest === "0")
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const userEmail = isUserLoggedIn ? customer?.email : ""
 export const middlewareApi = ({ endpoint, method, requestBody, token }: IMiddlewareApi) => {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	//@ts-ignore
 	const baseUrl = base_url || '.'
-	// return axios.post('./../../modules/simplyin/api/submitData.php', {   //stage
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	//@ts-ignore
+	const extensionVersion = extension_version ?? ''
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	//@ts-ignore
+	const prestashopVersion = prestashop_version ?? ''
+
 	if (endpoint !== "parcelLockers/getClosest") {
 		return axios.post(`${baseUrl}./modules/simplyin/api/submitData.php`, {			//dev
 
 			endpoint,
 			method,
-			requestBody,
+			requestBody: {
+				...requestBody,
+				plugin_version: extensionVersion,
+				shopVersion: prestashopVersion,
+				shopUserEmail: userEmail || undefined
+			},
 			...(token ? { token } : {}),
 		})
 			.then((response) => {

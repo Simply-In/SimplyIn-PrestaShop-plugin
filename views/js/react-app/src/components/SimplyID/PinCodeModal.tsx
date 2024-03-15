@@ -8,7 +8,7 @@ import { CloseIcon } from '../../assets/CloseIcon';
 import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerIcon';
 import { saveDataSessionStorage } from '../../services/sessionStorageApi';
 // import { useInsertFormData } from '../../hooks/useInsertFormData';
-
+import { TypedLoginType } from './SimplyID';
 
 interface IPinCodePopup {
 	phoneNumber: string
@@ -20,11 +20,12 @@ interface IPinCodePopup {
 	userData: any,
 	setUserData: any
 	render?: boolean
+	loginType: TypedLoginType
 }
 
 
 
-export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData, render }: IPinCodePopup) => {
+export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData, render, loginType }: IPinCodePopup) => {
 
 	const [modalStep, setModalStep] = useState(1)
 	const [, setSelectedUserData] = useState({})
@@ -128,7 +129,8 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							setModalStep={setModalStep}
 							setUserData={setUserData}
 						setSelectedUserData={setSelectedUserData}
-							simplyInput={simplyInput} />}
+							simplyInput={simplyInput}
+							loginType={loginType} />}
 					{modalStep === 2 &&
 						<Step2
 							listOfCountries={listOfCountries}

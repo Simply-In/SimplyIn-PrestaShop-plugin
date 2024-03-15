@@ -9,7 +9,7 @@ import { useInsertFormData } from "../../hooks/useInsertFormData.ts";
 import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
 
 
-
+export type TypedLoginType = "pinCode" | "app" | undefined
 interface ISimplyID {
 	listOfCountries: any
 	isUserLoggedIn?: boolean
@@ -32,6 +32,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [simplyinToken, setSimplyinToken] = useState("")
 	const [isSimplyIdVisible, setIsSimplyIdVisible] = useState<boolean>(false)
 
+	const [loginType, setLoginType] = useState<TypedLoginType>()
 	const [userData, setUserData] = useState({})
 
 	const {
@@ -148,7 +149,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					setPhoneNumber(res.data)
 					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
 					setVisible(true)
-
+					setLoginType("pinCode")
 				}).catch((err) => {
 					console.log(err);
 				})
@@ -248,6 +249,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						listOfCountries={listOfCountries}
 						userData={userData}
 						setUserData={setUserData}
+						loginType={loginType}
 
 					/>}
 
@@ -261,6 +263,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						listOfCountries={listOfCountries}
 						userData={userData}
 						setUserData={setUserData}
+						loginType={loginType}
 
 					/>}
 
