@@ -208,7 +208,7 @@ export const Step2Form = ({
 			clonnedArray[editItem?.itemIndex] = {
 				...editedData
 			}
-			const requestData = { ...userData, [editItem.property]: clonnedArray }
+			const requestData = { userData: { ...userData, [editItem.property]: clonnedArray } }
 			middlewareApi({
 				endpoint: "userData",
 				method: 'PATCH',
