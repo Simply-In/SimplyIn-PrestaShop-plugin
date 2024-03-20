@@ -8,7 +8,7 @@ interface IRequestBoodyCoordinates {
 interface IMiddlewareApi {
 	endpoint: "checkout/submitEmail" | "checkout/submitPhoneNumber" | "checkout/submitCheckoutCode" | "checkout/createUserData" | "userData" | "checkout/createOrder" | "checkout/resend-checkout-code-via-email" | "addresses/find" | "parcelLockers/getClosest",
 	method: "GET" | "POST" | "PATCH",
-	requestBody: { email: string } | { code: string } | { phoneNumber: string } | { searchAddressBy: string, token: string } | IRequestBoodyCoordinates
+	requestBody: any
 	token?: string
 }
 
