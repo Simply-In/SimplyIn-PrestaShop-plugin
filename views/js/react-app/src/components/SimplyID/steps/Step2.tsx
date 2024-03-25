@@ -28,7 +28,6 @@ interface IStep2 {
 	handleClosePopup: () => void;
 	userData: any
 	setUserData: any,
-	setSelectedUserData: any,
 	listOfCountries: any
 	editItemIndex: any,
 	setEditItemIndex: any,
@@ -51,7 +50,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 
-export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
+export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
 	const { t } = useTranslation();
 
 
@@ -133,31 +132,14 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		if (deliveryType === "address") {
 
 			// resetDeliveryMethod()
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
-				sessionStorage.setItem("ParcelIndex", `null`)
-				selectDeliveryMethod({ provider: "default" })
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
-					parcelLockers: null
-				})
-
-			})
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
+			sessionStorage.setItem("ParcelIndex", `null`)
+			selectDeliveryMethod({ provider: "default" })
 		} else {
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `null`)
-				sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: null,
-					parcelLockers: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId || null
-				})
-			})
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `null`)
+			sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
 			if (selectedDeliveryPointIndex !== undefined && userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId) {
 				removeDataSessionStorage({ key: 'isParcelAdded' })
 				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });

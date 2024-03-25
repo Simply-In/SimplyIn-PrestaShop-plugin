@@ -23,14 +23,13 @@ interface IStep1 {
 	setModalStep: (arg: number) => void;
 	setUserData: any
 	setToken: any
-	setSelectedUserData: any
 	simplyInput: string
 	loginType: TypedLoginType
 
 
 }
 
-export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, setSelectedUserData, simplyInput, loginType }: IStep1) => {
+export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, simplyInput, loginType }: IStep1) => {
 	const { t, i18n } = useTranslation();
 
 	const [countdown, setCountdown] = useState<boolean>(false)
@@ -88,19 +87,14 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				if (billingAddresses.length === 1 && shippingAddresses.length === 1 && parcelLockers.length === 0) {
 					setSelectedBillingIndex(0)
 					setSelectedShippingIndex(0)
+					setSelectedDeliveryPointIndex(null)
+					setSameDeliveryAddress(false)
 					sessionStorage.setItem("BillingIndex", `0`)
 					sessionStorage.setItem("ShippingIndex", `0`)
 					sessionStorage.setItem("ParcelIndex", `null`)
 					setSelectedDeliveryPointIndex(null)
 					setSameDeliveryAddress(false)
-					setSelectedUserData((prev: any) => {
-						return ({
-							...prev,
-							billingAddresses: billingAddresses[0],
-							shippingAddresses: shippingAddresses[0],
-							parcelLockers: null
-						})
-					})
+
 					handleClosePopup()
 					setModalStep(2)
 					selectDeliveryMethod({ provider: "default" })
@@ -118,16 +112,9 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					sessionStorage.setItem("ParcelIndex", `null`)
 					setSameDeliveryAddress(false)
 					setSelectedDeliveryPointIndex(null)
-					setSelectedUserData((prev: any) => {
-						return ({
-							...prev,
-							billingAddresses: billingAddresses[0],
-							shippingAddresses: shippingAddresses[0],
-							parcelLockers: null
-						})
-					})
 					setModalStep(2)
 					selectDeliveryMethod({ provider: "default" })
+
 
 					return
 
@@ -143,14 +130,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					sessionStorage.setItem("BillingIndex", `0`)
 					sessionStorage.setItem("ShippingIndex", `null`)
 					sessionStorage.setItem("ParcelIndex", `null`)
-					setSelectedUserData((prev: any) => {
-						return ({
-							...prev,
-							billingAddresses: billingAddresses[0],
-							shippingAddresses: null,
-							parcelLockers: null
-						})
-					})
+
 					selectDeliveryMethod({ provider: "default" })
 					setModalStep(2)
 					handleClosePopup()
@@ -171,15 +151,6 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					sessionStorage.setItem("ParcelIndex", `0`)
 
 
-					setSelectedUserData((prev: any) => {
-						return ({
-							...prev,
-							billingAddresses: billingAddresses[0],
-							shippingAddresses: null,
-							parcelLockers: parcelLockers[0]
-
-						})
-					})
 					selectDeliveryMethod({ deliveryPointID: parcelLockers[0].lockerId });
 					setModalStep(2)
 					handleClosePopup()
@@ -201,15 +172,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					sessionStorage.setItem("ParcelIndex", `0`)
 
 
-					setSelectedUserData((prev: any) => {
-						return ({
-							...prev,
-							billingAddresses: billingAddresses[0],
-							shippingAddresses: null,
-							parcelLockers: parcelLockers[0]
 
-						})
-					})
 
 					setModalStep(2)
 					return
