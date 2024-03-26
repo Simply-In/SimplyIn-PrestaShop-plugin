@@ -14,7 +14,7 @@ import { SelectedDataContext } from '../SimplyID';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
 import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod';
-import { getPlaceholder } from './functions';
+import { getPlaceholder, isSameShippingAndBillingAddresses } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,6 @@ interface IStep2 {
 	handleClosePopup: () => void;
 	userData: any
 	setUserData: any,
-	setSelectedUserData: any,
 	listOfCountries: any
 	editItemIndex: any,
 	setEditItemIndex: any,
@@ -51,7 +50,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 
-export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
+export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
 	const { t } = useTranslation();
 
 
@@ -133,31 +132,14 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		if (deliveryType === "address") {
 
 			// resetDeliveryMethod()
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
-				sessionStorage.setItem("ParcelIndex", `null`)
-				selectDeliveryMethod({ provider: "default" })
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
-					parcelLockers: null
-				})
-
-			})
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
+			sessionStorage.setItem("ParcelIndex", `null`)
+			selectDeliveryMethod({ provider: "default" })
 		} else {
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `null`)
-				sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: null,
-					parcelLockers: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId || null
-				})
-			})
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `null`)
+			sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
 			if (selectedDeliveryPointIndex !== undefined && userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId) {
 				removeDataSessionStorage({ key: 'isParcelAdded' })
 				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
@@ -180,7 +162,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 		let normalizedNumberFromDB = userData?.phoneNumber
 
-		if (billingData?.country.toLowerCase() == "PL".toLowerCase()) {
+		if (billingData?.country?.toLowerCase() == "PL".toLowerCase()) {
 			if (userData?.phoneNumber?.startsWith("+48")) {
 				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
 			}
@@ -188,8 +170,19 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 
 
-		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId') }
-		if (shippingData) { handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId') }
+		//if shipping and billing records are simillar then we don't need to generate by php shipping address
+		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
+
+
+		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId', isSameBillingAndShippingAddresses) }
+
+		if (shippingData && !isSameBillingAndShippingAddresses) {
+			handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId', false)
+		} else {
+			const billingAddressId = loadDataFromSessionStorage({ key: "billingAddressesId" })
+			saveDataSessionStorage({ key: "shippingAddressesId", data: billingAddressId })
+
+		}
 
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		handleClosePopup()
@@ -226,7 +219,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		taxId?: string
 	}
 
-	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId") => {
+	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId", isSameShippingAndBillingAddress: any) => {
 
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
@@ -259,6 +252,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		})
 			.then(response => {
 				saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
+				if (isSameShippingAndBillingAddress) {
+					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+				}
 
 				if (!shippingData) {
 					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
@@ -512,15 +508,15 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 					<>
 						<CardActions disableSpacing sx={{ padding: 0 }}>
 						<SectionTitle>{t('modal-step-2.parcelMachines')}</SectionTitle>
-					<ExpandMore
-						expand={expanded.deliveryPoint}
-						onClick={() => handleExpandClick("deliveryPoint")}
-						aria-expanded={expanded.deliveryPoint}
-						aria-label="show more"
-					>
-						<ExpandMoreIcon />
-					</ExpandMore>
-				</CardActions>
+						<ExpandMore
+							expand={expanded.deliveryPoint}
+							onClick={() => handleExpandClick("deliveryPoint")}
+							aria-expanded={expanded.deliveryPoint}
+							aria-label="show more"
+						>
+							<ExpandMoreIcon />
+						</ExpandMore>
+					</CardActions>
 					{/* <FormGroup>
 						<FormControlLabel sx={{
 							textAlign: 'left',

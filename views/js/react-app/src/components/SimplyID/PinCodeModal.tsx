@@ -7,7 +7,6 @@ import { CloseContainer, PopupContainer, PopupHeader, StyledBox } from './Simply
 import { CloseIcon } from '../../assets/CloseIcon';
 import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerIcon';
 import { saveDataSessionStorage } from '../../services/sessionStorageApi';
-// import { useInsertFormData } from '../../hooks/useInsertFormData';
 import { TypedLoginType } from './SimplyID';
 
 interface IPinCodePopup {
@@ -28,23 +27,9 @@ interface IPinCodePopup {
 export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData, render, loginType }: IPinCodePopup) => {
 
 	const [modalStep, setModalStep] = useState(1)
-	const [, setSelectedUserData] = useState({})
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
 
 
-	const BillingIndex = sessionStorage.getItem("BillingIndex")
-	const ShippingIndex = sessionStorage.getItem("ShippingIndex")
-
-	useEffect(() => {
-		setSelectedUserData({
-			...userData,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			billingAddresses: userData?.billingAddresses?.length ? userData?.billingAddresses[0] : {},
-			shippingAddresses: null,
-			parcelLockers: null
-		})
-	}, [userData])
 
 	useEffect(() => {
 		setToken("")
@@ -68,21 +53,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 
 
 
-
-	useEffect(() => {
-
-		setSelectedUserData({
-			...userData,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			billingAddresses: userData?.billingAddresses?.length ? userData?.billingAddresses : {},
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			shippingAddresses: userData?.shippingAddresses?.length ? userData?.shippingAddresses : {}
-		})
-
-
-	}, [userData, BillingIndex, ShippingIndex])
 
 
 
@@ -127,8 +97,7 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							phoneNumber={phoneNumber}
 							handleClosePopup={handleClosePopup}
 							setModalStep={setModalStep}
-							setUserData={setUserData}
-						setSelectedUserData={setSelectedUserData}
+						setUserData={setUserData}	
 							simplyInput={simplyInput}
 							loginType={loginType} />}
 					{modalStep === 2 &&
@@ -137,7 +106,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							handleClosePopup={handleClosePopup}
 							userData={userData}
 						setUserData={setUserData}
-						setSelectedUserData={setSelectedUserData}
 							editItemIndex={editItemIndex}
 							setEditItemIndex={setEditItemIndex}
 

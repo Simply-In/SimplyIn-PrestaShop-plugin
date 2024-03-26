@@ -126,6 +126,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		sessionStorage.removeItem("phoneNumber")
 		sessionStorage.removeItem("BillingIndex")
 		sessionStorage.removeItem("ShippingIndex")
+		sessionStorage.removeItem("shippingAddressesId")
+		sessionStorage.removeItem("billingAddressesId")
 		setSimplyinToken("")
 		setUserData({})
 	}

@@ -16,7 +16,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		const linkElement = document.querySelector('a[data-link-action="different-invoice-address"]');
 		if (linkElement) {
 			linkElement.click();
-		} 
+		}
 	}
 
 	if (billingId) {
@@ -81,6 +81,8 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 		const formContainer = document?.getElementById(formId)
 
+
+
 		if (!formContainer) return
 
 		if ("name" in data && formContainer.querySelector('#field-firstname')) {
@@ -94,7 +96,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		if ("taxId" in data && formContainer.querySelector('#field-vat_number')) { (formContainer.querySelector('#field-vat_number') as HTMLInputElement).value = customChanges.fieldVat_number || data.taxId || "" }
 		if ("phoneNumber" in data && formContainer.querySelector('#field-phone')) {
 			let normalizedNumberFromDB = data.phoneNumber
-			if (data?.country.toLowerCase() == "PL".toLowerCase()) {
+			if (data?.country?.toLowerCase() == "PL".toLowerCase()) {
 				if (data.phoneNumber.startsWith("+48")) {
 					normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
 				}
@@ -191,27 +193,26 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 		const ShippingIndex = sessionStorage.getItem("ShippingIndex")
 		const ParcelIndex = sessionStorage.getItem("ParcelIndex")
 
+		const ShippingAddressesId = sessionStorage.getItem("shippingAddressesId")
+		const BillingAddressesId = sessionStorage.getItem("billingAddressesId")
 
-		const sameAddressCheckbox = document.getElementById('use_same_address')
+		const useDifferentAddressCheckbox = document.getElementById('use_same_address')
 
-		if (ShippingIndex === "null") {
+		if (ShippingIndex === "null" || (ShippingIndex === "null" && BillingAddressesId !== ShippingAddressesId)) {
 
-			if (sameAddressCheckbox) {
-				sameAddressCheckbox.checked = true
+			if (useDifferentAddressCheckbox) {
+				useDifferentAddressCheckbox.checked = true
 			}
 
 			if (userData?.billingAddresses?.length) {
 				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
-
-
 		} else {
 
-			if (sameAddressCheckbox) {
-				sameAddressCheckbox.checked = false
+			if (useDifferentAddressCheckbox) {
+				useDifferentAddressCheckbox.checked = false
 			}
-
 
 			if (userData?.shippingAddresses?.length) {
 				fillForm({ ...userData?.shippingAddresses[ShippingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.deliveryAddress)
