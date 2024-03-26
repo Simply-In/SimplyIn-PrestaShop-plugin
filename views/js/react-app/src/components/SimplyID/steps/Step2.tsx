@@ -162,7 +162,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 		let normalizedNumberFromDB = userData?.phoneNumber
 
-		if (billingData?.country.toLowerCase() == "PL".toLowerCase()) {
+		if (billingData?.country?.toLowerCase() == "PL".toLowerCase()) {
 			if (userData?.phoneNumber?.startsWith("+48")) {
 				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
 			}
