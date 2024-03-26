@@ -12,6 +12,7 @@ import Countdown from 'react-countdown'
 import { useTranslation } from "react-i18next";
 import { AndroidIcon } from '../../../assets/AndroidIcon'
 import { IosIcon } from '../../../assets/IosIcon'
+import { isSameShippingAndBillingAddresses } from './functions'
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
 	return <span>{minutes}:{seconds}</span>;
@@ -85,15 +86,24 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				}
 
 				if (billingAddresses.length === 1 && shippingAddresses.length === 1 && parcelLockers.length === 0) {
+
+
+					if (isSameShippingAndBillingAddresses({ billingAddress: billingAddresses[0], shippingAddress: shippingAddresses[0] })) {
+						setSelectedShippingIndex(null)
+						setSelectedDeliveryPointIndex(null)
+						setSameDeliveryAddress(true)
+						sessionStorage.setItem("ShippingIndex", `null`)
+
+					} else {
+						setSelectedShippingIndex(0)
+						setSelectedDeliveryPointIndex(0)
+						setSameDeliveryAddress(false)
+						sessionStorage.setItem("ShippingIndex", `0`)
+					}
+
 					setSelectedBillingIndex(0)
-					setSelectedShippingIndex(0)
-					setSelectedDeliveryPointIndex(null)
-					setSameDeliveryAddress(false)
 					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ShippingIndex", `0`)
 					sessionStorage.setItem("ParcelIndex", `null`)
-					setSelectedDeliveryPointIndex(null)
-					setSameDeliveryAddress(false)
 
 					handleClosePopup()
 					setModalStep(2)

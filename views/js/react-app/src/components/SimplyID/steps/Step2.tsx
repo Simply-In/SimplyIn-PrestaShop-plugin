@@ -14,7 +14,7 @@ import { SelectedDataContext } from '../SimplyID';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
 import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod';
-import { getPlaceholder } from './functions';
+import { getPlaceholder, isSameShippingAndBillingAddresses } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import { useTranslation } from 'react-i18next';
@@ -170,8 +170,19 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 
 
-		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId') }
-		if (shippingData) { handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId') }
+		//if shipping and billing records are simillar then we don't need to generate by php shipping address
+		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
+
+
+		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId', isSameBillingAndShippingAddresses) }
+
+		if (shippingData && !isSameBillingAndShippingAddresses) {
+			handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId', false)
+		} else {
+			const billingAddressId = loadDataFromSessionStorage({ key: "billingAddressesId" })
+			saveDataSessionStorage({ key: "shippingAddressesId", data: billingAddressId })
+
+		}
 
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 		handleClosePopup()
@@ -208,7 +219,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		taxId?: string
 	}
 
-	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId") => {
+	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId", isSameShippingAndBillingAddress: any) => {
 
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
@@ -241,6 +252,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		})
 			.then(response => {
 				saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
+				if (isSameShippingAndBillingAddress) {
+					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+				}
 
 				if (!shippingData) {
 					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
@@ -494,15 +508,15 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 					<>
 						<CardActions disableSpacing sx={{ padding: 0 }}>
 						<SectionTitle>{t('modal-step-2.parcelMachines')}</SectionTitle>
-					<ExpandMore
-						expand={expanded.deliveryPoint}
-						onClick={() => handleExpandClick("deliveryPoint")}
-						aria-expanded={expanded.deliveryPoint}
-						aria-label="show more"
-					>
-						<ExpandMoreIcon />
-					</ExpandMore>
-				</CardActions>
+						<ExpandMore
+							expand={expanded.deliveryPoint}
+							onClick={() => handleExpandClick("deliveryPoint")}
+							aria-expanded={expanded.deliveryPoint}
+							aria-label="show more"
+						>
+							<ExpandMoreIcon />
+						</ExpandMore>
+					</CardActions>
 					{/* <FormGroup>
 						<FormControlLabel sx={{
 							textAlign: 'left',
