@@ -131,6 +131,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 		if (deliveryType === "address") {
 
+
 			// resetDeliveryMethod()
 			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
 			sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)

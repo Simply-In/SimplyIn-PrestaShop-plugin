@@ -196,22 +196,25 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 		const ShippingAddressesId = sessionStorage.getItem("shippingAddressesId")
 		const BillingAddressesId = sessionStorage.getItem("billingAddressesId")
 
-		const useDifferentAddressCheckbox = document.getElementById('use_same_address')
+		const useSameAddressCheckbox = document.getElementById('use_same_address')
 
 		if (ShippingIndex === "null" || (ShippingIndex === "null" && BillingAddressesId !== ShippingAddressesId)) {
 
-			if (useDifferentAddressCheckbox) {
-				useDifferentAddressCheckbox.checked = true
+			//Same address
+			if (useSameAddressCheckbox) {
+				useSameAddressCheckbox.checked = true
 			}
 
 			if (userData?.billingAddresses?.length) {
 				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
 		} else {
 
-			if (useDifferentAddressCheckbox) {
-				useDifferentAddressCheckbox.checked = false
+			//Different address
+			if (useSameAddressCheckbox) {
+				useSameAddressCheckbox.checked = false
 			}
 
 			if (userData?.shippingAddresses?.length) {
