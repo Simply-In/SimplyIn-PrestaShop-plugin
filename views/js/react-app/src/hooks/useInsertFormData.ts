@@ -206,8 +206,8 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
-				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
 		} else {
@@ -218,11 +218,11 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			}
 
 			if (userData?.shippingAddresses?.length) {
-				fillForm({ ...userData?.shippingAddresses[ShippingIndex || 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.deliveryAddress)
+				fillForm({ ...userData?.shippingAddresses[ShippingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.deliveryAddress)
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm({ ...userData?.billingAddresses[BillingIndex || 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
 
