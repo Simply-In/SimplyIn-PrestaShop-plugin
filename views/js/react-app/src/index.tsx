@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	}
 
-	if (testRequest.message === "Merchant api key not found") {
+	if (testRequest?.message === "Merchant api key not found" || testRequest?.code === "UNAUTHORIZED") {
 		console.log("SIMPLYIN API KEY INVALID");
 		isValid = false
 		deleteSimplyContent()

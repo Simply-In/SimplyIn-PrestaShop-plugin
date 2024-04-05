@@ -3,12 +3,15 @@
 
 require(dirname(__FILE__) . "/../../../config/config.inc.php");
 require(dirname(__FILE__) . "/../../../init.php");
+
 $data = json_decode(file_get_contents("php://input"), true);
 $endpoint = $data['endpoint'];
 $method = strtoupper($data['method']);
 $body = $data['requestBody'];
 $token = $data['token'];
 
+$headersArray = getallheaders();
+$origin = $headersArray['Origin'];
 
 $apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
 
@@ -17,7 +20,6 @@ if (empty($apiKey)) {
 	echo "Error: Simplyin API key is empty";
 	return;
 }
-
 
 $body['apiKey'] = $apiKey;
 
@@ -28,8 +30,8 @@ if (!empty($token)) {
 } else {
 	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
 }
+$headers = array('Content-Type: application/json', 'Origin: ' . $origin);
 
-$headers = array('Content-Type: application/json');
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 
