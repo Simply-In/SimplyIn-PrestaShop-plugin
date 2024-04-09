@@ -8,6 +8,7 @@ import { loadDataFromSessionStorage, saveDataSessionStorage } from "../../servic
 import { useInsertFormData } from "../../hooks/useInsertFormData.ts";
 import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
 import { predefinedFill } from "./steps/functions.ts";
+import { useTranslation } from "react-i18next";
 
 
 export type TypedLoginType = "pinCode" | "app" | undefined
@@ -36,6 +37,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [loginType, setLoginType] = useState<TypedLoginType>()
 	const [notificationTokenId, setNotificationTokenId] = useState("")
 	const [counter, setCounter] = useState(0)
+	const { t, i18n } = useTranslation();
 
 	const {
 		selectedBillingIndex,
@@ -139,7 +141,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 	}
 
-	const maxAttempts = 30 * 1000 / 2000; // 30 seconds divided by 500ms
+	const maxAttempts = 30 * 1000 / 500; // 30 seconds divided by 500ms
 
 	useEffect(() => {
 		console.log({ notificationTokenId, modalStep, visible })
@@ -156,10 +158,16 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 
 				if (ok) {
+
+					if (userData?.language) {
+						i18n.changeLanguage(userData?.language.toLowerCase())
+					}
+
 					setUserData(userData)
 					setVisible(true)
 					setModalStep(2)
-					console.log('Login accepted');
+
+					saveDataSessionStorage({ key: 'UserData', data: userData })
 
 					predefinedFill(userData, handleClosePopup, {
 						setSelectedBillingIndex,
@@ -169,10 +177,6 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						setPickupPointDelivery
 					})
 
-
-
-
-
 				} else if (counter < maxAttempts) {
 					setTimeout(() => setCounter((prev) => prev + 1), 2000);
 				} else {
@@ -180,21 +184,12 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				}
 				if (authToken) {
 					setSimplyinToken(authToken)
+					sessionStorage.setItem("simplyinToken", authToken);
 				}
-
-
-
-
-
-
-
 			})
 			.catch(error => {
-
 				console.error('Error checking login status:', error);
 			});
-
-
 	}, [notificationTokenId, counter, visible])
 
 
