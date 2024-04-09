@@ -7,6 +7,7 @@ import PinCodeModal from "./PinCodeModal.tsx";
 import { loadDataFromSessionStorage, saveDataSessionStorage } from "../../services/sessionStorageApi.ts";
 import { useInsertFormData } from "../../hooks/useInsertFormData.ts";
 import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
+import { predefinedFill } from "./steps/functions.ts";
 
 
 export type TypedLoginType = "pinCode" | "app" | undefined
@@ -23,7 +24,8 @@ export const SelectedDataContext = createContext<any>(null);
 
 
 export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
-
+	const [modalStep, setModalStep] = useState(1)
+	const [userData, setUserData] = useState({})
 	const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || "");
 
 	const [attributeObject, setAttributeObject] = useState({});
@@ -31,9 +33,9 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [phoneNumber, setPhoneNumber] = useState("")
 	const [simplyinToken, setSimplyinToken] = useState("")
 	const [isSimplyIdVisible, setIsSimplyIdVisible] = useState<boolean>(false)
-
 	const [loginType, setLoginType] = useState<TypedLoginType>()
-	const [userData, setUserData] = useState({})
+	const [notificationTokenId, setNotificationTokenId] = useState("")
+	const [counter, setCounter] = useState(0)
 
 	const {
 		selectedBillingIndex,
@@ -132,26 +134,95 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setUserData({})
 	}
 
+	const handleClosePopup = () => {
+		setVisible(false)
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
+	}
+
+	const maxAttempts = 30 * 1000 / 2000; // 30 seconds divided by 500ms
+
+	useEffect(() => {
+		console.log({ notificationTokenId, modalStep, visible })
+		if (!notificationTokenId || modalStep !== 1) {
+			return
+		}
+
+		middlewareApi({
+			endpoint: "checkout/checkIfSubmitEmailPushNotificationWasConfirmed",
+			method: 'POST',
+			requestBody: { "email": simplyInput.trim().toLowerCase(), "notificationTokenId": notificationTokenId, language: "EN" }
+		})
+			.then(({ ok, authToken, userData }) => {
+
+
+				if (ok) {
+					setUserData(userData)
+					setVisible(true)
+					setModalStep(2)
+					console.log('Login accepted');
+
+					predefinedFill(userData, handleClosePopup, {
+						setSelectedBillingIndex,
+						setSelectedShippingIndex,
+						setSelectedDeliveryPointIndex,
+						setSameDeliveryAddress,
+						setPickupPointDelivery
+					})
+
+
+
+
+
+				} else if (counter < maxAttempts) {
+					setTimeout(() => setCounter((prev) => prev + 1), 2000);
+				} else {
+					console.log('Login not accepted within 30 seconds');
+				}
+				if (authToken) {
+					setSimplyinToken(authToken)
+				}
+
+
+
+
+
+
+
+			})
+			.catch(error => {
+
+				console.error('Error checking login status:', error);
+			});
+
+
+	}, [notificationTokenId, counter, visible])
+
+
 	useEffect(() => {
 		setVisible(false)
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
+		setNotificationTokenId("")
 
-		if (!simplyinToken && (isSimplyIdVisible || !isSimplyModalSelected)) {
+		if (!simplyinToken && isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
+				console.log('submitEmail 1');
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
 					requestBody: { "email": simplyInput?.trim().toLowerCase() || "" }
-				}).then(res => {
+				}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
+
+					setPhoneNumber(phoneNumber)
+					saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
 					setVisible(true)
-					setPhoneNumber(res.data)
-					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
-					setVisible(true)
-					setLoginType("pinCode")
+					setLoginType(userUsedPushNotifications ? "app" : "pinCode")
+					if (userUsedPushNotifications) {
+						setNotificationTokenId(notificationTokenId)
+					}
 				}).catch((err) => {
 					console.log(err);
 				})
@@ -173,20 +244,25 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
+		console.log('2 is sibmply id visible', isSimplyIdVisible);
 
-		if (!isSimplyModalSelected && !simplyinToken) {
+		if (!isSimplyModalSelected && !simplyinToken && !isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
+				console.log('submitEmail 2');
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
 					requestBody: { "email": simplyInput?.trim().toLowerCase() || "" }
-				}).then(res => {
+				}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
+					setPhoneNumber(phoneNumber)
+					saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
 					setVisible(true)
-					setPhoneNumber(res.data)
-					saveDataSessionStorage({ key: 'phoneNumber', data: res.data })
-					setVisible(true)
+					setLoginType(userUsedPushNotifications ? "app" : "pinCode")
+					if (userUsedPushNotifications) {
+						setNotificationTokenId(notificationTokenId)
+					}
 
 				}).catch((err) => {
 					console.log(err);
@@ -252,10 +328,14 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						userData={userData}
 						setUserData={setUserData}
 						loginType={loginType}
+						modalStep={modalStep}
+						setModalStep={setModalStep}
 
 					/>}
 
 					{!isSimplyModalSelected && isUserLoggedIn && phoneNumber && <PinCodeModal
+						modalStep={modalStep}
+						setModalStep={setModalStep}
 						render={true}
 						simplyInput={simplyInput}
 						setToken={setSimplyinToken}
