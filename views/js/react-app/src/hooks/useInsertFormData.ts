@@ -40,9 +40,9 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		if (billingId === "last") {
 
 			const allAddressPins = document.querySelectorAll(`input[type="radio"][name="id_address_invoice"]`);
-
+			console.log('allAddressPins', allAddressPins);
 			if (allAddressPins.length) {
-				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current)
+				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current, [])
 
 
 				pinWithHighestValue.checked = true;

@@ -1,18 +1,17 @@
 import { useContext, useEffect, useState } from 'react'
-
 import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain, MobileSystemsLinksContainer, SingleSystemLink } from '../SimplyID.styled'
 import { middlewareApi } from '../../../services/middlewareApi'
 import { PopupTextError } from '../../PhoneField/PhoneField.styled'
 import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi'
 import { SelectedDataContext, TypedLoginType } from '../SimplyID'
-import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
 import { Divider, Link } from '@mui/material'
 import Countdown from 'react-countdown'
 import { useTranslation } from "react-i18next";
 import { AndroidIcon } from '../../../assets/AndroidIcon'
 import { IosIcon } from '../../../assets/IosIcon'
-import { isSameShippingAndBillingAddresses } from './functions'
+import { predefinedFill } from './functions'
+
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
 	return <span>{minutes}:{seconds}</span>;
@@ -47,6 +46,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 	} = useContext(SelectedDataContext)
 
 
+
 	const handlePinComplete = (value: string) => {
 		middlewareApi({
 			endpoint: "checkout/submitCheckoutCode",
@@ -69,129 +69,29 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				removeDataSessionStorage({ key: 'invoice-address' })
 				removeDataSessionStorage({ key: "selectedShippingMethod" })
 
+				setModalStep(2)
+
 				setUserData({ ...res.data })
+
 				saveDataSessionStorage({ key: 'UserData', data: res.data })
 
 				sessionStorage.setItem("simplyinToken", res.authToken);
 
-				setToken(res.authToken)
+				setToken(res?.authToken)
 
-				setModalStep(2)
+				predefinedFill(res?.data, handleClosePopup, {
+					setSelectedBillingIndex,
+					setSelectedShippingIndex,
+					setSelectedDeliveryPointIndex,
+					setSameDeliveryAddress,
+					setPickupPointDelivery
+				})
 
-				const { billingAddresses, shippingAddresses, parcelLockers } = res.data
-
-				if (billingAddresses.length === 0) {
-					setModalStep(2)
-					return
-				}
-
-				if (billingAddresses.length === 1 && shippingAddresses.length === 1 && parcelLockers.length === 0) {
-
-
-					if (isSameShippingAndBillingAddresses({ billingAddress: billingAddresses[0], shippingAddress: shippingAddresses[0] })) {
-						setSelectedShippingIndex(null)
-						setSelectedDeliveryPointIndex(null)
-						setSameDeliveryAddress(true)
-						sessionStorage.setItem("ShippingIndex", `null`)
-
-					} else {
-						setSelectedShippingIndex(0)
-						setSelectedDeliveryPointIndex(0)
-						setSameDeliveryAddress(false)
-						sessionStorage.setItem("ShippingIndex", `0`)
-					}
-
-					setSelectedBillingIndex(0)
-					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ParcelIndex", `null`)
-
-					handleClosePopup()
-					setModalStep(2)
-					selectDeliveryMethod({ provider: "default" })
-
-					return
-				}
-
-				if (billingAddresses.length === 1 && shippingAddresses.length && parcelLockers.length === 0) {
-
-
-					setSelectedBillingIndex(0)
-					setSelectedShippingIndex(0)
-					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ShippingIndex", `0`)
-					sessionStorage.setItem("ParcelIndex", `null`)
-					setSameDeliveryAddress(false)
-					setSelectedDeliveryPointIndex(null)
-					setModalStep(2)
-					selectDeliveryMethod({ provider: "default" })
-
-
-					return
-
-				}
-
-				if (billingAddresses.length === 1 && shippingAddresses.length === 0 && parcelLockers.length === 0) {
-
-
-					setSelectedBillingIndex(0)
-					setSelectedShippingIndex(null)
-					setSameDeliveryAddress(true)
-					setSelectedDeliveryPointIndex(null)
-					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ShippingIndex", `null`)
-					sessionStorage.setItem("ParcelIndex", `null`)
-
-					selectDeliveryMethod({ provider: "default" })
-					setModalStep(2)
-					handleClosePopup()
-
-					return
-				}
-
-
-				if (billingAddresses.length === 1 && shippingAddresses.length === 0 && parcelLockers.length === 1) {
-
-					setSelectedBillingIndex(0)
-					setSelectedShippingIndex(null)
-					setSelectedDeliveryPointIndex(0)
-					setSameDeliveryAddress(true)
-
-					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ShippingIndex", `null`)
-					sessionStorage.setItem("ParcelIndex", `0`)
-
-
-					selectDeliveryMethod({ deliveryPointID: parcelLockers[0].lockerId });
-					setModalStep(2)
-					handleClosePopup()
-					return
-				}
-
-
-				if (billingAddresses.length === 1 && shippingAddresses.length === 0 && parcelLockers.length) {
-
-					setSelectedBillingIndex(0)
-					setSelectedShippingIndex(null)
-
-					setSelectedDeliveryPointIndex(0)
-					setSameDeliveryAddress(true)
-					setPickupPointDelivery(true)
-
-					sessionStorage.setItem("BillingIndex", `0`)
-					sessionStorage.setItem("ShippingIndex", `null`)
-					sessionStorage.setItem("ParcelIndex", `0`)
-
-
-
-
-					setModalStep(2)
-					return
-				}
-				setModalStep(2)
 
 			}
 		});
 	};
+
 
 	useEffect(() => {
 		if (pinCode?.length > 3) {
@@ -244,7 +144,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 	return (
 		<>
-			<PopupTitle> {t('modal-step-1.confirm')} </PopupTitle>
+			<PopupTitle style={{ margin: loginType === "pinCode" ? "inherit" : "4px auto 12px" }}>	{t('modal-step-1.confirm')}</PopupTitle>
 			{loginType === "pinCode" &&
 				<>
 				<PopupTextMain>{t('modal-step-1.insertCode')} </PopupTextMain>
@@ -306,7 +206,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					{modalError}
 				</PopupTextError>
 			}
-			<PopupTextSecondary style={{ paddingBottom: loginType === "app" ? '32px' : "inherit" }}>
+			<PopupTextSecondary style={{ paddingBottom: loginType === "app" ? '24px' : "inherit" }}>
 				{t('modal-step-1.editAfterLogin')}
 			</PopupTextSecondary>
 

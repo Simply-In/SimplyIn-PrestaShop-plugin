@@ -151,7 +151,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 
 		saveDataSessionStorage({ key: 'isParcelAdded', data: false })
-
 		removeDataSessionStorage({ key: 'delivery-address' })
 		removeDataSessionStorage({ key: 'invoice-address' })
 		removeDataSessionStorage({ key: 'inpost-delivery-point' })
@@ -402,8 +401,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 						onChange={handleChangeDelivery}
 						style={{ padding: "8px 8px 0 8px" }}
 					>
-						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.doorDelivery')}</Typography>} />
-						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.parcelDelivery')}</Typography>} />
+						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.doorDelivery')}</Typography>} />
+						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.parcelDelivery')}</Typography>} />
 
 					</RadioGroup>
 				</FormControl>
