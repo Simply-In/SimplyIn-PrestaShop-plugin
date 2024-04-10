@@ -1,5 +1,7 @@
 import { selectDeliveryMethod } from "../../../functions/selectDeliveryMethod"
 import placeholder from '../../../assets/placeholder.png';
+import { loadDataFromSessionStorage, saveDataSessionStorage } from "../../../services/sessionStorageApi";
+import { handlePhpScript } from "./Step2";
 
 export const getPlaceholder = () => {
 	return placeholder
@@ -29,39 +31,37 @@ export const isSameShippingAndBillingAddresses = ({ billingAddress, shippingAddr
 }
 
 
-
-
-
-
-
 export const predefinedFill = (userData: any, handleClosePopup: any, indexContext: any) => {
+
+
 	const {
 		setSelectedBillingIndex,
 		setSelectedShippingIndex,
 		setSelectedDeliveryPointIndex,
 		setSameDeliveryAddress,
-		setPickupPointDelivery
+		setPickupPointDelivery,
+		isUserLoggedIn,
+		selectedBillingIndex,
+		selectedShippingIndex,
+		sameDeliveryAddress
 	} = indexContext
 
-
-	console.log(userData);
 	if (!userData) {
 		return
 	}
 	const { billingAddresses, shippingAddresses, parcelLockers } = userData
 
+	console.log('userData', userData);
+
 	if (billingAddresses === undefined) { return }
 
-
-	console.log('hook', { billingAddresses, shippingAddresses, parcelLockers });
-
-
 	if (billingAddresses?.length === 0) {
-
+		console.log('case 1');
 		return
 	}
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 1 && parcelLockers?.length === 0) {
+		console.log('case 2');
 
 
 		if (isSameShippingAndBillingAddresses({ billingAddress: billingAddresses[0], shippingAddress: shippingAddresses[0] })) {
@@ -85,10 +85,11 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 
 		selectDeliveryMethod({ provider: "default" })
 
-		return
+		// return
 	}
 
-	if (billingAddresses?.length === 1 && shippingAddresses?.length && parcelLockers?.length === 0) {
+	if (billingAddresses?.length === 1 && shippingAddresses?.length > 1 && parcelLockers?.length === 0) {
+		console.log('case 3');
 
 
 		setSelectedBillingIndex(0)
@@ -100,10 +101,11 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		setSelectedDeliveryPointIndex(null)
 
 		selectDeliveryMethod({ provider: "default" })
-		return
+		// return
 	}
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length === 0) {
+		console.log('case 4');
 
 
 		setSelectedBillingIndex(0)
@@ -116,11 +118,12 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		selectDeliveryMethod({ provider: "default" })
 
 		handleClosePopup()
-		return
+		// return
 	}
 
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length === 1) {
+		console.log('case 5');
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -135,11 +138,12 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		selectDeliveryMethod({ deliveryPointID: parcelLockers[0].lockerId });
 
 		handleClosePopup()
-		return
+		// return
 	}
 
 
-	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length) {
+	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length > 1) {
+		console.log('case 6');
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -151,6 +155,67 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		sessionStorage.setItem("BillingIndex", `0`)
 		sessionStorage.setItem("ShippingIndex", `null`)
 		sessionStorage.setItem("ParcelIndex", `0`)
+
+	}
+
+
+	console.log('isUserLoggedIn', isUserLoggedIn);
+
+	if (isUserLoggedIn) {
+		console.log('user logged in');
+		const billingData = userData?.billingAddresses[selectedBillingIndex || 0]
+		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
+		let normalizedNumberFromDB = userData?.phoneNumber
+
+		if (billingData?.country?.toLowerCase() == "PL".toLowerCase()) {
+			if (userData?.phoneNumber?.startsWith("+48")) {
+				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
+			}
+		}
+
+
+		console.log({ selectedBillingIndex, selectedShippingIndex, billingData, shippingData, normalizedNumberFromDB });
+
+		// return
+		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
+		if (billingData) {
+			handlePhpScript(
+				{
+					...billingData,
+					phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || ""
+				},
+				'billingAddressesId',
+				isSameBillingAndShippingAddresses,
+				{
+					selectedBillingIndex: selectedBillingIndex ?? 0,
+					selectedShippingIndex: selectedShippingIndex ?? 0,
+					userData,
+					simplyInput: userData.email || ""
+				})
+		}
+		if (shippingData && !isSameBillingAndShippingAddresses) {
+			handlePhpScript(
+				{
+					...shippingData,
+					phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || ""
+				},
+				'shippingAddressesId',
+				false,
+				{
+					selectedBillingIndex: selectedBillingIndex ?? 0,
+					selectedShippingIndex: selectedShippingIndex ?? 0,
+					userData,
+					simplyInput: userData.email || ""
+				})
+		} else {
+			const billingAddressId = loadDataFromSessionStorage({ key: "billingAddressesId" })
+			saveDataSessionStorage({ key: "shippingAddressesId", data: billingAddressId })
+		}
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
+
+		handleClosePopup()
+
+		location.reload();
 
 	}
 

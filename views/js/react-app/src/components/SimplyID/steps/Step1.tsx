@@ -1,15 +1,15 @@
 import { useContext, useEffect, useState } from 'react'
-import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain, MobileSystemsLinksContainer, SingleSystemLink } from '../SimplyID.styled'
+import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain } from '../SimplyID.styled'
 import { middlewareApi } from '../../../services/middlewareApi'
 import { PopupTextError } from '../../PhoneField/PhoneField.styled'
 import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi'
 import { SelectedDataContext, TypedLoginType } from '../SimplyID'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
-import { Divider, Link } from '@mui/material'
+import { Link } from '@mui/material'
 import Countdown from 'react-countdown'
 import { useTranslation } from "react-i18next";
-import { AndroidIcon } from '../../../assets/AndroidIcon'
-import { IosIcon } from '../../../assets/IosIcon'
+// import { AndroidIcon } from '../../../assets/AndroidIcon'
+// import { IosIcon } from '../../../assets/IosIcon'
 import { predefinedFill } from './functions'
 
 
@@ -42,7 +42,9 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 		setSelectedShippingIndex,
 		setSelectedDeliveryPointIndex,
 		setSameDeliveryAddress,
-		setPickupPointDelivery
+		setPickupPointDelivery,
+		isUserLoggedIn,
+		sameDeliveryAddress
 	} = useContext(SelectedDataContext)
 
 
@@ -84,8 +86,11 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					setSelectedShippingIndex,
 					setSelectedDeliveryPointIndex,
 					setSameDeliveryAddress,
-					setPickupPointDelivery
-				})
+					setPickupPointDelivery,
+					isUserLoggedIn,
+					sameDeliveryAddress
+				},
+				)
 
 
 			}
@@ -239,7 +244,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 						</PopupSendAgain>
 					</>
 			}</>}
-			{loginType === "pinCode" &&
+			{/* {loginType === "pinCode" &&
 				<>
 					<Divider style={{ marginTop: 24, marginBottom: 12 }} />
 					<PopupTextSecondary>
@@ -249,7 +254,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 						<SingleSystemLink href='#'><AndroidIcon />Android</SingleSystemLink>
 						<SingleSystemLink href='#'><IosIcon />iOS</SingleSystemLink>
 					</MobileSystemsLinksContainer>
-				</>}
+				</>} */}
 		</>
 	)
 }

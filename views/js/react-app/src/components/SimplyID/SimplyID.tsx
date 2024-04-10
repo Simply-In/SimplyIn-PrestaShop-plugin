@@ -19,6 +19,9 @@ interface ISimplyID {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const customerEmail = customer?.email
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+console.log('customer', customer);
 
 export const ApiContext = createContext("");
 export const SelectedDataContext = createContext<any>(null);
@@ -37,7 +40,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [loginType, setLoginType] = useState<TypedLoginType>()
 	const [notificationTokenId, setNotificationTokenId] = useState("")
 	const [counter, setCounter] = useState(0)
-	const { t, i18n } = useTranslation();
+	const { i18n } = useTranslation();
 
 	const {
 		selectedBillingIndex,
@@ -49,7 +52,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		selectedDeliveryPointIndex,
 		setSelectedDeliveryPointIndex,
 		pickupPointDelivery,
-		setPickupPointDelivery } = useSelectedSimplyData();
+		setPickupPointDelivery,
+	} = useSelectedSimplyData();
 
 	const myRef = useRef();
 
@@ -156,9 +160,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		})
 			.then(({ ok, authToken, userData }) => {
 
-
 				if (ok) {
-
 					if (userData?.language) {
 						i18n.changeLanguage(userData?.language.toLowerCase())
 					}
@@ -174,11 +176,16 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						setSelectedShippingIndex,
 						setSelectedDeliveryPointIndex,
 						setSameDeliveryAddress,
-						setPickupPointDelivery
+						setPickupPointDelivery,
+						isUserLoggedIn,
+						selectedBillingIndex,
+						selectedShippingIndex,
+						sameDeliveryAddress
 					})
 
-				} else if (counter < maxAttempts) {
-					setTimeout(() => setCounter((prev) => prev + 1), 2000);
+				} else if (counter < maxAttempts && notificationTokenId) {
+					console.log('next attempt');
+					setTimeout(() => setCounter((prev) => prev + 1), 1000);
 				} else {
 					console.log('Login not accepted within 30 seconds');
 				}
@@ -190,7 +197,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			.catch(error => {
 				console.error('Error checking login status:', error);
 			});
-	}, [notificationTokenId, counter, visible])
+	}, [notificationTokenId, counter])
+	// }, [notificationTokenId, counter, visible])
 
 
 	useEffect(() => {
@@ -199,11 +207,11 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
 		setNotificationTokenId("")
-
+		console.log({ simplyinToken, isSimplyIdVisible });
 		if (!simplyinToken && isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
-				console.log('submitEmail 1');
+				console.log('submit email 1');
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
@@ -230,7 +238,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 		}
 
-	}, [simplyInput, isSimplyIdVisible, isSimplyModalSelected, isUserLoggedIn]);
+	}, [simplyInput, isSimplyIdVisible, isUserLoggedIn]);
+	// }, [simplyInput, isSimplyIdVisible, isSimplyModalSelected, isUserLoggedIn]);
 
 
 	useEffect(() => {
@@ -239,12 +248,12 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
-		console.log('2 is sibmply id visible', isSimplyIdVisible);
+
 
 		if (!isSimplyModalSelected && !simplyinToken && !isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
-				console.log('submitEmail 2');
+				console.log('submit email 2');
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
@@ -295,7 +304,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				setSelectedDeliveryPointIndex,
 				pickupPointDelivery,
 				setPickupPointDelivery,
-				simplyInput
+				simplyInput,
+				isUserLoggedIn
 			}}>
 				<SimplyIn className="REACT_APP">
 
