@@ -29,7 +29,7 @@ export const AddressSearch = ({
 	setAdditionalInfo,
 	addressNameRef }:
 	IAddressSearch) => {
-	const apiToken = useContext(ApiContext);
+	const { authToken } = useContext(ApiContext);
 
 	const { t } = useTranslation();
 	const [searchInput, setSearchInput] = useState<string>('');
@@ -47,9 +47,9 @@ export const AddressSearch = ({
 			method: 'POST',
 			requestBody: {
 				"searchAddressBy": searchInput,
-				token: apiToken
+				token: authToken
 			},
-			token: apiToken
+			token: authToken
 		}).then((res) => {
 			setAddressOptions(res?.data || []);
 		})
@@ -76,10 +76,10 @@ export const AddressSearch = ({
 			requestBody: {
 				lng: val?.geometry?.location?.lng,
 				lat: val?.geometry?.location?.lat,
-				token: apiToken
+				token: authToken
 
 			},
-			token: apiToken
+			token: authToken
 		}).then((res) => {
 
 			setMachineData(res.data)

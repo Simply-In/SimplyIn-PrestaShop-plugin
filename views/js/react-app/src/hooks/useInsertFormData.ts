@@ -180,6 +180,9 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 
 
 		if (document?.getElementById("customer-form")) {
+			if ("fieldEmail" in userData && document?.getElementById("customer-form")?.querySelector('#field-email')) {
+				(document.getElementById("customer-form").querySelector('#field-email') as HTMLInputElement).value = customChanges?.customerForm?.fieldEmail || userData.email || ""
+			}
 			if ("name" in userData && document?.getElementById("customer-form")?.querySelector('#field-firstname')) {
 				(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
 			}

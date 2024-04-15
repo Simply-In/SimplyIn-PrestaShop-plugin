@@ -16,7 +16,6 @@ interface IPinCodePopup {
 	setVisible: (arg: boolean) => void
 	setToken: any,
 	simplyInput: string,
-	listOfCountries: any
 	userData: any,
 	setUserData: any
 	render?: boolean
@@ -27,7 +26,7 @@ interface IPinCodePopup {
 
 
 
-export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData, render, loginType, modalStep, setModalStep }: IPinCodePopup) => {
+export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, userData, setUserData, render, loginType, modalStep, setModalStep }: IPinCodePopup) => {
 
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
 
@@ -102,7 +101,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							loginType={loginType} />}
 					{modalStep === 2 &&
 						<Step2
-							listOfCountries={listOfCountries}
 							handleClosePopup={handleClosePopup}
 							userData={userData}
 						setUserData={setUserData}
