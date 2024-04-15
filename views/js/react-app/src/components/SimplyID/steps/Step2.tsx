@@ -84,7 +84,6 @@ export const handlePhpScript = (
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		dataToSend
-
 	})
 		.then(response => {
 			saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
@@ -116,7 +115,6 @@ interface IStep2 {
 	handleClosePopup: () => void;
 	userData: any
 	setUserData: any,
-	listOfCountries: any
 	editItemIndex: any,
 	setEditItemIndex: any,
 }
@@ -138,7 +136,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 
-export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
+export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex }: IStep2) => {
 	const { t } = useTranslation();
 
 

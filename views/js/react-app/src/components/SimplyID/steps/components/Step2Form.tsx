@@ -75,7 +75,7 @@ export const Step2Form = ({
 	});
 
 
-	const apiToken = useContext(ApiContext);
+	const { authToken } = useContext(ApiContext);
 
 	const { editData }: any = editItem
 
@@ -212,7 +212,7 @@ export const Step2Form = ({
 			middlewareApi({
 				endpoint: "userData",
 				method: 'PATCH',
-				token: apiToken,
+				token: authToken,
 				requestBody: requestData
 			}).then(res => {
 				if (res.error) {

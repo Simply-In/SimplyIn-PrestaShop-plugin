@@ -136,11 +136,6 @@ class Simplyin extends Module
 	// 	//DEBUGGER
 	// 	// error_log($params);
 
-
-
-
-
-
 	// 	PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
 
 
