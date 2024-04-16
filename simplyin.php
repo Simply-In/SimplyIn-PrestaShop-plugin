@@ -274,6 +274,8 @@ class Simplyin extends Module
 			$deliveryPoint = $customerChoiceDataProvider->getDataByCartId($order->id_cart)->point;
 		}
 
+		$order_number = $order->getUniqReference();
+
 		Media::addJsDef(
 			array(
 				'customer_data' => $customer_info,
@@ -293,7 +295,9 @@ class Simplyin extends Module
 				'language_name' => $language_name,
 				"orderProducts" => $order->getProducts(),
 				'deliveryPoint' => $deliveryPoint,
-				'shopName' => $shopName
+				'shopName' => $shopName,
+				'order_number' => $order_number
+
 			)
 		);
 
