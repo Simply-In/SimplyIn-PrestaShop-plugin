@@ -27,6 +27,8 @@
 			"editAfterLogin": "Będziesz mógł edytować swoje dane po zalogowaniu",
 			"codeNotArrived": "Kod nie dotarł?",
 			"sendViaEmail": "Wyślij e-mailem",
+			"sendAgain": "Wyślij ponownie",
+			"or": "lub",
 			"codeHasBeenSent": "Kod został ponownie wysłany",
 			"codeInvalid": "Błędny kod weryfikacyjny",
 			"checkInApp": "Sprawdź powiadomienia w aplikacji mobilnej i zatwierdź logowanie"

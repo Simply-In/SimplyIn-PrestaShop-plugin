@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent, createContext, useRef } from "react";
+import { useState, useEffect, ChangeEvent, createContext, useRef, useMemo } from "react";
 import { SimplyinSmsPopupOpenerIcon } from "../../assets/SimplyinSmsPopupOpenerIcon.tsx";
 import { SimplyIn, SimplyinContainer, } from "./SimplyID.styled";
 import { middlewareApi } from '../../services/middlewareApi.ts'
@@ -10,6 +10,7 @@ import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
 import { predefinedFill } from "./steps/functions.ts";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth.ts";
+import { useCounterData } from "../../hooks/useCounterData.ts";
 
 
 export type TypedLoginType = "pinCode" | "app" | undefined
@@ -23,6 +24,7 @@ const customerEmail = customer?.email
 
 export const ApiContext = createContext<any>(null);
 export const SelectedDataContext = createContext<any>(null);
+export const CounterContext = createContext<any>({});
 
 
 export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
@@ -55,6 +57,20 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		pickupPointDelivery,
 		setPickupPointDelivery,
 	} = useSelectedSimplyData();
+	const {
+		countdown,
+		setCountdown,
+		countdownError,
+		setCountdownError,
+		errorPinCode,
+		setErrorPinCode,
+		modalError,
+		setModalError,
+		countdownTime,
+		setCountdownTime,
+		countdownTimeError,
+		setCountdownTimeError
+	} = useCounterData();
 
 	const myRef = useRef();
 
@@ -149,7 +165,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const maxAttempts = 30 * 1000 / 500; // 30 seconds divided by 500ms
 
 	useEffect(() => {
-		console.log({ notificationTokenId, modalStep, visible })
+
 		if (!notificationTokenId || modalStep !== 1) {
 			return
 		}
@@ -160,9 +176,9 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			requestBody: { "email": simplyInput.trim().toLowerCase(), "notificationTokenId": notificationTokenId, language: "EN" }
 		})
 			.then(({ ok, authToken, userData }) => {
-				console.log(ok, authToken, userData);
+
 				if (authToken) {
-					console.log('setting auth token', authToken)
+
 					setAuthToken(authToken)
 					sessionStorage.setItem("simplyinToken", authToken);
 				}
@@ -190,7 +206,6 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					})
 
 				} else if (counter < maxAttempts && notificationTokenId) {
-					console.log('next attempt');
 					setTimeout(() => setCounter((prev) => prev + 1), 1000);
 				} else {
 					console.log('Login not accepted within 30 seconds');
@@ -210,11 +225,10 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSelectedShippingIndex(null)
 		setSelectedDeliveryPointIndex(null)
 		setNotificationTokenId("")
-		console.log({ authToken, isSimplyIdVisible });
+
 		if (!authToken && isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
-				console.log('submit email 1');
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
@@ -256,7 +270,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		if (!isSimplyModalSelected && !authToken && !isSimplyIdVisible) {
 
 			const debouncedRequest = debounce(() => {
-				console.log('submit email 2');
+
 				middlewareApi({
 					endpoint: "checkout/submitEmail",
 					method: 'POST',
@@ -292,24 +306,62 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	}, [])
 
 
+	const providerProps = useMemo(() => {
+		return {
+			selectedBillingIndex,
+			setSelectedBillingIndex,
+			selectedShippingIndex,
+			setSelectedShippingIndex,
+			sameDeliveryAddress,
+			setSameDeliveryAddress,
+			selectedDeliveryPointIndex,
+			setSelectedDeliveryPointIndex,
+			pickupPointDelivery,
+			setPickupPointDelivery
+		}
+	}, [selectedBillingIndex,
+		setSelectedBillingIndex,
+		selectedShippingIndex,
+		setSelectedShippingIndex,
+		sameDeliveryAddress,
+		setSameDeliveryAddress,
+		selectedDeliveryPointIndex,
+		setSelectedDeliveryPointIndex,
+		pickupPointDelivery,
+		setPickupPointDelivery])
 
+	const counterProps = useMemo(() => {
+		return {
+			countdown,
+			setCountdown,
+			countdownError,
+			setCountdownError,
+			errorPinCode,
+			setErrorPinCode,
+			modalError,
+			setModalError,
+			countdownTime,
+			setCountdownTime,
+			countdownTimeError,
+			setCountdownTimeError
+		}
+	}, [countdown,
+		setCountdown,
+		countdownError,
+		setCountdownError,
+		errorPinCode,
+		setErrorPinCode,
+		modalError,
+		setModalError,
+		countdownTime,
+		setCountdownTime,
+		countdownTimeError,
+		setCountdownTimeError])
 	return (
 
 		<ApiContext.Provider value={{ authToken, setAuthToken }}>
-			<SelectedDataContext.Provider value={{
-				selectedBillingIndex,
-				setSelectedBillingIndex,
-				selectedShippingIndex,
-				setSelectedShippingIndex,
-				sameDeliveryAddress,
-				setSameDeliveryAddress,
-				selectedDeliveryPointIndex,
-				setSelectedDeliveryPointIndex,
-				pickupPointDelivery,
-				setPickupPointDelivery,
-				simplyInput,
-				isUserLoggedIn
-			}}>
+			<SelectedDataContext.Provider value={providerProps}>
+				<CounterContext.Provider value={counterProps}>
 				<SimplyIn className="REACT_APP">
 
 					{!isUserLoggedIn && <SimplyinContainer>
@@ -354,6 +406,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					/>}
 
 				</SimplyIn >
+				</CounterContext.Provider>
 			</SelectedDataContext.Provider>
 		</ApiContext.Provider>
 	);

@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from 'react'
-import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain } from '../SimplyID.styled'
+import { PopupTitle, PopupTextMain, PinInputContainer, PopupTextSecondary, PopupCountDownContainer, PopupCodeNotDelivered, PopupSendAgain, CounterSpan } from '../SimplyID.styled'
 import { middlewareApi } from '../../../services/middlewareApi'
 import { PopupTextError } from '../../PhoneField/PhoneField.styled'
 import { removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi'
-import { SelectedDataContext, TypedLoginType } from '../SimplyID'
+import { CounterContext, SelectedDataContext, TypedLoginType } from '../SimplyID'
 import { OtpInput as OtpInputReactJS } from 'reactjs-otp-input'
 import { Link } from '@mui/material'
 import Countdown from 'react-countdown'
@@ -12,11 +12,20 @@ import { useTranslation } from "react-i18next";
 // import { IosIcon } from '../../../assets/IosIcon'
 import { predefinedFill } from './functions'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+
+export const getLangBrowser = () => {
+	if (navigator.languages !== undefined) return navigator.languages[0];
+	else return navigator.language;
+};
+
+const shortLang = (lang: string) => lang.substring(0, 2).toUpperCase();
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
-	return <span>{minutes}:{seconds}</span>;
+	return <CounterSpan>{minutes}:{seconds}</CounterSpan>;
 };
-const countdownTimeSeconds = 10
+const countdownTimeSeconds = 30
 interface IStep1 {
 	handleClosePopup: () => void;
 	phoneNumber: string;
@@ -32,10 +41,8 @@ interface IStep1 {
 export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, simplyInput, loginType }: IStep1) => {
 	const { t, i18n } = useTranslation();
 
-	const [countdown, setCountdown] = useState<boolean>(false)
 
-	const [countdownTime, setCountdownTime] = useState<number>(0)
-	const [modalError, setModalError] = useState("")
+
 	const [pinCode, setPinCode] = useState('');
 	const {
 		setSelectedBillingIndex,
@@ -46,20 +53,58 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 		isUserLoggedIn,
 		sameDeliveryAddress
 	} = useContext(SelectedDataContext)
-
+	const {
+		countdown,
+		setCountdown,
+		countdownError,
+		setCountdownError,
+		errorPinCode,
+		setErrorPinCode,
+		modalError,
+		setModalError,
+		countdownTime,
+		setCountdownTime,
+		countdownTimeError,
+		setCountdownTimeError
+	} = useContext(CounterContext)
 
 
 	const handlePinComplete = (value: string) => {
 		middlewareApi({
 			endpoint: "checkout/submitCheckoutCode",
 			method: 'POST',
-			requestBody: { "code": value }
+			requestBody: {
+				"code": value,
+				email: simplyInput,
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				//@ts-ignore
+				lng: shortLang(getLangBrowser()) ?? currentLanguage?.iso_code.toUpperCase(),
+
+			}
 		}).then(res => {
 			removeDataSessionStorage({ key: 'customChanges' })
 			setModalError("")
+			setErrorPinCode("")
+
+			if (res?.code === "TOO_MANY_REQUESTS") {
+				const match = res?.message.match(/\d+/);
+
+				// Check if a number is found
+				if (match) {
+					const number = match[0] || undefined;
+
+
+					if (number && typeof (+number) === "number") {
+						setCountdownTimeError(Date.now() + +number * 1000)
+						setCountdownError(true)
+						setErrorPinCode(res?.message.replace(match[0], "").trim(""))
+					}
+					return
+				}
+			}
 			if (res?.isCodeValid === false) {
 				setModalError(t('modal-step-1.codeInvalid'))
-				throw new Error(res.message)
+				throw new Error(res?.message)
 
 			} else if (res?.data) {
 				if (res.data?.language) {
@@ -129,24 +174,43 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 	}, [phoneNumber])
 
-	const handleSendPinAgain = () => {
+	type sendPinAgainMethodType = "sms" | "email"
+
+
+	const handleSendPinAgain = ({ method }: { method: sendPinAgainMethodType }) => {
 		setCountdown(true)
 		setCountdownTime(Date.now() + countdownTimeSeconds * 1000)
+		setPinCode("")
+		if (method === "email") {
 		middlewareApi({
 			endpoint: "checkout/resend-checkout-code-via-email",
 			method: 'POST',
 			requestBody: { "email": simplyInput }
 		}).catch((err) => {
+			console.log(err);
+		})
+		}
+		if (method === "sms") {
+			middlewareApi({
+				endpoint: "checkout/submitEmail",
+				method: 'POST',
+				requestBody: { "email": simplyInput.trim().toLowerCase() }
+
+			}).catch((err) => {
 
 			console.log(err);
 
 		})
-
+		}
 	}
 	const handleCountdownCompleted = () => {
 		setCountdown(false)
 	}
 
+	const handleCountdownErrorCompleted = () => {
+		setCountdownError(false)
+		setErrorPinCode("")
+	}
 	return (
 		<>
 			<PopupTitle style={{ margin: loginType === "pinCode" ? "inherit" : "4px auto 12px" }}>	{t('modal-step-1.confirm')}</PopupTitle>
@@ -165,10 +229,11 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 								value={pinCode}
 								onChange={setPinCode}
 								numInputs={4}
+								isDisabled={countdownError ? true : false}
 								inputStyle={{
 									width: "40px",
 									height: "56px",
-									border: modalError ? "1px solid red" : "1px solid #D9D9D9",
+									border: modalError ? "1px solid red" : countdownError ? "1px solid #FFD3D3" : "1px solid #D9D9D9",
 									borderRadius: "8px",
 									fontSize: "30px",
 									textAlign: "center",
@@ -195,6 +260,24 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					</div>
 
 					</PinInputContainer>
+				{countdownError ?
+					<PopupCountDownContainer color={"#E52424"}>
+						<PopupCodeNotDelivered color={"#E52424"} marginTop='0px'>
+							{errorPinCode}
+						</PopupCodeNotDelivered>
+						<Countdown
+							daysInHours={false}
+							renderer={countdownRenderer}
+							zeroPadTime={2}
+							zeroPadDays={2}
+							date={countdownTimeError}
+							onComplete={handleCountdownErrorCompleted}
+						/>
+					</PopupCountDownContainer>
+					:
+					null}
+
+
 				</>
 			}
 
@@ -218,8 +301,8 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			{loginType === "pinCode" && <> {
 				(countdown) ?
 
-					<PopupCountDownContainer>
-						<PopupCodeNotDelivered>
+					<PopupCountDownContainer color={"#E52424"}>
+						<PopupCodeNotDelivered color={"#E52424"} marginTop='0px'>
 							{t('modal-step-1.codeHasBeenSent')}
 						</PopupCodeNotDelivered>
 
@@ -227,22 +310,33 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 							date={countdownTime} onComplete={handleCountdownCompleted} /></PopupCountDownContainer>
 
 					:
-					<>
+					<div>
 						<PopupCodeNotDelivered>
 							{t('modal-step-1.codeNotArrived')}
 						</PopupCodeNotDelivered>
-						<PopupSendAgain>
+						<PopupSendAgain disabled={!!countdownError}>
 							<Link
+								disabled={!!countdownError}
+								component="button"
+								id="send-again-btn"
+								underline={countdownError ? "none" : "hover"}
+								onClick={() => handleSendPinAgain({ method: "sms" })}
+							>
+								{t('modal-step-1.sendAgain')}
+							</Link>
+							&nbsp; {t('modal-step-1.or')} &nbsp;
+							<Link
+								disabled={!!countdownError}
 								component="button"
 								id="send-again-email-btn"
 								value="mail"
-								onClick={handleSendPinAgain}
-								underline="hover"
+								onClick={() => handleSendPinAgain({ method: "email" })}
+								underline={countdownError ? "none" : "hover"}
 							>
 								{t('modal-step-1.sendViaEmail')}
 							</Link>
 						</PopupSendAgain>
-					</>
+					</div>
 			}</>}
 			{/* {loginType === "pinCode" &&
 				<>

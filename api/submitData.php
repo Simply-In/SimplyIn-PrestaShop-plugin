@@ -30,7 +30,8 @@ if (!empty($token)) {
 } else {
 	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
 }
-$headers = array('Content-Type: application/json', 'Origin: ' . $origin);
+$headers = array('Content-Type: application/json');
+// $headers = array('Content-Type: application/json', 'Origin: ' . $origin);
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);

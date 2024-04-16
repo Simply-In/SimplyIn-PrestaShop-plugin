@@ -48,21 +48,21 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 	const { billingAddresses, shippingAddresses, parcelLockers } = userData
 
 	if (billingAddresses === undefined) {
-		console.log("case 0");
+
 		return
 	}
 
 	if (billingAddresses?.length === 0) {
-		console.log('case 1');
+
 		return
 	}
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 1 && parcelLockers?.length === 0) {
-		console.log('case 2');
+
 
 
 		if (isSameShippingAndBillingAddresses({ billingAddress: billingAddresses[0], shippingAddress: shippingAddresses[0] })) {
-			console.log('same address case 2');
+
 			setSelectedShippingIndex(null)
 			setSelectedDeliveryPointIndex(null)
 			setSameDeliveryAddress(true)
@@ -71,7 +71,7 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 			createAddressesController({ userData, selectedBillingIndex: 0, selectedShippingIndex: null, sameDeliveryAddress: true, handleClosePopup, isUserLoggedIn })
 
 		} else {
-			console.log('diff address case 2');
+
 			setSelectedShippingIndex(0)
 			setSelectedDeliveryPointIndex(null)
 			setSameDeliveryAddress(false)
@@ -88,7 +88,7 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 	}
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length > 1 && parcelLockers?.length === 0) {
-		console.log('case 3');
+
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(0)
@@ -108,7 +108,6 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 	}
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length === 0) {
-		console.log('case 4');
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -127,7 +126,6 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length === 1) {
-		console.log('case 5');
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -149,7 +147,6 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length === 0 && parcelLockers?.length > 1) {
-		console.log('case 6');
 
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(null)
@@ -166,13 +163,7 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		return
 	}
 
-	// console.log('isUserLoggedIn', isUserLoggedIn);
 
-
-
-	// console.log("case ELSE");
-
-	// createAddressesController({ userData, selectedBillingIndex, selectedShippingIndex, sameDeliveryAddress, handleClosePopup, isUserLoggedIn })
 
 }
 
@@ -187,12 +178,9 @@ type CreateAddressesControllerArgumentsType = {
 const createAddressesController = ({ userData, selectedBillingIndex, selectedShippingIndex, sameDeliveryAddress, handleClosePopup, isUserLoggedIn }: CreateAddressesControllerArgumentsType) => {
 
 	if (!isUserLoggedIn) {
-		console.log('user is not logged in');
 		return
 	}
-	console.log("createAddressesController");
-	console.log({ userData, selectedBillingIndex, selectedShippingIndex, sameDeliveryAddress, handleClosePopup, isUserLoggedIn });
-	console.log("createAddressesController");
+
 
 	const billingData = userData?.billingAddresses[selectedBillingIndex]
 	const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex] : null
@@ -207,7 +195,7 @@ const createAddressesController = ({ userData, selectedBillingIndex, selectedShi
 	}
 
 	if (billingData && typeof selectedBillingIndex === 'number') {
-		console.log('create billing data');
+
 		handlePhpScript(
 			{
 				...billingData,
@@ -223,7 +211,7 @@ const createAddressesController = ({ userData, selectedBillingIndex, selectedShi
 			})
 	}
 	if (shippingData && !isSameBillingAndShippingAddresses && typeof selectedShippingIndex === 'number') {
-		console.log('create shipping data');
+
 
 		handlePhpScript(
 			{
