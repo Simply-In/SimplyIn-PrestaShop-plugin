@@ -61,140 +61,143 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
 };
 
 $(document).ready(async function () {
-  const getLangBrowser = () => {
-    if (navigator.languages !== undefined) return navigator.languages[0];
-    else return navigator.language;
+
+const getLangBrowser = () => {
+  if (navigator.languages !== undefined) return navigator.languages[0];
+  else return navigator.language;
+};
+
+let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
+
+const BillingIndex = loadDataFromSessionStorageTwo({
+  key: "BillingIndex",
+});
+const ShippingIndex = loadDataFromSessionStorageTwo({
+  key: "ShippingIndex",
+});
+const UserData = loadDataFromSessionStorageTwo({
+  key: "UserData",
+});
+
+const billingAddresses = {
+  _id: UserData?.billingAddresses[BillingIndex]?._id,
+  icon: "🏡",
+  addressName: "",
+  street: (billing_address.address1 || "").trim(),
+  appartmentNumber: (billing_address.address2 || "").trim() || "",
+  city: (billing_address.city || "").trim(),
+  postalCode: (billing_address.postcode || "").trim(),
+  country: (billing_country.iso_code || "").trim(),
+  companyName: (billing_address.company || "").trim(),
+  name: (billing_address.firstname || "").trim(),
+  surname: (billing_address.lastname || "").trim(),
+  taxId: (billing_address.vat_number || "").trim() || "",
+  state: (billing_State?.iso_code || "").trim() || "",
+};
+
+const shippingAddresses = {
+  _id: UserData?.shippingAddresses[
+    ShippingIndex !== null &&
+    ShippingIndex !== undefined &&
+    ShippingIndex !== "null"
+      ? ShippingIndex
+      : BillingIndex
+  ]?._id,
+  icon: "🏡",
+  addressName: "",
+  street: (delivery_address.address1 || "").trim(),
+  appartmentNumber: (delivery_address.address2 || "").trim() || "",
+  city: (delivery_address.city || "").trim(),
+  postalCode: (delivery_address.postcode || "").trim(),
+  country: (delivery_country.iso_code || "").trim(),
+  companyName: (delivery_address.company || "").trim(),
+  name: (delivery_address.firstname || "").trim(),
+  surname: (delivery_address.lastname || "").trim(),
+  state: (delivery_State?.iso_code || "").trim() || "",
+};
+
+const orderShippingParcelInfoNewAccount = deliveryPoint
+  ? {
+      parcelLockerMinimalInfo: {
+        providerName: "inpost",
+        lockerId: deliveryPoint,
+      },
+    }
+  : { shippingData: shippingAddresses };
+
+//new account or existing account
+const createAccount = loadDataFromSessionStorageTwo({
+  key: "createSimplyAccount",
+});
+
+const phoneNumber = loadDataFromSessionStorageTwo({ key: "phoneNumber" });
+const simplyinToken = sessionStorage.getItem("simplyinToken");
+
+if (createAccount && !simplyinToken) {
+  const newAccountSendData = {
+    newAccountData: {
+      name: (delivery_address.firstname || "").trim(),
+      surname: (delivery_address.lastname || "").trim(),
+      phoneNumber: (phoneNumber || "").trim(),
+      email: (customer.email || "").trim().toLowerCase(),
+      language: shortLang(getLangBrowser()) ?? language_code.toUpperCase(),
+      marketingConsent: false,
+    },
+    newOrderData: {
+      shopOrderNumber: order_number || "",
+      price: Number(totalPaid),
+      currency: currency,
+      items: customer_data.products,
+      placedDuringAccountCreation: true,
+      billingData: billingAddresses,
+      shopName: shopName || "",
+      ...orderShippingParcelInfoNewAccount,
+    },
+    plugin_version: extensionVersion,
+    shopVersion: prestashopVersion,
+    shopUserEmail: userEmail || undefined,
   };
 
-  let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
+  middlewareApiTwo({
+    endpoint: "checkout/createOrderAndAccount",
+    method: "POST",
+    requestBody: newAccountSendData,
+  }).then((res) => {});
+}
 
-  const BillingIndex = loadDataFromSessionStorageTwo({
-    key: "BillingIndex",
-  });
-  const ShippingIndex = loadDataFromSessionStorageTwo({
-    key: "ShippingIndex",
-  });
-  const UserData = loadDataFromSessionStorageTwo({
-    key: "UserData",
-  });
-
-  const billingAddresses = {
-    _id: UserData?.billingAddresses[BillingIndex]?._id,
-    icon: "🏡",
-    addressName: "",
-    street: (billing_address.address1 || "").trim(),
-    appartmentNumber: (billing_address.address2 || "").trim() || "",
-    city: (billing_address.city || "").trim(),
-    postalCode: (billing_address.postcode || "").trim(),
-    country: (billing_country.iso_code || "").trim(),
-    companyName: (billing_address.company || "").trim(),
-    name: (billing_address.firstname || "").trim(),
-    surname: (billing_address.lastname || "").trim(),
-    taxId: (billing_address.vat_number || "").trim() || "",
-    state: (billing_State?.iso_code || "").trim() || "",
+if (simplyinToken) {
+  const existingAccountSendData = {
+    newOrderData: {
+      shopOrderNumber: order_number || "",
+      price: Number(totalPaid),
+      currency: currency,
+      items: customer_data.products,
+      placedDuringAccountCreation: false,
+      billingData: billingAddresses,
+      ...orderShippingParcelInfoNewAccount,
+      shopName: shopName || "",
+    },
+    plugin_version: extensionVersion,
+    shopVersion: prestashopVersion,
+    shopUserEmail: userEmail || undefined,
   };
 
-  const shippingAddresses = {
-    _id: UserData?.shippingAddresses[
-      ShippingIndex !== null &&
-      ShippingIndex !== undefined &&
-      ShippingIndex !== "null"
-        ? ShippingIndex
-        : BillingIndex
-    ]?._id,
-    icon: "🏡",
-    addressName: "",
-    street: (delivery_address.address1 || "").trim(),
-    appartmentNumber: (delivery_address.address2 || "").trim() || "",
-    city: (delivery_address.city || "").trim(),
-    postalCode: (delivery_address.postcode || "").trim(),
-    country: (delivery_country.iso_code || "").trim(),
-    companyName: (delivery_address.company || "").trim(),
-    name: (delivery_address.firstname || "").trim(),
-    surname: (delivery_address.lastname || "").trim(),
-    state: (delivery_State?.iso_code || "").trim() || "",
-  };
-
-  const orderShippingParcelInfoNewAccount = deliveryPoint
-    ? {
-        parcelLockerMinimalInfo: {
-          providerName: "inpost",
-          lockerId: deliveryPoint,
-        },
-      }
-    : { shippingData: shippingAddresses };
-
-  //new account or existing account
-  const createAccount = loadDataFromSessionStorageTwo({
-    key: "createSimplyAccount",
+  middlewareApiTwo({
+    endpoint: "checkout/createOrderWithoutAccount",
+    method: "POST",
+    requestBody: existingAccountSendData,
+    token: simplyinToken,
+  }).then((res) => {
+    sessionStorage.removeItem("isSimplyDataSelected");
+    sessionStorage.removeItem("UserData");
+    sessionStorage.removeItem("BillingIndex");
+    sessionStorage.removeItem("ShippingIndex");
+    sessionStorage.removeItem("ParcelIndex");
+    sessionStorage.removeItem("phoneNumber");
+    sessionStorage.removeItem("simplyinToken");
+    sessionStorage.removeItem("selectedShippingMethod");
+    sessionStorage.removeItem("CustomChanges");
+    sessionStorage.removeItem("inpost-delivery-point");
   });
-
-  const phoneNumber = loadDataFromSessionStorageTwo({ key: "phoneNumber" });
-  const simplyinToken = sessionStorage.getItem("simplyinToken");
-
-  if (createAccount && !simplyinToken) {
-    const newAccountSendData = {
-      newAccountData: {
-        name: (delivery_address.firstname || "").trim(),
-        surname: (delivery_address.lastname || "").trim(),
-        phoneNumber: (phoneNumber || "").trim(),
-        email: (customer.email || "").trim().toLowerCase(),
-        language: shortLang(getLangBrowser()) ?? language_code.toUpperCase(),
-        marketingConsent: false,
-      },
-      newOrderData: {
-        price: Number(totalPaid),
-        currency: currency,
-        items: customer_data.products,
-        placedDuringAccountCreation: true,
-        billingData: billingAddresses,
-        shopName: shopName || "",
-        ...orderShippingParcelInfoNewAccount,
-      },
-      plugin_version: extensionVersion,
-      shopVersion: prestashopVersion,
-      shopUserEmail: userEmail || undefined,
-    };
-
-    middlewareApiTwo({
-      endpoint: "checkout/createOrderAndAccount",
-      method: "POST",
-      requestBody: newAccountSendData,
-    }).then((res) => {});
-  }
-
-  if (simplyinToken) {
-    const existingAccountSendData = {
-      newOrderData: {
-        price: Number(totalPaid),
-        currency: currency,
-        items: customer_data.products,
-        placedDuringAccountCreation: false,
-        billingData: billingAddresses,
-        ...orderShippingParcelInfoNewAccount,
-        shopName: shopName || "",
-      },
-      plugin_version: extensionVersion,
-      shopVersion: prestashopVersion,
-      shopUserEmail: userEmail || undefined,
-    };
-
-    middlewareApiTwo({
-      endpoint: "checkout/createOrderWithoutAccount",
-      method: "POST",
-      requestBody: existingAccountSendData,
-      token: simplyinToken,
-    }).then((res) => {
-      sessionStorage.removeItem("isSimplyDataSelected");
-      sessionStorage.removeItem("UserData");
-      sessionStorage.removeItem("BillingIndex");
-      sessionStorage.removeItem("ShippingIndex");
-      sessionStorage.removeItem("ParcelIndex");
-      sessionStorage.removeItem("phoneNumber");
-      sessionStorage.removeItem("simplyinToken");
-      sessionStorage.removeItem("selectedShippingMethod");
-      sessionStorage.removeItem("CustomChanges");
-      sessionStorage.removeItem("inpost-delivery-point");
-    });
-  }
+}
 });
