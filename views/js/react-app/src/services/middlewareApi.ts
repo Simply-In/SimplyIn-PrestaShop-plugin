@@ -6,7 +6,7 @@ interface IRequestBoodyCoordinates {
 	lat: string, lng: string
 }
 interface IMiddlewareApi {
-	endpoint: "checkout/submitEmail" | "checkout/submitPhoneNumber" | "checkout/submitCheckoutCode" | "checkout/createUserData" | "userData" | "checkout/createOrder" | "checkout/resend-checkout-code-via-email" | "addresses/find" | "parcelLockers/getClosest",
+	endpoint: "checkout/submitEmail" | "checkout/submitPhoneNumber" | "checkout/submitCheckoutCode" | "checkout/createUserData" | "userData" | "checkout/createOrder" | "checkout/resend-checkout-code-via-email" | "addresses/find" | "parcelLockers/getClosest" | "checkout/checkIfSubmitEmailPushNotificationWasConfirmed",
 	method: "GET" | "POST" | "PATCH",
 	requestBody: any
 	token?: string
@@ -14,7 +14,7 @@ interface IMiddlewareApi {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-const isUserLoggedIn = (customer?.is_guest === 0 || customer?.is_guest === "0")
+const isUserLoggedIn = (customer?.logged === true && customer?.is_guest !== "1")
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore

@@ -9,24 +9,25 @@ import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerI
 import { saveDataSessionStorage } from '../../services/sessionStorageApi';
 import { TypedLoginType } from './SimplyID';
 
+
 interface IPinCodePopup {
 	phoneNumber: string
 	visible: boolean
 	setVisible: (arg: boolean) => void
 	setToken: any,
 	simplyInput: string,
-	listOfCountries: any
 	userData: any,
 	setUserData: any
 	render?: boolean
-	loginType: TypedLoginType
+	loginType: TypedLoginType,
+	modalStep: any,
+	setModalStep: any
 }
 
 
 
-export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData, render, loginType }: IPinCodePopup) => {
+export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, userData, setUserData, render, loginType, modalStep, setModalStep }: IPinCodePopup) => {
 
-	const [modalStep, setModalStep] = useState(1)
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
 
 
@@ -71,8 +72,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 	}
 
 
-	// useInsertFormData(selectedUserData, listOfCountries)
-
 	return (<>
 		{checkVisible(emailInput) && <Modal
 			open={visible}
@@ -90,7 +89,7 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							<CloseIcon />
 						</CloseContainer>
 					</PopupHeader>
-				<PopupContainer>
+				<PopupContainer style={{ margin: loginType === "pinCode" ? "8px 16px 16px" : "inherit" }}>
 					{modalStep === 1 &&
 						<Step1
 							setToken={setToken}
@@ -102,7 +101,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							loginType={loginType} />}
 					{modalStep === 2 &&
 						<Step2
-							listOfCountries={listOfCountries}
 							handleClosePopup={handleClosePopup}
 							userData={userData}
 						setUserData={setUserData}

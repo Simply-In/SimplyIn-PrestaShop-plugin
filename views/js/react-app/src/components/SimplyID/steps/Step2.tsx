@@ -20,15 +20,101 @@ import Checkbox from '@mui/material/Checkbox';
 import { useTranslation } from 'react-i18next';
 
 
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-const isUserLoggedIn = (customer?.is_guest === 0 || customer?.is_guest === "0")
+const isUserLoggedIn = (customer?.logged === true && customer?.is_guest !== "1")
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const listOfCountries = Object.keys(countries_list).map((key) => countries_list[key]).sort((a, b) => a.name.localeCompare(b.name));
+
+
+
+interface IAddress {
+	addressName: string,
+	name: string,
+	surname: string,
+	street: string,
+	appartmentNumber?: string,
+	city: string,
+	postalCode: string,
+	country: string,
+	state?: string,
+	companyName?: string,
+	taxId?: string
+}
+
+
+export const handlePhpScript = (
+	data: IAddress,
+	addresNameId: "billingAddressesId" | "shippingAddressesId",
+	isSameShippingAndBillingAddress: any,
+	{
+		selectedShippingIndex,
+		userData,
+		selectedBillingIndex,
+		simplyInput
+	}: any) => {
+
+	console.log("handlePHPSCRIPT INSIDE", data);
+
+	const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
+
+	data.country = listOfCountries?.find((el: any) => el.iso_code === data?.country)?.id_country ?? 1
+
+	if (!data.addressName) {
+		data.addressName = `Adres ${addresNameId === "billingAddressesId" ? selectedBillingIndex + 1 : selectedShippingIndex + 1}`
+	}
+
+	const dataToSend = {
+		email: simplyInput,
+		addressData: data,
+		use_same_address: addresNameId === "shippingAddressesId" ? 0 : 1
+	}
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	//@ts-ignore
+	const baseUrl = base_url || '.'
+
+	// return
+	// axios.post('../modules/simplyin/api/createAddresses.php', { //stage
+	axios.post(`${baseUrl}./modules/simplyin/api/createAddresses.php`, {	//dev
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		dataToSend
+	})
+		.then(response => {
+			saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
+			if (isSameShippingAndBillingAddress) {
+				saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+			}
+
+			if (!shippingData) {
+				saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+			}
+			if (response.data.status === 'success') {
+				// Handle the success response
+			} else {
+				// Handle any errors
+				console.error(response.data.message);
+			}
+		})
+		.catch(error => {
+			console.error('An error occurred:', error);
+		});
+
+}
+
+
+
+
 
 interface IStep2 {
 	handleClosePopup: () => void;
 	userData: any
 	setUserData: any,
-	listOfCountries: any
 	editItemIndex: any,
 	setEditItemIndex: any,
 }
@@ -50,7 +136,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 
-export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
+export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex }: IStep2) => {
 	const { t } = useTranslation();
 
 
@@ -71,7 +157,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		setSelectedDeliveryPointIndex,
 		pickupPointDelivery,
 		setPickupPointDelivery,
-		simplyInput } = useContext(SelectedDataContext)
+		simplyInput,
+		isUserLoggedIn } = useContext(SelectedDataContext)
 
 
 	useEffect(() => {
@@ -151,7 +238,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 
 		saveDataSessionStorage({ key: 'isParcelAdded', data: false })
-
 		removeDataSessionStorage({ key: 'delivery-address' })
 		removeDataSessionStorage({ key: 'invoice-address' })
 		removeDataSessionStorage({ key: 'inpost-delivery-point' })
@@ -173,19 +259,35 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 		//if shipping and billing records are simillar then we don't need to generate by php shipping address
 		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
-
-
-		if (billingData) { handlePhpScript({ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'billingAddressesId', isSameBillingAndShippingAddresses) }
-
+		if (billingData) {
+			handlePhpScript(
+				{ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" },
+				'billingAddressesId',
+				isSameBillingAndShippingAddresses,
+				{
+					selectedShippingIndex,
+					userData,
+					selectedBillingIndex,
+					simplyInput
+				})
+		}
 		if (shippingData && !isSameBillingAndShippingAddresses) {
-			handlePhpScript({ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" }, 'shippingAddressesId', false)
+			handlePhpScript(
+				{ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" },
+				'shippingAddressesId',
+				false,
+				{
+					selectedShippingIndex,
+					userData,
+					selectedBillingIndex,
+					simplyInput
+				})
 		} else {
 			const billingAddressId = loadDataFromSessionStorage({ key: "billingAddressesId" })
 			saveDataSessionStorage({ key: "shippingAddressesId", data: billingAddressId })
-
 		}
-
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
+
 		handleClosePopup()
 		if (isUserLoggedIn) {
 			location.reload();
@@ -206,72 +308,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		});
 	};
 
-	interface IAddress {
-		addressName: string,
-		name: string,
-		surname: string,
-		street: string,
-		appartmentNumber?: string,
-		city: string,
-		postalCode: string,
-		country: string,
-		state?: string,
-		companyName?: string,
-		taxId?: string
-	}
 
-	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId", isSameShippingAndBillingAddress: any) => {
 
-		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
-
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		data.country = listOfCountries?.find((el: any) => el.iso_code === data?.country)?.id_country ?? 1
-
-		if (!data.addressName) {
-			data.addressName = `Adres ${addresNameId === "billingAddressesId" ? selectedBillingIndex : selectedShippingIndex}`
-		}
-
-		const dataToSend = {
-			email: simplyInput,
-			addressData: data,
-			use_same_address: addresNameId === "shippingAddressesId" ? 0 : 1
-		}
-
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		const baseUrl = base_url || '.'
-
-		// return
-		// axios.post('../modules/simplyin/api/createAddresses.php', { //stage
-		axios.post(`${baseUrl}./modules/simplyin/api/createAddresses.php`, {	//dev
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			dataToSend
-
-		})
-			.then(response => {
-				saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
-				if (isSameShippingAndBillingAddress) {
-					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
-				}
-
-				if (!shippingData) {
-					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
-				}
-				if (response.data.status === 'success') {
-					// Handle the success response
-				} else {
-					// Handle any errors
-					console.error(response.data.message);
-				}
-			})
-			.catch(error => {
-				console.error('An error occurred:', error);
-			});
-
-	}
 
 
 	const handleChangeDelivery = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,8 +440,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 						onChange={handleChangeDelivery}
 						style={{ padding: "8px 8px 0 8px" }}
 					>
-						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.doorDelivery')}</Typography>} />
-						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.parcelDelivery')}</Typography>} />
+						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.doorDelivery')}</Typography>} />
+						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.parcelDelivery')}</Typography>} />
 
 					</RadioGroup>
 				</FormControl>

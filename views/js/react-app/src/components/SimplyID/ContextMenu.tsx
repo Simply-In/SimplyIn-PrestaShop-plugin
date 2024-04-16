@@ -55,7 +55,7 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [openDialog, setOpenDialog] = useState(false);
-	const apiToken = useContext(ApiContext);
+	const { authToken } = useContext(ApiContext);
 
 	const open = Boolean(anchorEl);
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -100,7 +100,7 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 		middlewareApi({
 			endpoint: "userData",
 			method: 'PATCH',
-			token: apiToken,
+			token: authToken,
 			requestBody: requestData
 		}).then(res => {
 			if (res.error) {

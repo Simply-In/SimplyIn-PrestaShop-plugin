@@ -14,6 +14,7 @@ type data = {
 
 
 const waitForElementToRender = ({ selector, timeout = 5000 }: data) => {
+
 	const checkElement = (resolve: any, reject: any) => {
 		const element = document.querySelector(selector ?? "");
 		if (element) {
@@ -26,6 +27,7 @@ const waitForElementToRender = ({ selector, timeout = 5000 }: data) => {
 		timeout -= 100;
 	};
 	return new Promise(checkElement);
+
 };
 
 
@@ -56,8 +58,6 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 
 		const firstNotInpostShippingMethod = shippingMethodsWOProviders[0].id_carrier
 
-
-
 		waitForElementToRender({ selector: `#delivery_option_${firstNotInpostShippingMethod}` }).then((shippingRadioButton: any) => {
 			if (shippingRadioButton) {
 				shippingRadioButton.checked = true;
@@ -65,8 +65,9 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 				shippingRadioButton.dispatchEvent(event);
 				saveDataSessionStorage({ key: 'selectedShippingMethod', data: true })
 
-			}
-		});
+				}
+			});
+
 	}
 
 	if (deliveryPointID !== undefined && provider === "inpostshipping") {
@@ -145,6 +146,7 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 		};
 
 		const startSelectDeliveryPoint = () => {
+			try {
 			selectDeliveryPoint('first try').then((status) => {
 				flag = status;
 			});
@@ -160,6 +162,9 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 					clearInterval(interval);
 				}
 			}, 2000);
+			} catch (e) {
+				console.log(e)
+			}
 		};
 
 		startSelectDeliveryPoint();

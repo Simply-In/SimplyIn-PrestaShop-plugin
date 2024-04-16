@@ -42,7 +42,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			const allAddressPins = document.querySelectorAll(`input[type="radio"][name="id_address_invoice"]`);
 
 			if (allAddressPins.length) {
-				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current)
+				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current, [])
 
 
 				pinWithHighestValue.checked = true;
@@ -180,6 +180,9 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 
 
 		if (document?.getElementById("customer-form")) {
+			if ("fieldEmail" in userData && document?.getElementById("customer-form")?.querySelector('#field-email')) {
+				(document.getElementById("customer-form").querySelector('#field-email') as HTMLInputElement).value = customChanges?.customerForm?.fieldEmail || userData.email || ""
+			}
 			if ("name" in userData && document?.getElementById("customer-form")?.querySelector('#field-firstname')) {
 				(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
 			}

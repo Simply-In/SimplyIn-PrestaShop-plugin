@@ -49,7 +49,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('20.03.2024');
+		$this->description = $this->l('09.04.2024');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -135,11 +135,6 @@ class Simplyin extends Module
 
 	// 	//DEBUGGER
 	// 	// error_log($params);
-
-
-
-
-
 
 	// 	PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
 
