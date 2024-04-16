@@ -30,8 +30,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
 
-
-
 	useEffect(() => {
 		setToken("")
 		setUserData({})
@@ -51,11 +49,6 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 		}
 		setToken(sessionStorage.getItem("simplyinToken"))
 	}, [])
-
-
-
-
-
 
 	const handleClosePopup = () => {
 		setVisible(false)
