@@ -60,10 +60,10 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
   }
 };
 
-export const getLangBrowser = () => {
-  if (navigator.languages !== undefined) return navigator.languages[0];
-  else return navigator.language;
-};
+ const getLangBrowser = () => {
+   if (navigator.languages !== undefined) return navigator.languages[0];
+   else return navigator.language;
+ };
 $(document).ready(async function () {
   let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
 
