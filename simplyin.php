@@ -80,68 +80,68 @@ class Simplyin extends Module
 	}
 
 
-	// public function hookActionOrderStatusPostUpdate($params)
-	// {
+	public function hookActionOrderStatusPostUpdate($params)
+	{
 
-	// 	return;
-	// 	$newOrderStatus = $params['newOrderStatus']->template;
-	// 	$newOrderStatusID = $params['newOrderStatus']->id;
-	// 	$oldOrderStatus = $params['oldOrderStatus']->template;
-	// 	$oldOrderStatusID = $params['oldOrderStatus']->id;
-	// 	$id_order = $params['id_order'];
-	// 	$order = new Order($id_order);
-
-
-
-	// 	//statusy zamówień
-
-	// 	// $orderStatuses = OrderState::getOrderStates(Context::getContext()->language->id);
-	// 	// echo "[";
-	// 	// foreach ($orderStatuses as $status) {
-	// 	// 	echo " { \"template\":" . json_encode($status["template"]) . ", \"name\": " . json_encode($status["name"]) . ", \"id\":" . json_encode($status["id_order_state"]) . "},";
-	// 	// }
-	// 	// echo "]";
+		return;
+		$newOrderStatus = $params['newOrderStatus']->template;
+		$newOrderStatusID = $params['newOrderStatus']->id;
+		$oldOrderStatus = $params['oldOrderStatus']->template;
+		$oldOrderStatusID = $params['oldOrderStatus']->id;
+		$id_order = $params['id_order'];
+		$order = new Order($id_order);
 
 
 
+		//statusy zamówień
 
-	// 	//tracking 
-
-	// 	$shipping_data = $order->getShipping();
-
-	// 	foreach ($shipping_data as $carrier) {
-	// 		// Access the data for each carrier
-	// 		$trackingNumber = $carrier['tracking_number'];
-	// 		$carrier_name = $carrier['carrier_name'];
-	// 		$url = $carrier['url'];
-	// 		$date_add = $carrier['date_add'];
-
-	// 		// Render the data
-	// 		echo json_encode($carrier);
-	// 		echo "Tracking Number: " . $trackingNumber . "<br>";
-	// 		echo "Carrier name: " . $carrier_name . "<br>";
-	// 		echo "shipping link: " . $url . "<br><br>";
-	// 		echo "date_add: " . $date_add . "<br><br>";
-	// 	}
-	// 	echo json_encode($shipping_data);
-	// 	echo json_encode($order);
-
-
-	// 	// foreach ($orderStatuses as $status) {
-	// 	// echo $status['name'] . "\n";
-	// 	// }
+		// $orderStatuses = OrderState::getOrderStates(Context::getContext()->language->id);
+		// echo "[";
+		// foreach ($orderStatuses as $status) {
+		// 	echo " { \"template\":" . json_encode($status["template"]) . ", \"name\": " . json_encode($status["name"]) . ", \"id\":" . json_encode($status["id_order_state"]) . "},";
+		// }
+		// echo "]";
 
 
 
-	// 	//DEBUGGER
-	// 	// error_log($params);
 
-	// 	PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
+		//tracking 
+
+		$shipping_data = $order->getShipping();
+
+		foreach ($shipping_data as $carrier) {
+			// Access the data for each carrier
+			$trackingNumber = $carrier['tracking_number'];
+			$carrier_name = $carrier['carrier_name'];
+			$url = $carrier['url'];
+			$date_add = $carrier['date_add'];
+
+			// Render the data
+			echo json_encode($carrier);
+			echo "Tracking Number: " . $trackingNumber . "<br>";
+			echo "Carrier name: " . $carrier_name . "<br>";
+			echo "shipping link: " . $url . "<br><br>";
+			echo "date_add: " . $date_add . "<br><br>";
+		}
+		echo json_encode($shipping_data);
+		echo json_encode($order);
 
 
-	// 	PrestaShopLogger::addLog("order id $id_order; old status: --- $oldOrderStatus $oldOrderStatusID-----; order new status: ----- $newOrderStatus $newOrderStatusID------;", 1, null, 'Order', $id_order, true);
+		// foreach ($orderStatuses as $status) {
+		// echo $status['name'] . "\n";
+		// }
 
-	// }
+
+
+		//DEBUGGER
+		error_log($params);
+
+		PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
+
+
+		PrestaShopLogger::addLog("order id $id_order; old status: --- $oldOrderStatus $oldOrderStatusID-----; order new status: ----- $newOrderStatus $newOrderStatusID------;", 1, null, 'Order', $id_order, true);
+
+	}
 
 
 
