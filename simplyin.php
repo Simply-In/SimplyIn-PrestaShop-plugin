@@ -79,11 +79,74 @@ class Simplyin extends Module
 
 	}
 
+	public function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
+	{
+		$ivlen = openssl_cipher_iv_length($cipher);
+		$iv = openssl_random_pseudo_bytes($ivlen);
+		// binary cipher
+		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
+		// or replace OPENSSL_RAW_DATA & $iv with 0 & bin2hex($iv) for hex cipher (eg. for transmission over internet)
+
+		// or increase security with hashed cipher; (hex or base64 printable eg. for transmission over internet)
+		$hmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
+		return base64_encode($iv . $hmac . $ciphertext_raw);
+	}
+
+	public function decrypt($ciphertext, $secret_key, $cipher = "aes-256-cbc")
+	{
+		$c = base64_decode($ciphertext);
+		$ivlen = openssl_cipher_iv_length($cipher);
+		$iv = substr($c, 0, $ivlen);
+		$hmac = substr($c, $ivlen, $sha2len = 32);
+		$ciphertext_raw = substr($c, $ivlen + $sha2len);
+		$original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
+		$calcmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
+		if (hash_equals($hmac, $calcmac))
+			return $original_plaintext . "\n";
+	}
+
+
+	public function hashEmail($order_email)
+	{
+		return openssl_digest("--" . $order_email . "--", 'SHA256');
+	}
+
+	public function send_encrypted_data($encrypted_data)
+	{
+		$url = 'https://dev.backend.simplyin.app/api/notes/createNote';
+
+		// $logs_directory = plugin_dir_path(__FILE__) . 'logs/';
+		// $log_file = $logs_directory . 'order_log.json';
+
+		$base_url = __PS_BASE_URI__;
+		$headers = array('Content-Type: application/json', 'Origin: ' . $base_url);
+
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($encrypted_data));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string instead of outputting it
+
+		// Execute cURL session
+		$response = curl_exec($ch);
+
+		echo json_encode($response);
+
+
+		curl_close($ch);
+
+		return $response;
+	}
+
 
 	public function hookActionOrderStatusPostUpdate($params)
 	{
 
-		return;
+		// return;
 		$newOrderStatus = $params['newOrderStatus']->template;
 		$newOrderStatusID = $params['newOrderStatus']->id;
 		$oldOrderStatus = $params['oldOrderStatus']->template;
@@ -93,44 +156,55 @@ class Simplyin extends Module
 
 
 
-		//statusy zamówień
 
-		// $orderStatuses = OrderState::getOrderStates(Context::getContext()->language->id);
-		// echo "[";
-		// foreach ($orderStatuses as $status) {
-		// 	echo " { \"template\":" . json_encode($status["template"]) . ", \"name\": " . json_encode($status["name"]) . ", \"id\":" . json_encode($status["id_order_state"]) . "},";
-		// }
-		// echo "]";
+		$customer = $order->getCustomer();
+		$order_email = $customer->email;
 
-
-
-
-		//tracking 
-
-		$shipping_data = $order->getShipping();
-
-		foreach ($shipping_data as $carrier) {
-			// Access the data for each carrier
-			$trackingNumber = $carrier['tracking_number'];
-			$carrier_name = $carrier['carrier_name'];
-			$url = $carrier['url'];
-			$date_add = $carrier['date_add'];
-
-			// Render the data
-			echo json_encode($carrier);
-			echo "Tracking Number: " . $trackingNumber . "<br>";
-			echo "Carrier name: " . $carrier_name . "<br>";
-			echo "shipping link: " . $url . "<br><br>";
-			echo "date_add: " . $date_add . "<br><br>";
+		if (empty($order_email)) {
+			return;
 		}
-		echo json_encode($shipping_data);
-		echo json_encode($order);
+		$apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
+
+		$body_data = array(
+			"email" => $order_email,
+			"orderId" => $id_order,
+			"newOrderStatus" => $newOrderStatus,
+			"apiKey" => $apiKey
+		);
+		// echo json_encode($body_data);
+		$plaintext = json_encode($body_data);
 
 
-		// foreach ($orderStatuses as $status) {
-		// echo $status['name'] . "\n";
-		// }
 
+		$key = "__" . $order_email . "__";
+
+		echo json_encode($key);
+
+		$encryptedData = $this->encrypt($plaintext, $key);
+
+		// $decryptedData = decrypt($encryptedData, $key);
+
+		$hashedEmail = $this->hashEmail($order_email);
+
+
+
+		$encryptedOrderData = array(
+			"A" => $encryptedData,
+			"B" => $hashedEmail,
+
+		);
+
+		$dataToSend =
+			array(
+				"type" => "newOrder Presta",
+				"content" => json_encode($encryptedOrderData)
+			);
+
+		$dataSend = $this->send_encrypted_data($dataToSend);
+
+		echo $dataSend;
+		// echo $encryptedData;
+		// echo $hashedEmail;
 
 
 		//DEBUGGER
