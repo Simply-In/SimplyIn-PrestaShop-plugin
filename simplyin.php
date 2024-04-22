@@ -65,7 +65,7 @@ class Simplyin extends Module
 	{
 		Configuration::updateValue('SIMPLYIN_LIVE_MODE', false);
 
-		include(dirname(__FILE__) . '/sql/install.php');
+		include (dirname(__FILE__) . '/sql/install.php');
 
 		return parent::install() &&
 			$this->registerHook('header') &&
@@ -79,31 +79,28 @@ class Simplyin extends Module
 
 	}
 
-	public function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
+	function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
 	{
-		$ivlen = openssl_cipher_iv_length($cipher);
-		$iv = openssl_random_pseudo_bytes($ivlen);
-		// binary cipher
-		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
-		// or replace OPENSSL_RAW_DATA & $iv with 0 & bin2hex($iv) for hex cipher (eg. for transmission over internet)
 
-		// or increase security with hashed cipher; (hex or base64 printable eg. for transmission over internet)
-		$hmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
-		return base64_encode($iv . $hmac . $ciphertext_raw);
+		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA);
+		if ($ciphertext_raw === false) {
+			return false;
+		}
+		return base64_encode($ciphertext_raw);
 	}
 
-	public function decrypt($ciphertext, $secret_key, $cipher = "aes-256-cbc")
-	{
-		$c = base64_decode($ciphertext);
-		$ivlen = openssl_cipher_iv_length($cipher);
-		$iv = substr($c, 0, $ivlen);
-		$hmac = substr($c, $ivlen, $sha2len = 32);
-		$ciphertext_raw = substr($c, $ivlen + $sha2len);
-		$original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
-		$calcmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
-		if (hash_equals($hmac, $calcmac))
-			return $original_plaintext . "\n";
-	}
+	// public function decrypt($ciphertext, $secret_key, $cipher = "aes-256-cbc")
+	// {
+	// 	$c = base64_decode($ciphertext);
+	// 	$ivlen = openssl_cipher_iv_length($cipher);
+	// 	$iv = substr($c, 0, $ivlen);
+	// 	$hmac = substr($c, $ivlen, $sha2len = 32);
+	// 	$ciphertext_raw = substr($c, $ivlen + $sha2len);
+	// 	$original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
+	// 	$calcmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
+	// 	if (hash_equals($hmac, $calcmac))
+	// 		return $original_plaintext . "\n";
+	// }
 
 
 	public function hashEmail($order_email)
@@ -155,6 +152,15 @@ class Simplyin extends Module
 		$order = new Order($id_order);
 
 
+		$shipping_data = $order->getShipping();
+
+		$tracking_numbers = [];
+
+		foreach ($shipping_data as $carrier) {
+			$tracking_numbers[] = $carrier['tracking_number'];
+		}
+
+		echo json_encode($tracking_numbers);
 
 
 		$customer = $order->getCustomer();
@@ -169,16 +175,20 @@ class Simplyin extends Module
 			"email" => $order_email,
 			"orderId" => $id_order,
 			"newOrderStatus" => $newOrderStatus,
-			"apiKey" => $apiKey
+			"apiKey" => $apiKey,
+			"trackingNumbers" => $tracking_numbers
 		);
 		// echo json_encode($body_data);
 		$plaintext = json_encode($body_data);
 
+		function hashEncryptKey($order_email)
+		{
+			return openssl_digest("__" . $order_email . "__", 'SHA256');
+		}
 
+		$key = hashEncryptKey($order_email);
 
-		$key = "__" . $order_email . "__";
-
-		echo json_encode($key);
+		// echo json_encode($key);
 
 		$encryptedData = $this->encrypt($plaintext, $key);
 
@@ -200,9 +210,10 @@ class Simplyin extends Module
 				"content" => json_encode($encryptedOrderData)
 			);
 
-		$dataSend = $this->send_encrypted_data($dataToSend);
+		// return;
+		// $dataSend = $this->send_encrypted_data($dataToSend);
 
-		echo $dataSend;
+		// echo $dataSend;
 		// echo $encryptedData;
 		// echo $hashedEmail;
 
@@ -390,7 +401,7 @@ class Simplyin extends Module
 	{
 		Configuration::deleteByName('SIMPLYIN_LIVE_MODE');
 
-		include(dirname(__FILE__) . '/sql/uninstall.php');
+		include (dirname(__FILE__) . '/sql/uninstall.php');
 
 		return parent::uninstall();
 	}
