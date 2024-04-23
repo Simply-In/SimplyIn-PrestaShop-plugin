@@ -22,11 +22,13 @@ interface IPinCodePopup {
 	loginType: TypedLoginType,
 	modalStep: any,
 	setModalStep: any
+	setLoginType: any
+	setNotificationTokenId: any
 }
 
 
 
-export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, userData, setUserData, render, loginType, modalStep, setModalStep }: IPinCodePopup) => {
+export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, userData, setUserData, render, loginType, modalStep, setModalStep, setLoginType, setNotificationTokenId }: IPinCodePopup) => {
 
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
 
@@ -82,7 +84,7 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							<CloseIcon />
 						</CloseContainer>
 					</PopupHeader>
-				<PopupContainer style={{ margin: loginType === "pinCode" ? "8px 16px 16px" : "inherit" }}>
+				<PopupContainer style={{ margin: "8px 16px 16px" }}>
 					{modalStep === 1 &&
 						<Step1
 							setToken={setToken}
@@ -91,7 +93,10 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							setModalStep={setModalStep}
 						setUserData={setUserData}	
 							simplyInput={simplyInput}
-							loginType={loginType} />}
+							loginType={loginType}
+							setLoginType={setLoginType}
+							setNotificationTokenId={setNotificationTokenId}
+						/>}
 					{modalStep === 2 &&
 						<Step2
 							handleClosePopup={handleClosePopup}

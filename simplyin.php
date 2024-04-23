@@ -40,7 +40,7 @@ class Simplyin extends Module
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
 		$this->version = '1.0.0';
-		$this->author = 'Blesu';
+		$this->author = 'SimplyIn';
 		$this->need_instance = 1;
 		/**
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
@@ -48,8 +48,8 @@ class Simplyin extends Module
 		$this->bootstrap = true;
 		parent::__construct();
 
-		$this->displayName = $this->l('simplyin');
-		$this->description = $this->l('09.04.2024');
+		$this->displayName = $this->l('SimplyIn');
+		$this->description = $this->l('23.04.2024');
 
 		$this->confirmUninstall = $this->l('');
 
