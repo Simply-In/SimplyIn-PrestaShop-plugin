@@ -31,7 +31,11 @@
 			"sendAgain": "Resend",
 			"or": "or",
 			"codeInvalid": "Verification code invalid",
-			"checkInApp": "Check notifications in the mobile app and confirm login"
+			"checkInApp": "Check notifications in the mobile app and confirm login",
+			"noAccessToMobile": "Don't have access to the app at the moment?",
+			"sendViaSMS": "Send via SMS",
+			"codeHasBeenSentAgain": "The code has been sent",
+			"insertCodeEmail": "Insert code sent to email"
 		},
 		"modal-step-2": {
 			"address": "Address",

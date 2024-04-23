@@ -162,7 +162,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 	}
 
-	const maxAttempts = 30 * 1000 / 500; // 30 seconds divided by 500ms
+	const maxAttempts = 180 * 1000 / 500; // 30 seconds divided by 500ms
 
 	useEffect(() => {
 
@@ -389,6 +389,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						loginType={loginType}
 						modalStep={modalStep}
 						setModalStep={setModalStep}
+							setLoginType={setLoginType}
+							setNotificationTokenId={setNotificationTokenId}
 					/>}
 
 					{!isSimplyModalSelected && isUserLoggedIn && phoneNumber && <PinCodeModal
@@ -403,6 +405,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						userData={userData}
 						setUserData={setUserData}
 						loginType={loginType}
+							setLoginType={setLoginType}
+							setNotificationTokenId={setNotificationTokenId}
 					/>}
 
 				</SimplyIn >

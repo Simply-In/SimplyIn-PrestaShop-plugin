@@ -31,7 +31,11 @@
 			"or": "lub",
 			"codeHasBeenSent": "Kod został ponownie wysłany",
 			"codeInvalid": "Błędny kod weryfikacyjny",
-			"checkInApp": "Sprawdź powiadomienia w aplikacji mobilnej i zatwierdź logowanie"
+			"checkInApp": "Sprawdź powiadomienia w aplikacji mobilnej i zatwierdź logowanie",
+			"noAccessToMobile": "Nie masz w tej chwili dostępu do aplikacji?",
+			"sendViaSMS": "Wyślij kod SMSem",
+			"codeHasBeenSentAgain": "Kod został ponownie wysłany",
+			"insertCodeEmail": "Wpisz kod przesłany na email"
 		},
 		"modal-step-2": {
 			"address": "Adres",

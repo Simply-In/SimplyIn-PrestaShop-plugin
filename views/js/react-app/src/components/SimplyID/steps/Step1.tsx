@@ -34,16 +34,20 @@ interface IStep1 {
 	setToken: any
 	simplyInput: string
 	loginType: TypedLoginType
+	setLoginType: any
+	setNotificationTokenId: any
 
 
 }
 
-export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, simplyInput, loginType }: IStep1) => {
+export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, simplyInput, loginType, setLoginType, setNotificationTokenId }: IStep1) => {
 	const { t, i18n } = useTranslation();
 
 
 
 	const [pinCode, setPinCode] = useState('');
+	const [codeByEmail, setCodeByEmail] = useState(false)
+	const [isCodeResended, setIsCodeResended] = useState(false)
 	const {
 		setSelectedBillingIndex,
 		setSelectedShippingIndex,
@@ -178,10 +182,14 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 
 
 	const handleSendPinAgain = ({ method }: { method: sendPinAgainMethodType }) => {
+		setLoginType("pinCode")
+		setNotificationTokenId("")
 		setCountdown(true)
 		setCountdownTime(Date.now() + countdownTimeSeconds * 1000)
 		setPinCode("")
+		setIsCodeResended(true)
 		if (method === "email") {
+			setCodeByEmail(true)
 		middlewareApi({
 			endpoint: "checkout/resend-checkout-code-via-email",
 			method: 'POST',
@@ -191,10 +199,11 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 		})
 		}
 		if (method === "sms") {
+			setCodeByEmail(false)
 			middlewareApi({
 				endpoint: "checkout/submitEmail",
 				method: 'POST',
-				requestBody: { "email": simplyInput.trim().toLowerCase() }
+				requestBody: { "email": simplyInput.trim().toLowerCase(), forceSms: true }
 
 			}).catch((err) => {
 
@@ -216,9 +225,8 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			<PopupTitle style={{ margin: loginType === "pinCode" ? "inherit" : "4px auto 12px" }}>	{t('modal-step-1.confirm')}</PopupTitle>
 			{loginType === "pinCode" &&
 				<>
-				<PopupTextMain>{t('modal-step-1.insertCode')} </PopupTextMain>
-				<PopupTextMain> {phoneNumber} </PopupTextMain>
-
+				<PopupTextMain> {codeByEmail ? t('modal-step-1.insertCodeEmail') : t('modal-step-1.insertCode')} </PopupTextMain>
+				<PopupTextMain> {codeByEmail ? simplyInput : phoneNumber} </PopupTextMain>
 
 				<PinInputContainer  >
 
@@ -298,12 +306,12 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				{t('modal-step-1.editAfterLogin')}
 			</PopupTextSecondary>
 
-			{loginType === "pinCode" && <> {
+			<> {
 				(countdown) ?
 
 					<PopupCountDownContainer color={"#E52424"}>
 						<PopupCodeNotDelivered color={"#E52424"} marginTop='0px'>
-							{t('modal-step-1.codeHasBeenSent')}
+							{loginType === "app" ? t('modal-step-1.codeHasBeenSent') : t('modal-step-1.codeHasBeenSentAgain')}
 						</PopupCodeNotDelivered>
 
 						<Countdown daysInHours={false} renderer={countdownRenderer} zeroPadTime={2} zeroPadDays={2}
@@ -312,32 +320,99 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					:
 					<div>
 						<PopupCodeNotDelivered>
-							{t('modal-step-1.codeNotArrived')}
+							{loginType === "app" ? t('modal-step-1.noAccessToMobile') : t('modal-step-1.codeNotArrived')}
 						</PopupCodeNotDelivered>
-						<PopupSendAgain disabled={!!countdownError}>
-							<Link
-								disabled={!!countdownError}
-								component="button"
-								id="send-again-btn"
-								underline={countdownError ? "none" : "hover"}
-								onClick={() => handleSendPinAgain({ method: "sms" })}
-							>
-								{t('modal-step-1.sendAgain')}
-							</Link>
-							&nbsp; {t('modal-step-1.or')} &nbsp;
-							<Link
-								disabled={!!countdownError}
-								component="button"
-								id="send-again-email-btn"
-								value="mail"
-								onClick={() => handleSendPinAgain({ method: "email" })}
-								underline={countdownError ? "none" : "hover"}
-							>
-								{t('modal-step-1.sendViaEmail')}
-							</Link>
-						</PopupSendAgain>
+
+						{!isCodeResended ?
+							<PopupSendAgain disabled={!!countdownError}>
+								<Link
+									disabled={!!countdownError}
+									component="button"
+									id="send-again-btn"
+									underline={countdownError ? "none" : "hover"}
+									onClick={() => handleSendPinAgain({ method: "sms" })}
+								>
+									{loginType === "app" ? t('modal-step-1.sendViaSMS') : t('modal-step-1.sendAgain')}
+								</Link>
+								&nbsp; {t('modal-step-1.or')} &nbsp;
+								<Link
+									disabled={!!countdownError}
+									component="button"
+									id="send-again-email-btn"
+									value="mail"
+									onClick={() => handleSendPinAgain({ method: "email" })}
+									underline={countdownError ? "none" : "hover"}
+								>
+									{t('modal-step-1.sendViaEmail')}
+								</Link>
+							</PopupSendAgain>
+							:
+
+							<>
+								{
+									codeByEmail
+										?
+
+										<PopupSendAgain disabled={!!countdownError}>
+											<Link
+												disabled={!!countdownError}
+												component="button"
+												id="send-again-btn"
+												underline={countdownError ? "none" : "hover"}
+												onClick={() => handleSendPinAgain({ method: "email" })}
+											>
+												{t('modal-step-1.sendAgain')}
+											</Link>
+											&nbsp; {t('modal-step-1.or')} &nbsp;
+											<Link
+												disabled={!!countdownError}
+												component="button"
+												id="send-again-email-btn"
+												value="mail"
+												onClick={() => handleSendPinAgain({ method: "sms" })}
+												underline={countdownError ? "none" : "hover"}
+											>
+												{t('modal-step-1.sendViaSMS')}
+											</Link>
+										</PopupSendAgain>
+										:
+										<PopupSendAgain disabled={!!countdownError}>
+											<Link
+												disabled={!!countdownError}
+												component="button"
+												id="send-again-btn"
+												underline={countdownError ? "none" : "hover"}
+												onClick={() => handleSendPinAgain({ method: "sms" })}
+											>
+												{t('modal-step-1.sendAgain')}
+											</Link>
+											&nbsp; {t('modal-step-1.or')} &nbsp;
+											<Link
+												disabled={!!countdownError}
+												component="button"
+												id="send-again-email-btn"
+												value="mail"
+												onClick={() => handleSendPinAgain({ method: "email" })}
+												underline={countdownError ? "none" : "hover"}
+											>
+												{t('modal-step-1.sendViaEmail')}
+											</Link>
+										</PopupSendAgain>	
+
+
+								}
+
+
+
+
+
+							</>
+						}
+
+
+
 					</div>
-			}</>}
+			}</>
 			{/* {loginType === "pinCode" &&
 				<>
 					<Divider style={{ marginTop: 24, marginBottom: 12 }} />
