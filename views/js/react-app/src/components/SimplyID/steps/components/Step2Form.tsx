@@ -110,6 +110,11 @@ export const Step2Form = ({
 
 	const onSubmit = (data: any) => {
 
+		Object.keys(data).forEach(key => {
+			if (typeof data[key] === 'string') {
+				data[key] = data[key].trim();
+			}
+		})
 		handleSave(data)
 	}
 

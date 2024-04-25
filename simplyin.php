@@ -49,7 +49,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('SimplyIn');
-		$this->description = $this->l('23.04.2024');
+		$this->description = $this->l('25.04.2024');
 
 		$this->confirmUninstall = $this->l('');
 
