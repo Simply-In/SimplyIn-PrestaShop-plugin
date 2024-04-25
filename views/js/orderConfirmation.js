@@ -94,13 +94,9 @@ $(document).ready(async function () {
   };
 
   const shippingAddresses = {
-    _id: UserData?.shippingAddresses[
-      ShippingIndex !== null &&
-      ShippingIndex !== undefined &&
-      ShippingIndex !== "null"
-        ? ShippingIndex
-        : BillingIndex
-    ]?._id,
+    _id: ShippingIndex
+      ? UserData?.shippingAddresses[ShippingIndex]?._id || undefined
+      : undefined,
     icon: "🏡",
     addressName: "",
     street: (delivery_address.address1 || "").trim(),
