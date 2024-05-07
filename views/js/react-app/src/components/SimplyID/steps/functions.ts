@@ -89,7 +89,6 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 
 	if (billingAddresses?.length === 1 && shippingAddresses?.length > 1 && parcelLockers?.length === 0) {
 
-
 		setSelectedBillingIndex(0)
 		setSelectedShippingIndex(0)
 		sessionStorage.setItem("BillingIndex", `0`)
@@ -104,6 +103,7 @@ export const predefinedFill = (userData: any, handleClosePopup: any, indexContex
 		} else {
 			createAddressesController({ userData, selectedBillingIndex: 0, selectedShippingIndex: 0, sameDeliveryAddress: false, handleClosePopup, isUserLoggedIn })
 		}
+
 		return
 	}
 
@@ -181,7 +181,6 @@ const createAddressesController = ({ userData, selectedBillingIndex, selectedShi
 		return
 	}
 
-
 	const billingData = userData?.billingAddresses[selectedBillingIndex]
 	const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex] : null
 	const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
@@ -195,7 +194,6 @@ const createAddressesController = ({ userData, selectedBillingIndex, selectedShi
 	}
 
 	if (billingData && typeof selectedBillingIndex === 'number') {
-
 		handlePhpScript(
 			{
 				...billingData,
@@ -211,7 +209,6 @@ const createAddressesController = ({ userData, selectedBillingIndex, selectedShi
 			})
 	}
 	if (shippingData && !isSameBillingAndShippingAddresses && typeof selectedShippingIndex === 'number') {
-
 
 		handlePhpScript(
 			{

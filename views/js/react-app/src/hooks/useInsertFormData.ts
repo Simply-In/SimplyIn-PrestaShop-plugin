@@ -33,7 +33,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
 
-			// removeDataSessionStorage({ key: "billingAddressesId" })
 
 		}
 
@@ -50,7 +49,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 				const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 				pinWithHighestValue?.dispatchEvent(event);
 
-				// removeDataSessionStorage({ key: "billingAddressesId" })
 			}
 
 		}
@@ -72,7 +70,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
 
-			// removeDataSessionStorage({ key: "shippingAddressesId" })
 		}
 
 	}
@@ -124,7 +121,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 
 	if (formId === "invoice-address") {
-
 		saveDataSessionStorage({ key: "billingAddressesId", data: "last" })
 	}
 }
@@ -229,6 +225,26 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			}
 
 
+
+
+
+
+
+		}
+
+		const isDeliverySelected = loadDataFromSessionStorage({ key: "isDeliverySelected" })
+		const isBillingSelected = loadDataFromSessionStorage({ key: "isBillingSelected" })
+
+		if ((!isDeliverySelected || !isBillingSelected) && document.getElementById("not-valid-addresses")) {
+			const checkoutStep2 = document.getElementById("checkout-addresses-step")
+			if (checkoutStep2) {
+				try {
+					const continueBtn = checkoutStep2?.querySelector('button[type="submit"][class*="continue"]')
+					saveDataSessionStorage({ key: "isDeliverySelected", data: true })
+					saveDataSessionStorage({ key: "isBillingSelected", data: true })
+					continueBtn?.click()
+				} catch (err) { console.log(err); }
+			}
 
 		}
 

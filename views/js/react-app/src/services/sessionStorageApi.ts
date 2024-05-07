@@ -18,7 +18,9 @@ type ISessionStorageData = {
 	"isInpostKeyValid" |
 	"hasSimplyAlreadyBeenCalled" |
 	"isSimplyDataSelected" |
-	"selectedShippingMethod"
+	"selectedShippingMethod" |
+	"isDeliverySelected" |
+	"isBillingSelected" 
 	data: any
 } | {
 	key: "createSimplyAccount"

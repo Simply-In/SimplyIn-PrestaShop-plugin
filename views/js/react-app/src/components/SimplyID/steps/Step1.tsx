@@ -15,6 +15,8 @@ import { predefinedFill } from './functions'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 
+// const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
+
 export const getLangBrowser = () => {
 	if (navigator.languages !== undefined) return navigator.languages[0];
 	else return navigator.language;

@@ -38,6 +38,11 @@ export const selectDeliveryMethod = async ({ deliveryPointID, provider = "inpost
 	// const parcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" })
 	// const shippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" })
 
+	if (deliveryPointID === undefined) {
+		return
+
+	}
+
 	const isShippingMethodSelected = loadDataFromSessionStorage({ key: "selectedShippingMethod" })
 
 

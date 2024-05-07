@@ -85,7 +85,7 @@ export const handlePhpScript = (
 		},
 		dataToSend
 	})
-		.then(response => {
+		.then((response) => {
 			saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
 			if (isSameShippingAndBillingAddress) {
 				saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
@@ -157,8 +157,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		setSelectedDeliveryPointIndex,
 		pickupPointDelivery,
 		setPickupPointDelivery,
-		simplyInput,
-		isUserLoggedIn } = useContext(SelectedDataContext)
+		simplyInput
+	} = useContext(SelectedDataContext)
 
 
 	useEffect(() => {
@@ -211,7 +211,12 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 	const handleSelectData = () => {
 
+		removeDataSessionStorage({ key: "isBillingSelected" })
+		removeDataSessionStorage({ key: "isDeliverySelected" })
+
+
 		removeDataSessionStorage({ key: "selectedShippingMethod" })
+
 		if (!userData?.billingAddresses[selectedBillingIndex]) {
 			return
 		}
@@ -235,7 +240,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 
 		}
-
 
 		saveDataSessionStorage({ key: 'isParcelAdded', data: false })
 		removeDataSessionStorage({ key: 'delivery-address' })
@@ -289,6 +293,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 
 		handleClosePopup()
+
 		if (isUserLoggedIn) {
 			location.reload();
 		}

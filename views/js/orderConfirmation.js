@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const userEmail = isUserLoggedIn ? customer?.email : "";
@@ -192,6 +193,8 @@ $(document).ready(async function () {
       sessionStorage.removeItem("selectedShippingMethod");
       sessionStorage.removeItem("CustomChanges");
       sessionStorage.removeItem("inpost-delivery-point");
+      sessionStorage.removeItem("isBillingSelected");
+      sessionStorage.removeItem("isDeliverySelected");
     });
   }
 });

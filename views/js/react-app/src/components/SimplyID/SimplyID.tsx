@@ -173,7 +173,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		middlewareApi({
 			endpoint: "checkout/checkIfSubmitEmailPushNotificationWasConfirmed",
 			method: 'POST',
-			requestBody: { "email": simplyInput.trim().toLowerCase(), "notificationTokenId": notificationTokenId, language: "EN" }
+			requestBody: { "email": simplyInput.trim().toLowerCase(), "notificationTokenId": notificationTokenId }
 		})
 			.then(({ ok, authToken, userData }) => {
 
@@ -208,7 +208,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 				} else if (counter < maxAttempts && notificationTokenId) {
 					setTimeout(() => setCounter((prev) => prev + 1), 1000);
 				} else {
-					console.log('Login not accepted within 30 seconds');
+					console.log('Login not accepted within 180 seconds');
 				}
 
 			})

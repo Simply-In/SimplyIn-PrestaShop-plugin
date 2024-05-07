@@ -49,7 +49,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('SimplyIn');
-		$this->description = $this->l('25.04.2024');
+		$this->description = $this->l('06.05.2024');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -212,6 +212,8 @@ class Simplyin extends Module
 
 			$productLink = $context->link->getProductLink($product);
 			$thumbnailUrl = $context->link->getImageLink($productName, $productThumbnailId, 'small_default');
+
+
 			$customer_info['products'][] = array(
 				'name' => $product['product_name'],
 				'quantity' => intval($product['product_quantity']),
