@@ -14,13 +14,14 @@ import { predefinedFill } from './functions'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
+// const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
 
 export const getLangBrowser = () => {
 	if (navigator.languages !== undefined) return navigator.languages[0];
 	else return navigator.language;
 };
 
-const shortLang = (lang: string) => lang.substring(0, 2).toUpperCase();
+export const shortLang = (lang: string) => lang.substring(0, 2).toUpperCase();
 
 const countdownRenderer = ({ formatted: { minutes, seconds } }: any) => {
 	return <CounterSpan>{minutes}:{seconds}</CounterSpan>;
@@ -82,7 +83,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				email: simplyInput,
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				//@ts-ignore
-				lng: shortLang(getLangBrowser()) ?? currentLanguage?.iso_code.toUpperCase(),
+				lng: shortLang(i18n.language) ?? currentLanguage?.iso_code.toUpperCase() ?? shortLang(getLangBrowser()),
 
 			}
 		}).then(res => {
@@ -193,7 +194,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 		middlewareApi({
 			endpoint: "checkout/resend-checkout-code-via-email",
 			method: 'POST',
-			requestBody: { "email": simplyInput }
+			requestBody: { "email": simplyInput, language: shortLang(i18n.language) }
 		}).catch((err) => {
 			console.log(err);
 		})
@@ -203,7 +204,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 			middlewareApi({
 				endpoint: "checkout/submitEmail",
 				method: 'POST',
-				requestBody: { "email": simplyInput.trim().toLowerCase(), forceSms: true }
+				requestBody: { "email": simplyInput.trim().toLowerCase(), forceSms: true, language: shortLang(i18n.language) }
 
 			}).catch((err) => {
 
