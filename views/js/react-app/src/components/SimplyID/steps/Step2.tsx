@@ -176,8 +176,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 			setSameDeliveryAddress(loadDataFromSessionStorage({ key: 'sameDeliveryAddress' }))
 		}
 
-		if (loadDataFromSessionStorage({ key: 'ShippingIndex' }) === null && !isNaN(loadDataFromSessionStorage({ key: 'ParcelIndex' })) && !loadDataFromSessionStorage({ key: 'sameDeliveryAddress' })) {
+		if (loadDataFromSessionStorage({ key: 'ShippingIndex' }) === null && !isNaN(loadDataFromSessionStorage({ key: 'ParcelIndex' })) && loadDataFromSessionStorage({ key: 'ParcelIndex' }) !== null && !loadDataFromSessionStorage({ key: 'sameDeliveryAddress' })) {
 			setDeliveryType("machine")
+		}
+		if (loadDataFromSessionStorage({ key: 'ShippingIndex' }) === null && loadDataFromSessionStorage({ key: 'ParcelIndex' }) === null) {
+			setSameDeliveryAddress(true)
 		}
 
 	}, [])
