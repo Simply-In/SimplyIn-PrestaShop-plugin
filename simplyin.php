@@ -40,7 +40,7 @@ class Simplyin extends Module
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
 		$this->version = '1.0.0';
-		$this->author = 'SimplyIn';
+		$this->author = 'SimplyIN';
 		$this->need_instance = 1;
 		/**
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
@@ -49,7 +49,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('SimplyIn');
-		$this->description = $this->l('25.04.2024');
+		$this->description = $this->l('09.05.2024');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -82,38 +82,25 @@ class Simplyin extends Module
 	function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
 	{
 
-		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA);
+		$ivlen = openssl_cipher_iv_length($cipher);
+		$iv = openssl_random_pseudo_bytes($ivlen);
+
+		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
 		if ($ciphertext_raw === false) {
 			return false;
 		}
-		return base64_encode($ciphertext_raw);
+
+		return base64_encode($iv . $ciphertext_raw);
+
 	}
-
-	// public function decrypt($ciphertext, $secret_key, $cipher = "aes-256-cbc")
-	// {
-	// 	$c = base64_decode($ciphertext);
-	// 	$ivlen = openssl_cipher_iv_length($cipher);
-	// 	$iv = substr($c, 0, $ivlen);
-	// 	$hmac = substr($c, $ivlen, $sha2len = 32);
-	// 	$ciphertext_raw = substr($c, $ivlen + $sha2len);
-	// 	$original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
-	// 	$calcmac = hash_hmac('sha256', $ciphertext_raw, $secret_key, true);
-	// 	if (hash_equals($hmac, $calcmac))
-	// 		return $original_plaintext . "\n";
-	// }
-
-
 	public function hashEmail($order_email)
 	{
-		return openssl_digest("--" . $order_email . "--", 'SHA256');
+		return hash('sha256', "--" . $order_email . "--");
 	}
 
 	public function send_encrypted_data($encrypted_data)
 	{
-		$url = 'https://dev.backend.simplyin.app/api/notes/createNote';
-
-		// $logs_directory = plugin_dir_path(__FILE__) . 'logs/';
-		// $log_file = $logs_directory . 'order_log.json';
+		$url = 'https://stage.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
 
 		$base_url = __PS_BASE_URI__;
 		$headers = array('Content-Type: application/json', 'Origin: ' . $base_url);
@@ -123,7 +110,7 @@ class Simplyin extends Module
 
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($encrypted_data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $encrypted_data);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string instead of outputting it
@@ -131,25 +118,21 @@ class Simplyin extends Module
 		// Execute cURL session
 		$response = curl_exec($ch);
 
-		echo json_encode($response);
-
+		PrestaShopLogger::addLog('send' . $encrypted_data, 1, null, 'Order', 10, true);
+		PrestaShopLogger::addLog('resp' . $response, 1, null, 'Order', 10, true);
 
 		curl_close($ch);
 
 		return $response;
 	}
-
-
 	public function hookActionOrderStatusPostUpdate($params)
 	{
 
-		// return;
 		$newOrderStatus = $params['newOrderStatus']->template;
-		$newOrderStatusID = $params['newOrderStatus']->id;
-		$oldOrderStatus = $params['oldOrderStatus']->template;
-		$oldOrderStatusID = $params['oldOrderStatus']->id;
+
 		$id_order = $params['id_order'];
 		$order = new Order($id_order);
+
 
 
 		$shipping_data = $order->getShipping();
@@ -160,8 +143,6 @@ class Simplyin extends Module
 			$tracking_numbers[] = $carrier['tracking_number'];
 		}
 
-		echo json_encode($tracking_numbers);
-
 
 		$customer = $order->getCustomer();
 		$order_email = $customer->email;
@@ -171,61 +152,37 @@ class Simplyin extends Module
 		}
 		$apiKey = Configuration::get('SIMPLYIN_SECRET_KEY');
 
-		$body_data = array(
-			"email" => $order_email,
-			"orderId" => $id_order,
-			"newOrderStatus" => $newOrderStatus,
-			"apiKey" => $apiKey,
-			"trackingNumbers" => $tracking_numbers
-		);
-		// echo json_encode($body_data);
-		$plaintext = json_encode($body_data);
+		$body_data = [
+			'email' => $order_email,
+			'shopOrderNumber' => $id_order,
+			'newOrderStatus' => $newOrderStatus,
+			'apiKey' => $apiKey,
+			'trackingNumbers' => $tracking_numbers
+		];
 
-		function hashEncryptKey($order_email)
+
+		$plaintext = json_encode($body_data, JSON_UNESCAPED_SLASHES);
+
+		function getSecretKey($order_email)
 		{
-			return openssl_digest("__" . $order_email . "__", 'SHA256');
+			return hash('sha256', "__" . $order_email . "__", true);
 		}
 
-		$key = hashEncryptKey($order_email);
+		$key = getSecretKey($order_email);
 
-		// echo json_encode($key);
+
 
 		$encryptedData = $this->encrypt($plaintext, $key);
-
-		// $decryptedData = decrypt($encryptedData, $key);
 
 		$hashedEmail = $this->hashEmail($order_email);
 
 
-
-		$encryptedOrderData = array(
-			"A" => $encryptedData,
-			"B" => $hashedEmail,
-
-		);
-
-		$dataToSend =
-			array(
-				"type" => "newOrder Presta",
-				"content" => json_encode($encryptedOrderData)
-			);
-
-		// return;
-		// $dataSend = $this->send_encrypted_data($dataToSend);
-
-		// echo $dataSend;
-		// echo $encryptedData;
-		// echo $hashedEmail;
+		$orderData = array();
+		$orderData['encryptedOrderStatusChangeContent'] = $encryptedData;
+		$orderData['hashedEmail'] = $hashedEmail;
 
 
-		//DEBUGGER
-		error_log($params);
-
-		PrestaShopLogger::addLog("Order ipdated", 1, null, 'Order', 10, true);
-
-
-		PrestaShopLogger::addLog("order id $id_order; old status: --- $oldOrderStatus $oldOrderStatusID-----; order new status: ----- $newOrderStatus $newOrderStatusID------;", 1, null, 'Order', $id_order, true);
-
+		$this->send_encrypted_data(json_encode($orderData));
 	}
 
 

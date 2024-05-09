@@ -38,7 +38,6 @@ const listOfCountries = Object.keys(countries_list).map((key) => countries_list[
 const isUserLoggedIn = (customer?.logged === true && customer?.is_guest !== "1")
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-console.log("isUserLoggedIn", isUserLoggedIn, customer);
 document.addEventListener('DOMContentLoaded', async () => {
 	let isValid = true
 	const testRequest = await middlewareApi({

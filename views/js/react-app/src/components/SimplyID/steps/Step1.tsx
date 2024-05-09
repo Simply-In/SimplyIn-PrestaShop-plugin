@@ -37,14 +37,10 @@ interface IStep1 {
 	loginType: TypedLoginType
 	setLoginType: any
 	setNotificationTokenId: any
-
-
 }
 
 export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData, setToken, simplyInput, loginType, setLoginType, setNotificationTokenId }: IStep1) => {
 	const { t, i18n } = useTranslation();
-
-
 
 	const [pinCode, setPinCode] = useState('');
 	const [codeByEmail, setCodeByEmail] = useState(false)
@@ -58,6 +54,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 		isUserLoggedIn,
 		sameDeliveryAddress
 	} = useContext(SelectedDataContext)
+
 	const {
 		countdown,
 		setCountdown,
@@ -116,7 +113,6 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					i18n.changeLanguage(res.data?.language.toLowerCase())
 				}
 
-
 				removeDataSessionStorage({ key: 'delivery-address' })
 				removeDataSessionStorage({ key: 'invoice-address' })
 				removeDataSessionStorage({ key: "selectedShippingMethod" })
@@ -141,8 +137,6 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 					sameDeliveryAddress
 				},
 				)
-
-
 			}
 		});
 	};
@@ -180,7 +174,6 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 	}, [phoneNumber])
 
 	type sendPinAgainMethodType = "sms" | "email"
-
 
 	const handleSendPinAgain = ({ method }: { method: sendPinAgainMethodType }) => {
 		setLoginType("pinCode")
