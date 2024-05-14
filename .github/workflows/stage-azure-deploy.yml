@@ -1,0 +1,120 @@
+name: Stage Azure deploy
+
+on:
+  push:
+    branches:
+      - stage
+
+env: 
+  BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
+  APP_VERSION_PREFIX_STAGE: ${{vars.APP_VERSION_PREFIX_STAGE}}
+  AZURE_STORAGE_ACCOUNT_STAGE: ${{vars.AZURE_STORAGE_ACCOUNT_STAGE}}
+  AZURE_STORAGE_CONTAINER_NAME_PRESTA_STAGE: ${{vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA_STAGE}}
+  AZURE_CREDENTIALS: ${{vars.AZURE_CREDENTIALS}}
+jobs:
+  version:
+    name: Version bump
+    uses: ./.github/workflows/stage-version.yml
+
+  build-app:
+    runs-on: ubuntu-latest
+    needs: [version]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+   
+    - name: Fetch latest changes
+      run: |
+        git fetch origin
+        git reset --hard origin/stage
+
+    - name: Replace version in simplyin.php
+      run: |
+        VERSION=$(jq -r '.version' package.json)
+        sed -i "52s/.*/ $this->description = $this->l('$VERSION ${{ env.APP_VERSION_PREFIX_STAGE }}'); /" simplyin.php
+        
+    - name: Replace dev with stage
+      run: |
+        sed -i 's/dev/stage/g' simplyin.php
+
+    - name: Replace dev with stage in submitData.php
+      run: |
+        sed -i 's/dev/stage/g' api/submitData.php
+
+    - name: Commit and push if it changed
+      run: |
+        git diff
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "GitHub Actions Bot"
+        git commit -am "Update backend environment variable" || exit 0
+        git push
+
+    - name: Dependencies install 
+      run: |
+        cd public
+        yarn install
+
+    - name: Create react app bundle 
+      run: |
+        cd public
+        yarn deploy-build
+    
+    - name: Remove unnecessary files
+      run: |
+        rm -rf logs
+        rm -rf .git
+        rm -rf .github
+        cd views/js/react-app
+        rm -rf src
+        rm -rf node_modules
+
+    - name: Upload files
+      uses: actions/upload-artifact@v2
+      with:
+        name: simplyin-woo-stage
+        path: .
+
+  create-zip-file:
+    runs-on: ubuntu-latest
+    needs: [build-app]
+
+    steps:
+    - name: Download files
+      uses: actions/download-artifact@v2
+      with:
+        name: simplyin-presta-stage
+        path: .
+
+    - name: Zip files
+      run: |
+        zip -r simplyin-presta-stage.zip .
+    - name: Upload zip file
+      uses: actions/upload-artifact@v2
+      with:
+        name: simplyin-presta-stage
+        path: simplyin-presta-stage.zip
+
+  deploy-zip-file-in-azure:
+    runs-on: ubuntu-latest
+    needs: [create-zip-file]
+
+    steps:
+    - name: Download zip file
+      uses: actions/download-artifact@v2
+      with:
+        name: simplyin-presta-stage
+        path: .
+
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ env.AZURE_CREDENTIALS }}
+    
+    - name: Upload files to Azure Storage
+      run: |
+        az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_STAGE }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA_STAGE }} --source ./simplyin-presta-stage.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}}
+
+

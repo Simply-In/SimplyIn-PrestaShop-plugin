@@ -48,8 +48,8 @@ class Simplyin extends Module
 		$this->bootstrap = true;
 		parent::__construct();
 
-		$this->displayName = $this->l('SimplyIn');
-		$this->description = $this->l('09.05.2024');
+		$this->displayName = $this->l('SimplyIN');
+		$this->description = $this->l('10.05.2024');
 
 		$this->confirmUninstall = $this->l('');
 
@@ -100,7 +100,7 @@ class Simplyin extends Module
 
 	public function send_encrypted_data($encrypted_data)
 	{
-		$url = 'https://stage.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
+		$url = 'https://dev.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
 
 		$base_url = __PS_BASE_URI__;
 		$headers = array('Content-Type: application/json', 'Origin: ' . $base_url);
@@ -118,8 +118,8 @@ class Simplyin extends Module
 		// Execute cURL session
 		$response = curl_exec($ch);
 
-		PrestaShopLogger::addLog('send' . $encrypted_data, 1, null, 'Order', 10, true);
-		PrestaShopLogger::addLog('resp' . $response, 1, null, 'Order', 10, true);
+		// PrestaShopLogger::addLog('send' . $encrypted_data, 1, null, 'Order', 10, true);
+		// PrestaShopLogger::addLog('resp' . $response, 1, null, 'Order', 10, true);
 
 		curl_close($ch);
 
@@ -129,6 +129,22 @@ class Simplyin extends Module
 	{
 
 		$newOrderStatus = $params['newOrderStatus']->template;
+		// PrestaShopLogger::addLog('status new' . $newOrderStatus, 1, null, 'Order', 10, true);
+		$stopStatuses = [
+			"order_canceled",
+			"payment_error",
+			"",
+			"cheque",
+			"bankwire",
+			"cashondelivery",
+			"preparation",
+			"payment",
+			"outofstock",
+			"refund",
+		];
+		if (in_array($newOrderStatus, $stopStatuses, true)) {
+			return;
+		}
 
 		$id_order = $params['id_order'];
 		$order = new Order($id_order);
