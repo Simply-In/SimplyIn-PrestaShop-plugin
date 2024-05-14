@@ -71,7 +71,7 @@ jobs:
     - name: Upload files
       uses: actions/upload-artifact@v2
       with:
-        name: simplyin-woo-stage
+        name: simplyin-presta-stage
         path: .
 
   create-zip-file:
