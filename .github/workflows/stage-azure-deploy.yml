@@ -51,12 +51,12 @@ jobs:
 
     - name: Dependencies install 
       run: |
-        cd public
+        cd views/js/react-app
         yarn install
 
     - name: Create react app bundle 
       run: |
-        cd public
+        cd views/js/react-app
         yarn deploy-build
     
     - name: Remove unnecessary files
