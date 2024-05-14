@@ -49,7 +49,7 @@ class Simplyin extends Module
 		parent::__construct();
 
 		$this->displayName = $this->l('SimplyIN');
-		$this->description = $this->l('10.05.2024');
+ ->description = ->l('1.0.1 st'); 
 
 		$this->confirmUninstall = $this->l('');
 
@@ -100,7 +100,7 @@ class Simplyin extends Module
 
 	public function send_encrypted_data($encrypted_data)
 	{
-		$url = 'https://dev.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
+		$url = 'https://stage.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
 
 		$base_url = __PS_BASE_URI__;
 		$headers = array('Content-Type: application/json', 'Origin: ' . $base_url);

@@ -26,9 +26,9 @@ $body['apiKey'] = $apiKey;
 $body['merchantApiKey'] = $apiKey;
 
 if (!empty($token)) {
-	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
+	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
+	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint;
 }
 // $headers = array('Content-Type: application/json');
 $headers = array('Content-Type: application/json', 'Origin: ' . $origin);
