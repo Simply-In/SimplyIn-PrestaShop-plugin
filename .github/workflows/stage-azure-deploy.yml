@@ -31,6 +31,10 @@ jobs:
     - name: Replace version in simplyin.php
       run: |
         VERSION=$(jq -r '.version' package.json)
+        sed -i "42s/.*/ \$this->description = '$VERSION'; /" simplyin.php
+    - name: Replace version in simplyin.php
+      run: |
+        VERSION=$(jq -r '.version' package.json)
         sed -i "52s/.*/ \$this->description = \$this->l('$VERSION ${{ env.APP_VERSION_PREFIX_STAGE }}'); /" simplyin.php
         
     - name: Replace dev with stage
