@@ -26,12 +26,12 @@ $body['apiKey'] = $apiKey;
 $body['merchantApiKey'] = $apiKey;
 
 if (!empty($token)) {
-	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = 'https://stage.backend.simplyin.app/api/' . $endpoint;
+	$url = 'https://dev.backend.simplyin.app/api/' . $endpoint;
 }
-// $headers = array('Content-Type: application/json');
-$headers = array('Content-Type: application/json', 'Origin: ' . $origin);
+$headers = array('Content-Type: application/json');
+// $headers = array('Content-Type: application/json', 'Origin: ' . $origin);
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);

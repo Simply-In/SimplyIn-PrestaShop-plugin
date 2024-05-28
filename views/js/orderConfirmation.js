@@ -1,3 +1,4 @@
+console.log(customer);
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
@@ -5,6 +6,7 @@ const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
 //@ts-ignore
 const userEmail = isUserLoggedIn ? customer?.email : "";
 
+console.log("order confirmation");
 const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -60,11 +62,13 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
   }
 };
 
- const getLangBrowser = () => {
-   if (navigator.languages !== undefined) return navigator.languages[0];
-   else return navigator.language;
- };
+const getLangBrowser = () => {
+  if (navigator.languages !== undefined) return navigator.languages[0];
+  else return navigator.language;
+};
 $(document).ready(async function () {
+  // console.log({ order });
+
   let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
 
   const BillingIndex = loadDataFromSessionStorageTwo({
@@ -76,6 +80,7 @@ $(document).ready(async function () {
   const UserData = loadDataFromSessionStorageTwo({
     key: "UserData",
   });
+  console.log("staaaart");
 
   const billingAddresses = {
     _id: UserData?.billingAddresses[BillingIndex]?._id,
@@ -182,16 +187,16 @@ $(document).ready(async function () {
       requestBody: existingAccountSendData,
       token: simplyinToken,
     }).then((res) => {
-      sessionStorage.removeItem("isSimplyDataSelected");
-      sessionStorage.removeItem("UserData");
-      sessionStorage.removeItem("BillingIndex");
-      sessionStorage.removeItem("ShippingIndex");
-      sessionStorage.removeItem("ParcelIndex");
-      sessionStorage.removeItem("phoneNumber");
-      sessionStorage.removeItem("simplyinToken");
-      sessionStorage.removeItem("selectedShippingMethod");
-      sessionStorage.removeItem("CustomChanges");
-      sessionStorage.removeItem("inpost-delivery-point");
+      //   sessionStorage.removeItem("isSimplyDataSelected");
+      //   sessionStorage.removeItem("UserData");
+      //   sessionStorage.removeItem("BillingIndex");
+      //   sessionStorage.removeItem("ShippingIndex");
+      //   sessionStorage.removeItem("ParcelIndex");
+      //   sessionStorage.removeItem("phoneNumber");
+      //   sessionStorage.removeItem("simplyinToken");
+      //   sessionStorage.removeItem("selectedShippingMethod");
+      //   sessionStorage.removeItem("CustomChanges");
+      //   sessionStorage.removeItem("inpost-delivery-point");
     });
   }
 });
