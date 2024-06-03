@@ -24,8 +24,6 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-use Order;
-
 class Simplyin extends Module
 {
 
@@ -125,11 +123,15 @@ class Simplyin extends Module
 
 		return $response;
 	}
+	function getSecretKey($order_email)
+	{
+		return hash('sha256', "__" . $order_email . "__", true);
+	}
+
 	public function hookActionOrderStatusPostUpdate($params)
 	{
 
 		$newOrderStatus = $params['newOrderStatus']->template;
-		// PrestaShopLogger::addLog('status new' . $newOrderStatus, 1, null, 'Order', 10, true);
 		$stopStatuses = [
 			"order_canceled",
 			"payment_error",
@@ -148,6 +150,9 @@ class Simplyin extends Module
 
 		$id_order = $params['id_order'];
 		$order = new Order($id_order);
+
+		$order_reference = $order->reference;
+		// PrestaShopLogger::addLog(json_encode($order), 1, null, 'Order', 10, true);
 
 
 
@@ -170,19 +175,17 @@ class Simplyin extends Module
 
 		$body_data = [
 			'email' => $order_email,
-			'shopOrderNumber' => $id_order,
+			'shopOrderNumber' => $order_reference,
 			'newOrderStatus' => $newOrderStatus,
 			'apiKey' => $apiKey,
 			'trackingNumbers' => $tracking_numbers
 		];
 
+		// PrestaShopLogger::addLog(json_encode($body_data), 1, null, 'Order', 10, true);
 
 		$plaintext = json_encode($body_data, JSON_UNESCAPED_SLASHES);
 
-		function getSecretKey($order_email)
-		{
-			return hash('sha256', "__" . $order_email . "__", true);
-		}
+		
 
 		$key = getSecretKey($order_email);
 
@@ -209,8 +212,7 @@ class Simplyin extends Module
 	{
 		$orderId = $params['order']->id;
 		$customerId = $params['customer']->id;
-		PrestaShopLogger::addLog("Order $orderId created for customer $customerId", 1, null, 'Order', $orderId, true);
-
+		
 		$context = Context::getContext();
 		$shopName = Configuration::get('PS_SHOP_NAME');
 		// Get the order object from the params
@@ -249,6 +251,7 @@ class Simplyin extends Module
 		$customer_info['products'] = array();
 
 		$orderProducts = $order->getProducts();
+
 		foreach ($orderProducts as $product) {
 			$productId = $product['product_id'];
 
@@ -313,7 +316,7 @@ class Simplyin extends Module
 			'all' => $carrier
 
 		);
-
+		
 		$order_carrier = new OrderCarrier((int) $order->getIdOrderCarrier());
 
 		$order_id = $order_carrier->id_order;
@@ -322,13 +325,17 @@ class Simplyin extends Module
 		//getting delivery point from inpost module
 		if (Module::isInstalled('inpostshipping') && Module::isEnabled('inpostshipping')) {
 			$module = Module::getInstanceByName('inpostshipping');
-			$context = $module->getContext();
-			$customerChoiceDataProvider = $module->getService('inpost.shipping.data_provider.customer_choice');
-			$deliveryPoint = $customerChoiceDataProvider->getDataByCartId($order->id_cart)->point;
+			try {
+				$context = $module->getContext();
+				$customerChoiceDataProvider = $module->getService('inpost.shipping.data_provider.customer_choice');
+				$deliveryPoint = $customerChoiceDataProvider->getDataByCartId($order->id_cart)->point;
+
+			} catch (Exception $e) {
+				echo 'Service does not exist: ', $e->getMessage(), "\n";
+			}
 		}
-
 		$order_number = $order->getUniqReference();
-
+		$order_payments = OrderPayment::getByOrderReference($order->reference);
 		Media::addJsDef(
 			array(
 				'customer_data' => $customer_info,
@@ -349,12 +356,13 @@ class Simplyin extends Module
 				"orderProducts" => $order->getProducts(),
 				'deliveryPoint' => $deliveryPoint,
 				'shopName' => $shopName,
-				'order_number' => $order_number
+				'order_number' => $order_number,
+				'order' => $order,
+				"order_payments" => $order_payments,
 
 			)
 		);
-
-
+		
 		$this->context->controller->registerJavascript(
 			'simplyin',
 			// Unique id
@@ -364,7 +372,7 @@ class Simplyin extends Module
 		);
 
 		return $this->display(__FILE__, 'orderConfirmation.tpl');
-		// }
+		
 	}
 
 
