@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2023 PrestaShop
+ * 2007-2024 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -19,52 +19,37 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2023 PrestaShop SA
+ *  @copyright 2007-2024 PrestaShop SA
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
+if (!defined('_PS_VERSION_')) {
+	exit;
+}
 class Simplyin extends Module
 {
-
-
-
 	protected $config_form = false;
-
-
 	public function __construct()
 	{
-
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
 		$this->version = '1.0.0';
 		$this->author = 'SimplyIN';
 		$this->need_instance = 1;
-		/**
-		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
-		 */
 		$this->bootstrap = true;
 		parent::__construct();
-
-		$this->displayName = $this->l('SimplyIN');
- $this->description = $this->l('1.0.4 st'); 
-
+		$this->displayName = 'SimplyIN';
+		$this->description = "simplyin module - quick checkout process";
 		$this->confirmUninstall = $this->l('');
-
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
 	}
 
-	/**
-	 * Don't forget to create update methods if needed:
-	 * http://doc.prestashop.com/display/PS16/Enabling+the+Auto-Update
-	 */
 	public function install()
 	{
 		Configuration::updateValue('SIMPLYIN_LIVE_MODE', false);
-
 		include (dirname(__FILE__) . '/sql/install.php');
-
 		return parent::install() &&
 			$this->registerHook('header') &&
 			$this->registerHook('actionOrderStatusPostUpdate') &&
@@ -74,22 +59,17 @@ class Simplyin extends Module
 			$this->registerHook('actionCarrierProcess') &&
 			$this->registerHook('updateOrderStatus') &&
 			$this->registerHook('actionValidateOrder');
-
 	}
 
-	function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
+	public function encrypt($plaintext, $secret_key, $cipher = "aes-256-cbc")
 	{
-
 		$ivlen = openssl_cipher_iv_length($cipher);
 		$iv = openssl_random_pseudo_bytes($ivlen);
-
 		$ciphertext_raw = openssl_encrypt($plaintext, $cipher, $secret_key, OPENSSL_RAW_DATA, $iv);
 		if ($ciphertext_raw === false) {
 			return false;
 		}
-
 		return base64_encode($iv . $ciphertext_raw);
-
 	}
 	public function hashEmail($order_email)
 	{
@@ -99,38 +79,28 @@ class Simplyin extends Module
 	public function send_encrypted_data($encrypted_data)
 	{
 		$url = 'https://stage.backend.simplyin.app/api/' . 'encryption/saveEncryptedOrderStatusChange';
-
 		$base_url = __PS_BASE_URI__;
 		$headers = array('Content-Type: application/json', 'Origin: ' . $base_url);
-
-
 		$ch = curl_init();
-
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $encrypted_data);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string instead of outputting it
-
 		// Execute cURL session
 		$response = curl_exec($ch);
-
 		// PrestaShopLogger::addLog('send' . $encrypted_data, 1, null, 'Order', 10, true);
 		// PrestaShopLogger::addLog('resp' . $response, 1, null, 'Order', 10, true);
-
 		curl_close($ch);
-
 		return $response;
 	}
-	function getSecretKey($order_email)
+	public function getSecretKey($order_email)
 	{
 		return hash('sha256', "__" . $order_email . "__", true);
 	}
 
 	public function hookActionOrderStatusPostUpdate($params)
 	{
-
 		$newOrderStatus = $params['newOrderStatus']->template;
 		$stopStatuses = [
 			"order_canceled",
@@ -243,7 +213,7 @@ class Simplyin extends Module
 			'id_order' => (int) $order->id,
 			'reference' => $order->reference,
 			'total_paid' => $order->total_paid,
-			'quantity' => intval($order->quantity),
+			'quantity' => (int) ($order->quantity),
 			'id_customer' => $this->context->customer->id,
 			'data-order' => $params->order,
 		);
@@ -259,7 +229,8 @@ class Simplyin extends Module
 
 			$productImage = Image::getCover($productId);
 			if ($productImage) {
-				$productImageUrl = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $productImage['id_image'] . '-large_default/' . $productName . '.jpg';
+				// $productImageUrl = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $productImage['id_image'] . '-large_default/' . $productName . '.jpg';
+				$productImageUrl = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $productImage['id_image'] . '-' . ImageType::getFormattedName('large') . '/' . $productName . '.jpg';
 			} else {
 				// If no image is available, you can use a default image or handle it as needed
 				$productImageUrl = _PS_IMG_ . 'p/' . (int) $productId . '-' . (int) $product['id_image'] . '.jpg';
@@ -272,10 +243,10 @@ class Simplyin extends Module
 			$productDescription = strip_tags($productObj->description);
 
 			$productLink = $context->link->getProductLink($product);
-			$thumbnailUrl = $context->link->getImageLink($productName, $productThumbnailId, 'small_default');
+			$thumbnailUrl = $context->link->getImageLink($productName, $productThumbnailId, ImageType::getFormattedName('small'));
 			$customer_info['products'][] = array(
 				'name' => $product['product_name'],
-				'quantity' => intval($product['product_quantity']),
+				'quantity' => (int) ($product['product_quantity']),
 				'price' => $product['product_price'],
 				'productDescription' => $productDescription,
 				'url' => $productLink,
@@ -439,7 +410,9 @@ class Simplyin extends Module
 	 * Create the structure of your form.
 	 */
 	protected function getConfigForm()
+	
 	{
+		$this->context->smarty->assign('localPath', _PS_BASE_URL_ . $this->_path);
 		return array(
 			'form' => array(
 				'legend' => array(
@@ -477,6 +450,12 @@ class Simplyin extends Module
 						#module_form{
 							font-size: 14px;
 						}
+
+						#admin-simply-title{
+							color:black;
+							font-weight: bold;
+							font-size:18px;
+						}
 						</style>
 						
 						',
@@ -509,11 +488,8 @@ class Simplyin extends Module
 					array(
 						'type' => 'html',
 						'name' => 'SIMPLYIN_TITLE',
-						'html_content' => '
-						<div>
-						<h2 style="color:black; font-weight: bold; font-size:18px;">Api key</h2>
-						<p>To activate <a href="https://www.simply.in" target="_blank">Simply.IN</a> in your store, paste below the API key generated in the <a href="https://merchant.simplyin.app/" target="_blank">merchant panel</a>. Detailed instructions are available in the panel.</p>
-						</div>',
+						'html_content' => $this->context->smarty->fetch($this->local_path . 'views/templates/admin/simplyin_title.tpl'),
+
 					),
 					array(
 						'type' => 'password',
@@ -523,51 +499,14 @@ class Simplyin extends Module
 					array(
 						'type' => 'html',
 						'name' => 'SIMPLYIN_TITLE',
-						'html_content' => '
-						<div>
-						<h2 style="color:black; font-weight: bold; font-size:18px;">Help</h2>
-						<div>If you have any questions or issues rellated to the plugin, please contact us via email: <a href="mailto:support@simply.in">support@simply.in</a></div>
-						<div style="margin-top:8px;">For more information about our services, visit <a href="https://www.simply.in">Simply.IN website</a></div>
-						</div>',
+						'html_content' => $this->context->smarty->fetch($this->local_path . 'views/templates/admin/simplyin_contact.tpl'),
+
 					),
+	
 					array(
 						'type' => 'html',
 						'name' => 'SIMPLYIN_TITLE',
-						'html_content' => '
-						<div>
-						<script>
-						const parentElement = document.querySelector(".form-wrapper>div.form-group:nth-child(4)")
-						const showHideContainer = document.querySelector(".form-wrapper>div.form-group:nth-child(6)")
-						parentElement.appendChild(showHideContainer)
-						showHideContainer.style.margin="auto auto"
-	
-						showHideContainer.style.setProperty("width", "auto", "important");
-						const showhides = () => {	
-							const x = document.getElementById("SIMPLYIN_SECRET_KEY");
-							const show = document.querySelector(".show-pass")
-							const hide = document.querySelector(".hide-pass")
-	
-							if (x.type === "password") {
-								x.type = "text";
-								show.style.display="none";
-								hide.style.display="";
-							} else {
-								show.style.display="";
-								hide.style.display="none";
-							 	x.type = "password";
-							}
-						  }
-
-
-
-
-
-						</script>
-						<div id="showHideContainer">
-						<img src="' . _PS_BASE_URL_ . $this->_path . 'views/img/view.png" onclick="showhides()" class="show-pass eye-icon">
-						<img src="' . _PS_BASE_URL_ . $this->_path . 'views/img/hidden.png" onclick="showhides()" class="hide-pass eye-icon" style="display: none">
-						</div>
-						</div>',
+						'html_content' => $this->context->smarty->fetch($this->local_path . 'views/templates/admin/simplyin_showhide.tpl'),
 					),
 				),
 		

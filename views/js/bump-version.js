@@ -1,3 +1,24 @@
+/** 
+* 2007-2024 PrestaShop
+* NOTICE OF LICENSE
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+* DISCLAIMER
+* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+* versions in the future. If you wish to customize PrestaShop for your
+* needs please refer to http://www.prestashop.com for more information.
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2024 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  International Registered Trademark & Property of PrestaShop SA
+*/
+
+
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -130,7 +151,7 @@ console.log({
   commitsShapes: shapedCommits,
   semverVersionToUpdate: semverVersionToIncrement,
 });
-const packageJsonPath = path.join(__dirname, "..", "package.json");
+const packageJsonPath = path.join(__dirname, "../..", "package.json");
 const packageJson = require(packageJsonPath);
 const currentVersion = packageJson.version;
 const newVersion = semver.inc(currentVersion, semverVersionToIncrement);
@@ -138,7 +159,7 @@ const newVersion = semver.inc(currentVersion, semverVersionToIncrement);
 packageJson.version = newVersion;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
-const changelogPath = path.join(__dirname, "..", "changelog.md");
+const changelogPath = path.join(__dirname, "../..", "changelog.md");
 let changelog = "";
 if (fs.existsSync(changelogPath)) {
   const changelogFileContent = fs.readFileSync(changelogPath, "utf-8");
@@ -146,7 +167,7 @@ if (fs.existsSync(changelogPath)) {
   changelog = changelogFileContent;
 } else {
   const filesInsideOfFolderThatWeThinkChangelogIsIn = fs.readdirSync(
-    path.join(__dirname, "..")
+    path.join(__dirname, "../..")
   );
   console.log("changelog does not exist, lets create it", {
     filesInsideOfFolderThatWeThinkChangelogIsIn,
