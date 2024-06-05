@@ -23,6 +23,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -42,12 +43,14 @@ class Simplyin extends Module
         $this->displayName = 'SimplyIN';
         $this->description = 'simplyin module - quick checkout process';
         $this->confirmUninstall = $this->l('');
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+		$this->ps_versions_compliancy = ['min' => '8.0', 'max' => _PS_VERSION_];
     }
 
     public function install()
     {
-        Configuration::updateValue('SIMPLYIN_LIVE_MODE', false);
+		PrestaShopLogger::addLog("install", 1, null, 'Order', "", true);
+
+		Configuration::updateValue('SIMPLYIN_LIVE_MODE', false);
         include dirname(__FILE__) . '/sql/install.php';
 
         return parent::install()
@@ -342,10 +345,9 @@ class Simplyin extends Module
      */
     public function getContent()
     {
-        /*
-         * If values have been submitted in the form, process.
-         */
-        if (((bool) Tools::isSubmit('submitSimplyinModule')) == true) {
+		PrestaShopLogger::addLog("getcontent", 1, null, 'Order', "", true);
+
+		if (((bool) Tools::isSubmit('submitSimplyinModule')) == true) {
             $this->postProcess();
         }
 
@@ -390,7 +392,9 @@ class Simplyin extends Module
      */
     protected function getConfigForm()
     {
-        $this->context->smarty->assign('localPath', _PS_BASE_URL_ . $this->_path);
+		PrestaShopLogger::addLog("get config form", 1, null, 'Order', "", true);
+
+		$this->context->smarty->assign('localPath', _PS_BASE_URL_ . $this->_path);
 
         return [
             'form' => [
