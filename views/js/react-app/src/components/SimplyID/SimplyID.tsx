@@ -31,7 +31,7 @@ export const CounterContext = createContext<any>({});
 export const isValidEmail = (email: string) => z.string().email().safeParse(email).success
 
 export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
-	const [modalStep, setModalStep] = useState(1)
+	const [modalStep, setModalStep] = useState<1 | 2 | "rejected">(1)
 	const [userData, setUserData] = useState({})
 	const [simplyInput, setSimplyInput] = useState(isUserLoggedIn ? customerEmail : loadDataFromSessionStorage({ key: "UserData" })?.email || loadDataFromSessionStorage({ key: "customChanges" })?.customerForm?.fieldEmail || "");
 
@@ -178,7 +178,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			method: 'POST',
 			requestBody: { "email": simplyInput.trim().toLowerCase(), "notificationTokenId": notificationTokenId }
 		})
-			.then(({ ok, authToken, userData }) => {
+			.then(({ ok, rejected, authToken, userData }) => {
 
 				if (authToken) {
 
@@ -208,6 +208,10 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 						// sameDeliveryAddress
 					})
 
+				}
+				else if (ok === false && rejected === true) {
+					setVisible(true)
+					setModalStep("rejected")
 				} else if (counter < maxAttempts && notificationTokenId) {
 					setTimeout(() => setCounter((prev) => prev + 1), 1000);
 				} else {
@@ -233,23 +237,23 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 			const debouncedRequest = debounce(() => {
 				if (isValidEmail(simplyInput.trim().toLowerCase())) {
-				middlewareApi({
-					endpoint: "checkout/submitEmail",
-					method: 'POST',
-					requestBody: { "email": simplyInput?.trim().toLowerCase() || "", language: shortLang(i18n.language) }
-				}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
+					middlewareApi({
+						endpoint: "checkout/submitEmail",
+						method: 'POST',
+						requestBody: { "email": simplyInput?.trim().toLowerCase() || "", language: shortLang(i18n.language) }
+					}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
 
-					setPhoneNumber(phoneNumber)
-					saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
-					setVisible(true)
-					setLoginType(userUsedPushNotifications ? "app" : "pinCode")
-					if (userUsedPushNotifications) {
-						setNotificationTokenId(notificationTokenId)
-					}
-				}).catch((err) => {
-					console.log(err);
-				})
+						setPhoneNumber(phoneNumber)
+						saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
+						setVisible(true)
+						setLoginType(userUsedPushNotifications ? "app" : "pinCode")
+						if (userUsedPushNotifications) {
+							setNotificationTokenId(notificationTokenId)
+						}
+					}).catch((err) => {
+						console.log(err);
+					})
 				}
 			}, 500);
 
@@ -276,23 +280,23 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 			const debouncedRequest = debounce(() => {
 				if (isValidEmail(simplyInput.trim().toLowerCase())) {
-				middlewareApi({
-					endpoint: "checkout/submitEmail",
-					method: 'POST',
-					requestBody: { "email": simplyInput?.trim().toLowerCase() || "", language: shortLang(i18n.language) }
-				}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
+					middlewareApi({
+						endpoint: "checkout/submitEmail",
+						method: 'POST',
+						requestBody: { "email": simplyInput?.trim().toLowerCase() || "", language: shortLang(i18n.language) }
+					}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
-					setPhoneNumber(phoneNumber)
-					saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
-					setVisible(true)
-					setLoginType(userUsedPushNotifications ? "app" : "pinCode")
-					if (userUsedPushNotifications) {
-						setNotificationTokenId(notificationTokenId)
-					}
+						setPhoneNumber(phoneNumber)
+						saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
+						setVisible(true)
+						setLoginType(userUsedPushNotifications ? "app" : "pinCode")
+						if (userUsedPushNotifications) {
+							setNotificationTokenId(notificationTokenId)
+						}
 
-				}).catch((err) => {
-					console.log(err);
-				})
+					}).catch((err) => {
+						console.log(err);
+					})
 				}
 			}, 500);
 
@@ -368,54 +372,54 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		<ApiContext.Provider value={{ authToken, setAuthToken }}>
 			<SelectedDataContext.Provider value={providerProps}>
 				<CounterContext.Provider value={counterProps}>
-				<SimplyIn className="REACT_APP">
+					<SimplyIn className="REACT_APP">
 
-					{!isUserLoggedIn && <SimplyinContainer>
-						<input 
-							{...attributeObject}
-							value={simplyInput}
-							onChange={handleSimplyInputChange}
-							ref={myRef as any}
-							type="email"
+						{!isUserLoggedIn && <SimplyinContainer>
+							<input
+								{...attributeObject}
+								value={simplyInput}
+								onChange={handleSimplyInputChange}
+								ref={myRef as any}
+								type="email"
 
-						></input>
+							></input>
 
 
-						{phoneNumber && <SimplyinSmsPopupOpenerIcon onClick={handleOpenSmsPopup} simplyinToken={authToken} />}
-					</SimplyinContainer>}
+							{phoneNumber && <SimplyinSmsPopupOpenerIcon onClick={handleOpenSmsPopup} simplyinToken={authToken} />}
+						</SimplyinContainer>}
 
-					{!isUserLoggedIn && phoneNumber && isSimplyIdVisible && <PinCodeModal
-						simplyInput={simplyInput}
-						setToken={setAuthToken}
-						phoneNumber={phoneNumber}
-						visible={visible}
-						setVisible={setVisible}
-						userData={userData}
-						setUserData={setUserData}
-						loginType={loginType}
-						modalStep={modalStep}
-						setModalStep={setModalStep}
+						{!isUserLoggedIn && phoneNumber && isSimplyIdVisible && <PinCodeModal
+							simplyInput={simplyInput}
+							setToken={setAuthToken}
+							phoneNumber={phoneNumber}
+							visible={visible}
+							setVisible={setVisible}
+							userData={userData}
+							setUserData={setUserData}
+							loginType={loginType}
+							modalStep={modalStep}
+							setModalStep={setModalStep}
 							setLoginType={setLoginType}
 							setNotificationTokenId={setNotificationTokenId}
-					/>}
+						/>}
 
-					{!isSimplyModalSelected && isUserLoggedIn && phoneNumber && <PinCodeModal
-						modalStep={modalStep}
-						setModalStep={setModalStep}
-						render={true}
-						simplyInput={simplyInput}
-						setToken={setAuthToken}
-						phoneNumber={phoneNumber}
-						visible={visible}
-						setVisible={setVisible}
-						userData={userData}
-						setUserData={setUserData}
-						loginType={loginType}
+						{!isSimplyModalSelected && isUserLoggedIn && phoneNumber && <PinCodeModal
+							modalStep={modalStep}
+							setModalStep={setModalStep}
+							render={true}
+							simplyInput={simplyInput}
+							setToken={setAuthToken}
+							phoneNumber={phoneNumber}
+							visible={visible}
+							setVisible={setVisible}
+							userData={userData}
+							setUserData={setUserData}
+							loginType={loginType}
 							setLoginType={setLoginType}
 							setNotificationTokenId={setNotificationTokenId}
-					/>}
+						/>}
 
-				</SimplyIn >
+					</SimplyIn >
 				</CounterContext.Provider>
 			</SelectedDataContext.Provider>
 		</ApiContext.Provider>
