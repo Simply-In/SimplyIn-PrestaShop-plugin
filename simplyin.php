@@ -57,8 +57,7 @@ class Simplyin extends Module
             && $this->registerHook('header')
             && $this->registerHook('actionOrderStatusPostUpdate')
             && $this->registerHook('displayBackOfficeHeader')
-            && $this->registerHook('displayOrderConfirmation')
-            && $this->registerHook('displayBeforeCarrier')
+			&& $this->registerHook('displayOrderConfirmation')
             && $this->registerHook('actionCarrierProcess')
             && $this->registerHook('updateOrderStatus')
             && $this->registerHook('actionValidateOrder');
@@ -172,8 +171,8 @@ class Simplyin extends Module
 
     public function hookDisplayOrderConfirmation($params)
     {
-        $orderId = $params['order']->id;
-        $customerId = $params['customer']->id;
+		// $orderId = $params['order']->id;
+		// $customerId = $params['customer']->id;
 
         $context = Context::getContext();
         $shopName = Configuration::get('PS_SHOP_NAME');
@@ -204,9 +203,9 @@ class Simplyin extends Module
             'id_order' => (int) $order->id,
             'reference' => $order->reference,
             'total_paid' => $order->total_paid,
-            'quantity' => (int) $order->quantity,
+			// 'quantity' => (int) $order->quantity,
             'id_customer' => $this->context->customer->id,
-            'data-order' => $params->order,
+			// 'data-order' => $params->order,
         ];
 
         $customer_info['products'] = [];
@@ -255,8 +254,8 @@ class Simplyin extends Module
 
         $delivery_method = [
             'id_reference' => $carrier->id_reference,
-            'id_tax_rules_group' => $carrier->id_tax_rules_group,
-            'id_carrier' => $carrier->id_carrier,
+			// 'id_tax_rules_group' => $carrier->id_tax_rules_group,
+			// 'id_carrier' => $carrier->id_carrier,
             'deleted' => $carrier->deleted,
             'shipping_handling' => $carrier->shipping_handling,
             'range_behavior' => $carrier->range_behavior,
@@ -267,8 +266,8 @@ class Simplyin extends Module
             'external_module_name' => $carrier->external_module_name,
             'shipping_method' => $carrier->shipping_method,
             'position' => $carrier->position,
-            'win_distance' => $carrier->win_distance,
-            'max_delivery_delay' => $carrier->max_delivery_delay,
+			// 'win_distance' => $carrier->win_distance,
+			// 'max_delivery_delay' => $carrier->max_delivery_delay,
             'grade' => $carrier->grade,
             'url' => $carrier->url,
             'active' => $carrier->active,
@@ -312,7 +311,7 @@ class Simplyin extends Module
                 'language_code' => $language_code,
                 'language_name' => $language_name,
                 'orderProducts' => $order->getProducts(),
-                'deliveryPoint' => $deliveryPoint,
+				'deliveryPoint' => $deliveryPoint ?? null,
                 'shopName' => $shopName,
                 'order_number' => $order_number,
                 'order' => $order,
@@ -328,7 +327,7 @@ class Simplyin extends Module
             ['position' => 'bottom', 'priority' => 150] // Position and priority
         );
 
-        return $this->display(__FILE__, 'orderConfirmation.tpl');
+		// return $this->display(__FILE__, 'orderConfirmation.tpl');
     }
 
     public function uninstall()
