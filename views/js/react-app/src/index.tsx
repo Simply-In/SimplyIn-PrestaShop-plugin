@@ -3,19 +3,41 @@ import ReactDOM from "react-dom";
 import { SimplyID } from "./components/SimplyID";
 
 import { PhoneField } from "./components/PhoneField/PhoneField";
-// import { selectIPickupPointInpost } from "./functions/selectInpostPoint";
-import { loadDataFromSessionStorage } from "./services/sessionStorageApi";
 
-// import { selectIPickupPointInpost } from "./functions/selectInpostPoint";
+import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from "./services/sessionStorageApi";
+
+
 import SimplyBrandIcon from "./assets/SimplyBrandIcon";
-import { selectPickupPointInpost } from "./functions/selectInpostPoint";
+import { selectDeliveryMethod } from "./functions/selectDeliveryMethod.ts";
 import { middlewareApi } from "./services/middlewareApi";
+import './i18n.ts'
+
+
+
+
+const isCheckoutPage = document.getElementById('checkout')
+
+if (!isCheckoutPage) {
+	saveDataSessionStorage({ key: "isSimplyDataSelected", data: false })
+	removeDataSessionStorage({ key: "UserData" })
+	removeDataSessionStorage({ key: "BillingIndex" })
+	removeDataSessionStorage({ key: "ShippingIndex" })
+	removeDataSessionStorage({ key: "ParcelIndex" })
+	removeDataSessionStorage({ key: "simplyinToken" })
+	removeDataSessionStorage({ key: "phoneNumber" })
+	removeDataSessionStorage({ key: "selectedShippingMethod" })
+
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const listOfCountries = Object.keys(countries_list).map((key) => countries_list[key]).sort((a, b) => a.name.localeCompare(b.name));
 
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const isUserLoggedIn = (customer?.logged === true && customer?.is_guest !== "1")
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 document.addEventListener('DOMContentLoaded', async () => {
 	let isValid = true
 	const testRequest = await middlewareApi({
@@ -23,34 +45,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 		method: 'POST',
 		requestBody: { "email": "" }
 	}).then(res => {
-		console.log('test request');
-		console.log(res);
 		return res
 	})
 
 
 	const deleteSimplyContent = () => {
-		console.log('delete content simply');
 		document.querySelector("#simplyLogoContainer")?.remove()
 		document.querySelector("#phoneAppContainer")?.remove()
 
 	}
 
-
-	console.log(testRequest);
-	// if (testRequest === "Unauthorized") {
-	if (testRequest.message === "Merchant api key not found") {
+	if (testRequest?.message === "Merchant api key not found" || testRequest?.code === "UNAUTHORIZED") {
 		console.log("SIMPLYIN API KEY INVALID");
 		isValid = false
 		deleteSimplyContent()
 		return
-		// } else if (testRequest === "Simplyin apikey is empty") {
 	}
 	else {
 		isValid = true
-		console.log("SIMPLYIN API KEY VALID");
-		// deleteSimplyContent()
-		// return
+
 	}
 	if ($('#checkout').length > 0) {
 
@@ -73,65 +86,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		const parcelId = userData?.parcelLockers[parcelIndex]?.lockerId
 
-		if (!isNaN(parcelIndex) && !isParcelAdded) {
-
-			selectPickupPointInpost({ deliveryPointID: parcelId });
+		if (!isNaN(parcelIndex) && !isParcelAdded && parcelId) {
+			selectDeliveryMethod({ deliveryPointID: parcelId });
 
 		}
 
 
 
-		//saving inpost delivery point 
 
 		const parent = document.querySelector('#customer-form>div');
 		const divs = parent?.getElementsByClassName('form-group row');
 
-		// Check if there are at least 4 divs
-
 		if (divs && divs.length >= 4) {
-
-			const fourthDiv = divs[3];  // 4th div, index is 3 because it's zero-based
-
-			const secondDiv = divs[0];  // 2nd div
-
+			const fourthDiv = divs[3];
+			const secondDiv = divs[0];  
 			parent?.insertBefore(fourthDiv, secondDiv);
 		}
 
 
-		const formContainer = document.getElementById("field-email")?.parentNode;
-		const reactAppContainer = document.createElement("div");
-		reactAppContainer.setAttribute("id", "reactAppContainer");
 
-		formContainer?.appendChild(reactAppContainer);
 
-		ReactDOM.render(
-			isValid && <SimplyID listOfCountries={listOfCountries} />,
-			document.getElementById("reactAppContainer")
-		);
+		const formContainer2 = document.getElementById("simplyLogoContainer")?.parentNode;
+		const reactAppContainer2 = document.createElement("div");
+		reactAppContainer2.setAttribute("id", "reactAppContainer2");
+
+		formContainer2?.appendChild(reactAppContainer2);
+
+
+		if (!isUserLoggedIn) {
+			const formContainer = document.getElementById("field-email")?.parentNode;
+			const reactAppContainer = document.createElement("div");
+			reactAppContainer.setAttribute("id", "reactAppContainer");
+
+			formContainer?.appendChild(reactAppContainer);
+
+			ReactDOM.render(
+				isValid && <SimplyID listOfCountries={listOfCountries} />,
+				document.getElementById("reactAppContainer")
+			);
+		}
+		if (isUserLoggedIn) {
+			ReactDOM.render(
+				isValid && <SimplyID listOfCountries={listOfCountries} isUserLoggedIn={isUserLoggedIn} />,
+				document.getElementById("reactAppContainer2")
+			);
+		}
 
 		const paymentSection = document.getElementById("checkout-payment-step");
 		const paymentContentSection = paymentSection?.querySelector(".content")
 		const phoneAppContainer = document.createElement("div");
+
 		phoneAppContainer.setAttribute("id", "phoneAppContainer");
-
-
 		paymentContentSection?.insertBefore(phoneAppContainer, paymentContentSection.childNodes[4]);
 
 		ReactDOM.render(
 			isValid && <PhoneField />,
 			document.getElementById("phoneAppContainer")
 		);
-
-
-
-
-
-
-
-
 	}
 
 });
+
 
 
 

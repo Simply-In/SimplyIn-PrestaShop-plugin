@@ -16,8 +16,7 @@ gap: 20px;
 
 
 export const PopupContainer = styled.div`
-// max-width: 400px;
-padding: 8px 16px 16px 16px;
+padding: 8px 16px 8px 16px;
 z-index:1000;
 `;
 export const CloseContainer = styled.div`
@@ -32,7 +31,7 @@ export const PopupHeader = styled.div`
   background: white;
   top:-1px;
   z-index:10;
-  border-bottom: 1px solid #F1F7FF;
+  /* border-bottom: 1px solid #F1F7FF; */
 `;
 
 export const PopupTitle = styled.div`
@@ -95,16 +94,26 @@ export const PopupTextSecondary = styled.div`
   color: #757575;
   margin-top: 24px;
 `;
-export const PopupCodeNotDelivered = styled(PopupTextSecondary)`
-  color: #000;
-  margin-top: 16px;
+export const PopupCodeNotDelivered = styled(PopupTextSecondary) <{ color?: string, marginTop?: string }>`
   margin-bottom: 4px;
+  color: ${props => props?.color || "#000"};
+  margin-top: ${props => props?.marginTop || "16px"};
 `;
 
-export const PopupSendAgain = styled(PopupTextSecondary)`
-color: #000;
-margin-top: 0;
-/* margin-bottom */
+export const PopupSendAgain = styled(PopupTextSecondary) <{ disabled?: boolean }>`
+	color: #000;
+	margin-top: 0;
+		#send-again-btn, #send-again-email-btn{
+		font-family: Inter, sans-serif;
+		padding: 0;
+		border-radius: 0;
+		background-color: transparent;
+		color: ${props => props?.disabled ? "#ADC2E3" : "rgb(25, 118, 210)"};
+		text-transform: none;
+		font-size: 14px;
+		font-weight: 400;
+		text-transform: none;
+	}
 `;
 
 export const PinInputContainer = styled.div`
@@ -131,12 +140,13 @@ flex-direction:column;
     gap: 12px;
 }
 `;
-export const PopupCountDownContainer = styled.div`
-display: flex;
-flex-direction:column;
-justify-content: center;
-align-items: center;`
-
+export const PopupCountDownContainer = styled.div<{ color?: string }>`
+	display: flex;
+	flex-direction:column;
+	justify-content: center;
+	align-items: center;
+	color: ${props => props?.color || "inherit"};
+`
 
 export const MobileSystemsLinksContainer = styled.div`
 display: flex;
@@ -184,6 +194,7 @@ font-family: Inter, sans-serif;
 align-items: flex-start;
 `
 export const DataValueTitle = styled.div`
+text-align:left;
 font-size: 16px;
 font-weight: 700;
 `
@@ -218,7 +229,7 @@ export const EditFormTitle = styled.div`
 font-family: Inter, sans-serif;
 font-size: 18px;
 font-weight: 600;
-margin-bottom: 20px
+margin-bottom: 20px;
 `
 
 export const EditFormLabel = styled.div`
@@ -260,5 +271,12 @@ export const StyledBox = styled(Box)`
 
 
 export const HorizontalLine = styled.hr`
-color: "#D9D9D9"
+color: "#D9D9D9";
+`
+
+export const CounterSpan = styled.span`
+	 font-family: Inter, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
 `

@@ -1,9 +1,14 @@
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import react from '@vitejs/plugin-react'
+import { copy } from 'vite-plugin-copy'
 
 export default defineConfig({
-	plugins: [react(), cssInjectedByJsPlugin()],
+	plugins: [react(), cssInjectedByJsPlugin(), copy({
+		targets: [
+			{ src: './src/index.php', dest: 'dist' }
+		]
+	})],
 
 
 	build: {

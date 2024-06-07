@@ -19,6 +19,7 @@ import { CloseContainer, DeleteItemTitle, DeleteItemText } from '../SimplyID/Sim
 import { middlewareApi } from '../../services/middlewareApi';
 import { ApiContext } from '../SimplyID/SimplyID';
 import { saveDataSessionStorage } from '../../services/sessionStorageApi';
+import { useTranslation } from 'react-i18next';
 
 const ContextMenuWrapper = styled.div`
 cursor:pointer;
@@ -50,10 +51,11 @@ interface IContextMenu {
 	setSelectedPropertyIndex: any
 }
 export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUserData, selectedPropertyIndex, setSelectedPropertyIndex }: IContextMenu) => {
+	const { t } = useTranslation();
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [openDialog, setOpenDialog] = useState(false);
-	const apiToken = useContext(ApiContext);
+	const { authToken } = useContext(ApiContext);
 
 	const open = Boolean(anchorEl);
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -67,7 +69,6 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 	const handleEdit = () => {
 		setEditItemIndex({ property: property, itemIndex: item })
 		handleClose()
-		console.log('edit', item);
 	}
 
 
@@ -93,21 +94,28 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 			return el._id !== selectedId
 		});
 
+		const requestData = { userData: { ...userData, [property]: updatedProperty } }
 
-		const requestData = { ...userData, [property]: updatedProperty }
 
 		middlewareApi({
 			endpoint: "userData",
 			method: 'PATCH',
-			token: apiToken,
+			token: authToken,
 			requestBody: requestData
 		}).then(res => {
-			console.log(res);
 			if (res.error) {
 				throw new Error(res.error)
 			} else if (res.data) {
-				setUserData(res.data)
-				saveDataSessionStorage({ key: 'UserData', data: res.data })
+				const newData = { ...res.data }
+				if (newData?.createdAt) {
+					delete newData.createdAt
+				}
+				if (newData?.updatedAt) {
+					delete newData.updatedAt
+				}
+
+				setUserData(newData)
+				saveDataSessionStorage({ key: 'UserData', data: newData })
 				//selection of previously selected radio element
 				if (res.data[property].length) {
 					const filteredPropertyArray = res.data[property].filter((el: any, id: number) => {
@@ -118,7 +126,6 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 					})
 
 					if (selectedRadioItem && !filteredPropertyArray.length) {
-						console.log('no length', filteredPropertyArray);
 						setSelectedPropertyIndex(0)
 
 					}
@@ -151,15 +158,15 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 					'aria-labelledby': 'basic-button',
 				}}
 			>
-				<MenuItem onClick={handleEdit}><ContextMenuItemContentWrapper><EditIcon />Edytuj</ContextMenuItemContentWrapper></MenuItem>
-				{isDeletable() && <MenuItem onClick={handleDelete}><ContextMenuItemContentWrapper><DeleteIcon /> Usuń</ContextMenuItemContentWrapper></MenuItem>}
+				{property !== "parcelLockers" && <MenuItem onClick={handleEdit}><ContextMenuItemContentWrapper><EditIcon />{t('modal-step-2.edit')}</ContextMenuItemContentWrapper></MenuItem>}
+				{isDeletable() && <MenuItem onClick={handleDelete}><ContextMenuItemContentWrapper><DeleteIcon /> {t('modal-step-2.delete')}</ContextMenuItemContentWrapper></MenuItem>}
 			</Menu>
 			<Dialog open={openDialog} onClose={handleCloseDialog}>
 				<DialogTitle style={{ padding: "12px 24px" }}>
 					<Stack direction="row" justifyContent="space-between">
 
 						<DeleteItemTitle >
-							Usuwanie adresu
+							{t('modal.addressDelete')}
 						</DeleteItemTitle>
 						<CloseContainer onClick={handleCloseDialog}>
 							<CloseIcon />
@@ -168,12 +175,12 @@ export const ContextMenu = ({ userData, item, setEditItemIndex, property, setUse
 				</DialogTitle>
 				<DialogContent>
 					<DeleteItemText>
-						Czy na pewno chcesz usunąc ten adres?
+						{t('modal.addressDeleteConfirmation')}
 					</DeleteItemText>
 				</DialogContent>
 				<DialogActions>
-					<Button variant="outlined" color="primary" onClick={handleCloseDialog} fullWidth>Anuluj</Button>
-					<Button variant="contained" color="error" onClick={handleDeleteConfirmed} fullWidth>Usuń</Button>
+					<Button variant="outlined" color="primary" onClick={handleCloseDialog} fullWidth>{t('modal-form.cancel')}</Button>
+					<Button variant="contained" color="error" onClick={handleDeleteConfirmed} fullWidth>{t('modal-step-2.delete')}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

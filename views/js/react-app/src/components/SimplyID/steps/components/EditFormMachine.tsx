@@ -5,6 +5,7 @@ import { Controller } from 'react-hook-form'
 import { loadDataFromSessionStorage, saveDataSessionStorage } from '../../../../services/sessionStorageApi'
 import { AddressSearch } from './AddressSearch'
 import { StyledTextField } from './components.styled'
+import { useTranslation } from "react-i18next";
 
 
 interface IEditFormMachine {
@@ -38,7 +39,6 @@ const config = {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		'Authorization': `Bearer ${inpost_api_key || ""}`,
-		// 'Authorization': `s`,
 		"App-Referrer": domain,
 	},
 };
@@ -55,6 +55,7 @@ export const EditFormMachine = ({
 	setAdditionalInfo,
 
 }: IEditFormMachine) => {
+	const { t } = useTranslation();
 
 	const [loading, setLoading] = useState(true)
 	const [isMapVisible, setIsMapVisible] = useState(true)
@@ -63,22 +64,16 @@ export const EditFormMachine = ({
 		const url = `${apiUrl}?${params}`;
 		fetch(url, config)
 			.then(response => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				//@ts-ignore
-				if (inpost_api_key) {
-					console.log("nie podano klucza API Inpost");
-				}
+
 				if (response.status === 200) {
 					setLoading(false)
 					setIsMapVisible(true)
 					saveDataSessionStorage({ key: 'isInpostKeyValid', data: true })
-					// console.log("object");
+
 				} else {
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore
-					if (inpost_api_key) {
-						console.log("Nieprawidłowy klucz API Inpost ");
-					}
+
 					setLoading(false)
 					setIsMapVisible(false)
 					saveDataSessionStorage({ key: 'isInpostKeyValid', data: false })
@@ -114,9 +109,6 @@ export const EditFormMachine = ({
 	return (
 
 		<>
-			{/* {loading ? <>Loading</> : */}
-			{/* <div style={{ transition: "max-width 0.3s ease, max-height 0.3s ease, height 0.3s ease", width: "100%" }}> */}
-
 			{loading ?
 				<div id="loader"
 					style={{
@@ -183,25 +175,23 @@ export const EditFormMachine = ({
 					name="addressName"
 					control={control}
 					render={({ field }) =>
-						// InputLabelProps={{ shrink: true }}
-						<StyledTextField  {...field} label="Twoja nazwa paczkomatu" fullWidth error={!!errors.addressName} helperText={errors?.addressName?.message as any} ref={addressNameRef as any} />
+						<StyledTextField  {...field} label={t('modal-form.pickupPointName')} fullWidth error={!!errors.addressName} helperText={errors?.addressName?.message as any} ref={addressNameRef as any} />
 					}
 				/>
 			</Grid>
 			<Grid item xs={12}>
-				<FormLabel style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}>Wybrany paczkomat:</FormLabel>
+				<FormLabel style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}>{t('modal-form.selectedPickUpPoint')}</FormLabel>
 			</Grid>
 			<Grid item xs={12}>
-				<Typography variant="body1" align='left' style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>Numer: <span style={{ fontWeight: 'bold', color: 'black' }}><>{getValues("lockerId") || ""}</></span></></Typography>
+				<Typography variant="body1" align='left' style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>{t('modal-form.number')}: <span style={{ fontWeight: 'bold', color: 'black' }}><>{getValues("lockerId") || ""}</></span></></Typography>
 			</Grid>
 			<Grid item xs={12}>
-				<Typography variant="body1" align="left" style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>Adres: <span style={{ fontWeight: 'bold', color: 'black' }}><>{getValues("address") || ""}</></span></></Typography>
+				<Typography variant="body1" align="left" style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>{t('modal-form.address')}: <span style={{ fontWeight: 'bold', color: 'black' }}><>{getValues("address") || ""}</></span></></Typography>
 			</Grid>
 			<Grid item xs={12} style={{ marginBottom: "16px" }}>
-				<Typography variant="body1" align="left" style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>Dodatkowe informacje: <span style={{ fontWeight: 'bold', color: 'black' }}>{additionalInfo || ""}</span></></Typography>
+				<Typography variant="body1" align="left" style={{ fontSize: '14px', fontFamily: "Inter, sans-serif", color: "#707070" }}><>{t('modal-form.additionalInfo')}: <span style={{ fontWeight: 'bold', color: 'black' }}>{additionalInfo || ""}</span></></Typography>
 			</Grid>
-			{/* </div> */}
-			{/* // } */}
+
 		</>
 	)
 }

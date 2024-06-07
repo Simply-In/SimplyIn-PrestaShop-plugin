@@ -6,7 +6,9 @@ import { CloseContainer, PopupContainer, PopupHeader, StyledBox } from './Simply
 
 import { CloseIcon } from '../../assets/CloseIcon';
 import { SimplyinSmsPopupOpenerIcon } from '../../assets/SimplyinSmsPopupOpenerIcon';
-// import { useInsertFormData } from '../../hooks/useInsertFormData';
+import { saveDataSessionStorage } from '../../services/sessionStorageApi';
+import { TypedLoginType } from './SimplyID';
+import { StepRejected } from './steps/StepRejected';
 
 
 interface IPinCodePopup {
@@ -15,33 +17,21 @@ interface IPinCodePopup {
 	setVisible: (arg: boolean) => void
 	setToken: any,
 	simplyInput: string,
-	listOfCountries: any
 	userData: any,
 	setUserData: any
+	render?: boolean
+	loginType: TypedLoginType,
+	modalStep: any,
+	setModalStep: any
+	setLoginType: any
+	setNotificationTokenId: any
 }
 
 
 
-export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, listOfCountries, userData, setUserData }: IPinCodePopup) => {
+export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simplyInput, userData, setUserData, render, loginType, modalStep, setModalStep, setLoginType, setNotificationTokenId }: IPinCodePopup) => {
 
-	const [modalStep, setModalStep] = useState(1)
-	const [, setSelectedUserData] = useState({})
 	const [editItemIndex, setEditItemIndex] = useState<{ property: string, itemIndex: number, isNewData?: boolean } | null>(null)
-
-
-	const BillingIndex = sessionStorage.getItem("BillingIndex")
-	const ShippingIndex = sessionStorage.getItem("ShippingIndex")
-
-	useEffect(() => {
-		setSelectedUserData({
-			...userData,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			billingAddresses: userData?.billingAddresses?.length ? userData?.billingAddresses[0] : {},
-			shippingAddresses: null,
-			parcelLockers: null
-		})
-	}, [userData])
 
 	useEffect(() => {
 		setToken("")
@@ -63,41 +53,20 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 		setToken(sessionStorage.getItem("simplyinToken"))
 	}, [])
 
-
-
-
-	useEffect(() => {
-
-		setSelectedUserData({
-			...userData,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			billingAddresses: userData?.billingAddresses?.length ? userData?.billingAddresses : {},
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			shippingAddresses: userData?.shippingAddresses?.length ? userData?.shippingAddresses : {}
-		})
-
-
-	}, [userData, BillingIndex, ShippingIndex])
-
-
-
 	const handleClosePopup = () => {
 		setVisible(false)
-		console.log('cloooose');
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 	}
 
 	const emailInput = document.getElementById("field-email")
 
 	function checkVisible(elm: any) {
+		if (render) return true
 		const rect = elm.getBoundingClientRect();
 		const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
 		return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 	}
 
-
-	// useInsertFormData(selectedUserData, listOfCountries)
 
 	return (<>
 		{checkVisible(emailInput) && <Modal
@@ -116,26 +85,30 @@ export const PinCodeModal = ({ phoneNumber, visible, setVisible, setToken, simpl
 							<CloseIcon />
 						</CloseContainer>
 					</PopupHeader>
-				<PopupContainer>
+				<PopupContainer style={{ margin: "8px 16px 16px" }}>
 					{modalStep === 1 &&
 						<Step1
 							setToken={setToken}
 							phoneNumber={phoneNumber}
 							handleClosePopup={handleClosePopup}
 							setModalStep={setModalStep}
-							setUserData={setUserData}
-							setSelectedUserData={setSelectedUserData}
-							simplyInput={simplyInput} />}
+						setUserData={setUserData}	
+							simplyInput={simplyInput}
+							loginType={loginType}
+							setLoginType={setLoginType}
+							setNotificationTokenId={setNotificationTokenId}
+						/>}
 					{modalStep === 2 &&
 						<Step2
-							listOfCountries={listOfCountries}
 							handleClosePopup={handleClosePopup}
 							userData={userData}
-							setUserData={setUserData}
-							setSelectedUserData={setSelectedUserData}
+						setUserData={setUserData}
 							editItemIndex={editItemIndex}
 							setEditItemIndex={setEditItemIndex}
 
+						/>}
+					{modalStep === "rejected" &&
+						<StepRejected							
 						/>}
 				</PopupContainer>
 			</StyledBox>

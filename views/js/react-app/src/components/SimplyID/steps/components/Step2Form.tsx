@@ -10,21 +10,19 @@ import { ApiContext } from '../../SimplyID';
 import { middlewareApi } from '../../../../services/middlewareApi';
 import { saveDataSessionStorage } from '../../../../services/sessionStorageApi';
 import { debounce } from 'lodash';
-import { getInpostPointData } from '../../../../functions/selectInpostPoint';
+import { getInpostPointData } from '../../../../functions/selectDeliveryMethod';
 import { EditFormMachine } from './EditFormMachine';
 import { EditFormFooter } from './EditFormFooter';
 import { EditFormAddress } from './EditFormAddress';
+import { useTranslation } from "react-i18next";
 
 
 declare global {
 	interface Window {
 		afterPointSelected: (point: any) => void;
 		querySelector: any
-
 	}
 }
-
-
 
 interface IStep2Form {
 	setUserData: any
@@ -49,35 +47,35 @@ export const Step2Form = ({
 	setSelectedDeliveryPointIndex,
 	setSameDeliveryAddress
 }: IStep2Form) => {
+	const { t } = useTranslation();
 
 
-	console.log('editItem', editItem);
 
-	editItem?.property === "parcelLockers"
 	const SignupSchema = Yup.object().shape(editItem?.property === "parcelLockers" ? {
 		addressName: Yup.string().notRequired(),
-		address: Yup.string().required("Aby uzyskać dane adresowe, wprowadź poprawny numer paczkomatu"),
-		lockerId: Yup.string().required("Numer identyfikacyjny paczkomatu jest wymagany"),
+		address: Yup.string().required(t('modal-form.parcelAddressError')),
+		lockerId: Yup.string().required(t('modal-form.lockerIdError')),
 		_id: Yup.string().notRequired(),
 		label: Yup.string().notRequired(),
+
 	} : {
 		addressName: Yup.string().notRequired(),
-		name: Yup.string().required('Imię jest wymagane'),
-		surname: Yup.string().required('Nazwisko jest wymagane'),
+			name: Yup.string().required(t('modal-form.nameError')),
+			surname: Yup.string().required(t('modal-form.surnameError')),
 		companyName: Yup.string().notRequired(),
 		taxId: Yup.string().notRequired(),
-		street: Yup.string().required('Ulica jest wymagana'),
+			street: Yup.string().required(t('modal-form.streetError')),
 		appartmentNumber: Yup.string().notRequired(),
-		postalCode: Yup.string().required('Kod pocztowy jest wymagany'),
-		city: Yup.string().required('Miasto jest wymagany'),
-		country: Yup.string().required('Kraj jest wymagany'),
+			postalCode: Yup.string().required(t('modal-form.postalCodeError')),
+			city: Yup.string().required(t('modal-form.cityError')),
+			country: Yup.string().required(t('modal-form.countryError')),
 		_id: Yup.string().notRequired(),
 
 
 	});
 
 
-	const apiToken = useContext(ApiContext);
+	const { authToken } = useContext(ApiContext);
 
 	const { editData }: any = editItem
 
@@ -87,13 +85,14 @@ export const Step2Form = ({
 			addressName: editData?.addressName || null,
 			address: editData?.address,
 			lockerId: editData?.lockerId,
-			_id: editData?._id || null,
-			label: editData?.label || ""
+			_id: editData?._id || undefined,
+			label: editData?.label || "",
+			logoUrl: editData?.logoUrl || ""
 		} : {
-			_id: editData?._id || null,
+				_id: editData?._id || undefined,
 			addressName: editData?.addressName || null,
-			name: editData?.name,
-			surname: editData?.surname,
+				name: editItem?.property === "billingAddresses" && isNewData ? userData?.name : editData?.name,
+				surname: editItem?.property === "billingAddresses" && isNewData ? userData?.surname : editData?.surname,
 			companyName: editData?.companyName,
 			taxId: editData?.taxId,
 			street: editData?.street,
@@ -111,6 +110,11 @@ export const Step2Form = ({
 
 	const onSubmit = (data: any) => {
 
+		Object.keys(data).forEach(key => {
+			if (typeof data[key] === 'string') {
+				data[key] = data[key].trim();
+			}
+		})
 		handleSave(data)
 	}
 
@@ -137,7 +141,7 @@ export const Step2Form = ({
 		}) || [];
 
 		if (!countrySelect) {
-			console.error('Country select element not found');
+			console.error(t('modal-form.countryNotFound'));
 			return;
 		}
 
@@ -176,9 +180,9 @@ export const Step2Form = ({
 
 					if (inpostPointData?.status === 404) {
 						setValue('address', "")
-						setError('lockerId', { message: 'Selected shipping point is invalid' })
+						setError('lockerId', { message: t('modal-form.shippingPointError') })
 
-						throw new Error('Selected shipping point is invalid')
+						throw new Error(t('modal-form.shippingPointError'))
 					}
 					clearErrors('lockerId')
 					clearErrors('address')
@@ -186,7 +190,7 @@ export const Step2Form = ({
 
 				}
 				catch (err) {
-					console.log('ERROR', err);
+					console.log(err);
 				}
 			}, 1000);
 
@@ -205,23 +209,34 @@ export const Step2Form = ({
 
 		if (editItem && 'property' in editItem && 'itemIndex' in editItem) {
 
-			console.log('true');
 			const clonnedArray = [...userData[editItem.property]]
 			clonnedArray[editItem?.itemIndex] = {
 				...editedData
 			}
-			const requestData = { ...userData, [editItem.property]: clonnedArray }
+			const requestData = { userData: { ...userData, [editItem.property]: clonnedArray } }
 			middlewareApi({
 				endpoint: "userData",
 				method: 'PATCH',
-				token: apiToken,
+				token: authToken,
 				requestBody: requestData
 			}).then(res => {
 				if (res.error) {
 					throw new Error(res.error)
 				} else if (res.data) {
-					setUserData(res.data)
-					saveDataSessionStorage({ key: 'UserData', data: res.data })
+
+
+					const newData = { ...res.data }
+					if (newData?.createdAt) {
+						delete newData.createdAt
+					}
+					if (newData?.updatedAt) {
+						delete newData.updatedAt
+					}
+
+					setUserData(newData)
+					saveDataSessionStorage({ key: 'UserData', data: newData })
+					// setUserData(res.data)
+					// saveDataSessionStorage({ key: 'UserData', data: res.data })
 
 					//created to select newly created item
 					if (isNewData) {
@@ -248,9 +263,9 @@ export const Step2Form = ({
 	}
 
 	const editItemTitle = () => {
-		if (editItem?.property === "billingAddresses") { return "Dane rozliczeniowe" }
-		if (editItem?.property === "shippingAddresses") { return "Dane dostawy" }
-		if (editItem?.property === "parcelLockers") { return "Punkt odbioru" }
+		if (editItem?.property === "billingAddresses") { return t('modal-form.billingData') }
+		if (editItem?.property === "shippingAddresses") { return t('modal-form.shippingData') }
+		if (editItem?.property === "parcelLockers") { return t('modal-form.parcelData') }
 	}
 
 
@@ -261,46 +276,45 @@ export const Step2Form = ({
 
 
 
-	useEffect(() => {
+	const setPointValues = (point: any) => {
+		setLockerIdValue(point.name);
+		setValue('lockerId', point.name);
+		setValue('label', "INPOST");
+		setValue('address', `${point?.line1 || ""} ${point?.line2 || ""}`);
+		setAdditionalInfo(point?.location_description);
+	}
 
+	const handleInputElementFocus = (inputElement: any) => {
+		if (inputElement) {
+			inputElement.focus();
+			const containerElement = document.getElementById('containerSimply');
+			if (containerElement) {
+				setTimeout(() => containerElement.scrollTo({
+					top: document.body.scrollHeight,
+					behavior: 'smooth',
+				}), 50);
+			}
+		}
+	}
+
+	const handlePointSelection = (point: any) => {
+		if (manuallyChangeLockerId !== point.name) {
+			setPointValues(point);
+			if (addressNameRef?.current) {
+				const inputElement = addressNameRef.current?.querySelector('input');
+				handleInputElementFocus(inputElement);
+			}
+		}
+	}
+
+	useEffect(() => {
 		const script = document.createElement('script');
 		script.src = 'https://geowidget.inpost.pl/inpost-geowidget.js';
 		script.async = true;
 		document.head.appendChild(script);
 
 		if (window) {
-			window.afterPointSelected = function (point) {
-
-				console.log('point', point);
-				// console.log('window', window);
-				if (manuallyChangeLockerId !== point.name) {
-					setLockerIdValue(point.name)
-					setValue('lockerId', point.name)
-					setValue('label', "INPOST")
-					setValue('address', `${point?.line1 || ""} ${point?.line2 || ""}`)
-					setAdditionalInfo(point?.location_description);
-
-
-					if (addressNameRef?.current) {
-
-						const inputElement = addressNameRef.current?.querySelector('input');
-
-						if (inputElement) {
-							inputElement.focus();
-							const containerElement = document.getElementById('containerSimply');
-							if (containerElement) {
-
-								setTimeout(() => containerElement.scrollTo({
-									top: document.body.scrollHeight,
-									behavior: 'smooth',     // You can use 'center', 'end', or 'nearest'
-								}), 50)
-							}
-						}
-					}
-				}
-
-			};
-
+			window.afterPointSelected = handlePointSelection;
 		}
 
 		const containerElement = document.getElementById('containerSimply');
@@ -310,6 +324,7 @@ export const Step2Form = ({
 				behavior: 'instant',
 			});
 		}
+
 		return () => {
 			// Cleanup on component unmount
 			document.head.removeChild(script);
@@ -328,31 +343,26 @@ export const Step2Form = ({
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Grid container spacing={2}>
 					{!isDeliveryPoint &&
-						<>
-							<EditFormAddress
-								control={control}
-								errors={errors}
-								isBillingAddress={isBillingAddress}
-								countryListSelect={countryListSelect}
-							/>
-						</>}
+						<EditFormAddress
+							control={control}
+							errors={errors}
+							isBillingAddress={isBillingAddress}
+							countryListSelect={countryListSelect}
+						/>
+					}
 
 					{isDeliveryPoint &&
-						<>
-
-							<EditFormMachine
-								control={control}
-								errors={errors}
-								addressNameRef={addressNameRef}
-								getValues={getValues}
-								additionalInfo={additionalInfo}
-								setLockerIdValue={setLockerIdValue}
-								setValue={setValue}
-								setAdditionalInfo={setAdditionalInfo}
-
-							/>
-
-						</>}
+						<EditFormMachine
+							control={control}
+							errors={errors}
+							addressNameRef={addressNameRef}
+							getValues={getValues}
+							additionalInfo={additionalInfo}
+							setLockerIdValue={setLockerIdValue}
+							setValue={setValue}
+							setAdditionalInfo={setAdditionalInfo}
+					/>
+					}
 
 
 				</Grid>

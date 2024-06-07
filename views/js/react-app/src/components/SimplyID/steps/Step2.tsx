@@ -13,10 +13,99 @@ import ContextMenu from '../ContextMenu';
 import { SelectedDataContext } from '../SimplyID';
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from '../../../services/sessionStorageApi';
 import axios from 'axios';
-import { selectPickupPointInpost } from '../../../functions/selectInpostPoint';
-import { getLogo } from './functions';
+import { selectDeliveryMethod } from '../../../functions/selectDeliveryMethod';
+import { getPlaceholder, isSameShippingAndBillingAddresses } from './functions';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
+import { useTranslation } from 'react-i18next';
+
+
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const isUserLoggedIn = (customer?.logged === true && customer?.is_guest !== "1")
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+const listOfCountries = Object.keys(countries_list).map((key) => countries_list[key]).sort((a, b) => a.name.localeCompare(b.name));
+
+
+
+interface IAddress {
+	addressName: string,
+	name: string,
+	surname: string,
+	street: string,
+	appartmentNumber?: string,
+	city: string,
+	postalCode: string,
+	country: string,
+	state?: string,
+	companyName?: string,
+	taxId?: string
+}
+
+
+export const handlePhpScript = (
+	data: IAddress,
+	addresNameId: "billingAddressesId" | "shippingAddressesId",
+	isSameShippingAndBillingAddress: any,
+	{
+		selectedShippingIndex,
+		userData,
+		selectedBillingIndex,
+		simplyInput
+	}: any) => {
+
+	const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
+
+	data.country = listOfCountries?.find((el: any) => el.iso_code === data?.country)?.id_country ?? 1
+
+	if (!data.addressName) {
+		data.addressName = `Adres ${addresNameId === "billingAddressesId" ? selectedBillingIndex + 1 : selectedShippingIndex + 1}`
+	}
+
+	const dataToSend = {
+		email: simplyInput,
+		addressData: data,
+		use_same_address: addresNameId === "shippingAddressesId" ? 0 : 1
+	}
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	//@ts-ignore
+	const baseUrl = base_url || '.'
+
+	// return
+	// axios.post('../modules/simplyin/api/createAddresses.php', { //stage
+	axios.post(`${baseUrl}./modules/simplyin/api/createAddresses.php`, {	//dev
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		dataToSend
+	})
+		.then(response => {
+			saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
+			if (isSameShippingAndBillingAddress) {
+				saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+			}
+
+			if (!shippingData) {
+				saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
+			}
+			if (response.data.status === 'success') {
+				// Handle the success response
+			} else {
+				// Handle any errors
+				console.error(response.data.message);
+			}
+		})
+		.catch(error => {
+			console.error('An error occurred:', error);
+		});
+
+}
+
+
 
 
 
@@ -24,8 +113,6 @@ interface IStep2 {
 	handleClosePopup: () => void;
 	userData: any
 	setUserData: any,
-	setSelectedUserData: any,
-	listOfCountries: any
 	editItemIndex: any,
 	setEditItemIndex: any,
 }
@@ -47,7 +134,8 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 
 
-export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUserData, editItemIndex, setEditItemIndex, listOfCountries }: IStep2) => {
+export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, setEditItemIndex }: IStep2) => {
+	const { t } = useTranslation();
 
 
 	const [expanded, setExpanded] = useState({
@@ -55,7 +143,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		shipping: false,
 		deliveryPoint: true
 	});
-
+	type DeliveryType = "address" | "machine"
+	const [deliveryType, setDeliveryType] = useState<DeliveryType>("address");
 	const {
 		selectedBillingIndex,
 		setSelectedBillingIndex,
@@ -67,32 +156,46 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 		setSelectedDeliveryPointIndex,
 		pickupPointDelivery,
 		setPickupPointDelivery,
-		simplyInput } = useContext(SelectedDataContext)
+		simplyInput,
+		isUserLoggedIn } = useContext(SelectedDataContext)
 
 
 	useEffect(() => {
-		console.log('SELECT MODAL DATA');
-		if (loadDataFromSessionStorage({ key: "ShippingIndex" })) {
+
+		if (!isNaN(loadDataFromSessionStorage({ key: "ShippingIndex" }))) {
 			setSelectedShippingIndex(loadDataFromSessionStorage({ key: "ShippingIndex" }))
 		}
-		if (loadDataFromSessionStorage({ key: "BillingIndex" })) {
+		if (!isNaN(loadDataFromSessionStorage({ key: "BillingIndex" }))) {
 			setSelectedBillingIndex(loadDataFromSessionStorage({ key: "BillingIndex" }))
 			setSameDeliveryAddress(false)
 		}
-		if (loadDataFromSessionStorage({ key: 'ParcelIndex' })) {
+		if (!isNaN(loadDataFromSessionStorage({ key: 'ParcelIndex' }))) {
 			setSelectedDeliveryPointIndex(loadDataFromSessionStorage({ key: 'ParcelIndex' }))
 		}
+		if (loadDataFromSessionStorage({ key: 'sameDeliveryAddress' }) && loadDataFromSessionStorage({ key: 'ParcelIndex' }) === null) {
+			setSameDeliveryAddress(loadDataFromSessionStorage({ key: 'sameDeliveryAddress' }))
+		}
+		if (loadDataFromSessionStorage({ key: 'sameDeliveryAddress' }) && !isNaN(loadDataFromSessionStorage({ key: 'ParcelIndex' })) && loadDataFromSessionStorage({ key: 'ParcelIndex' }) !== null) {
+			setDeliveryType("machine")
+		}
+
+		if (loadDataFromSessionStorage({ key: 'ShippingIndex' }) === null && !isNaN(loadDataFromSessionStorage({ key: 'ParcelIndex' })) && loadDataFromSessionStorage({ key: 'ParcelIndex' }) !== null && !loadDataFromSessionStorage({ key: 'sameDeliveryAddress' })) {
+			setDeliveryType("machine")
+		}
+		if (loadDataFromSessionStorage({ key: 'ShippingIndex' }) === null && loadDataFromSessionStorage({ key: 'ParcelIndex' }) === null) {
+			setSameDeliveryAddress(true)
+		}
+
 	}, [])
 
 
 	const handleExpandClick = (property: "billing" | "shipping" | "deliveryPoint", value?: boolean) => {
 
+
 		setExpanded((prev) => {
-			return ({ ...prev, [property]: value ? value : !prev[property] })
+			return ({ ...prev, [property]: value || !prev[property] })
 		});
 	};
-	type DeliveryType = "address" | "machine"
-	const [deliveryType, setDeliveryType] = useState<DeliveryType>("address");
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>, type: "billing" | "shipping" | "parcelLockers") => {
 		if (type === "billing") {
@@ -120,63 +223,81 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 	const handleSelectData = () => {
 
+		removeDataSessionStorage({ key: "selectedShippingMethod" })
 		if (!userData?.billingAddresses[selectedBillingIndex]) {
 			return
 		}
 
 		if (deliveryType === "address") {
-
-			// resetDeliveryMethod()
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
-				sessionStorage.setItem("ParcelIndex", `null`)
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null,
-					parcelLockers: null
-				})
-			})
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
+			sessionStorage.setItem("ParcelIndex", `null`)
+			selectDeliveryMethod({ provider: "default" })
 		} else {
-			setSelectedUserData((prev: any) => {
-				sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
-				sessionStorage.setItem("ShippingIndex", `null`)
-				sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
-				return ({
-					...prev,
-					billingAddresses: userData?.billingAddresses[selectedBillingIndex || 0],
-					shippingAddresses: null,
-					parcelLockers: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId || null
-				})
-			})
-			if (selectedDeliveryPointIndex !== undefined) {
-				selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
+			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
+			sessionStorage.setItem("ShippingIndex", `null`)
+			sessionStorage.setItem("ParcelIndex", `${selectedDeliveryPointIndex}`)
+			if (selectedDeliveryPointIndex !== undefined && userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId) {
+				removeDataSessionStorage({ key: 'isParcelAdded' })
+				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 			}
-
-
 		}
 
 
 		saveDataSessionStorage({ key: 'isParcelAdded', data: false })
-
+		saveDataSessionStorage({ key: 'sameDeliveryAddress', data: sameDeliveryAddress })
 		removeDataSessionStorage({ key: 'delivery-address' })
 		removeDataSessionStorage({ key: 'invoice-address' })
 		removeDataSessionStorage({ key: 'inpost-delivery-point' })
 
+
+
 		const billingData = userData?.billingAddresses[selectedBillingIndex || 0]
 		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
-		if (billingData) { handlePhpScript(billingData, 'billingAddressesId') }
-		if (shippingData) { handlePhpScript(shippingData, 'shippingAddressesId') }
+		let normalizedNumberFromDB = userData?.phoneNumber
 
-		if (selectedDeliveryPointIndex !== undefined) {
-			removeDataSessionStorage({ key: 'isParcelAdded' })
-			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
+		if (billingData?.country?.toLowerCase() == "PL".toLowerCase()) {
+			if (userData?.phoneNumber?.startsWith("+48")) {
+				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
+			}
 		}
 
-		handleClosePopup()
+		//if shipping and billing records are simillar then we don't need to generate by php shipping address
+		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })
+		if (billingData) {
+			handlePhpScript(
+				{ ...billingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" },
+				'billingAddressesId',
+				isSameBillingAndShippingAddresses,
+				{
+					selectedShippingIndex,
+					userData,
+					selectedBillingIndex,
+					simplyInput
+				})
+		}
+		if (shippingData && !isSameBillingAndShippingAddresses) {
+			handlePhpScript(
+				{ ...shippingData, phoneNumber: normalizedNumberFromDB || userData?.phoneNumber || "" },
+				'shippingAddressesId',
+				false,
+				{
+					selectedShippingIndex,
+					userData,
+					selectedBillingIndex,
+					simplyInput
+				})
+		} else {
+			const billingAddressId = loadDataFromSessionStorage({ key: "billingAddressesId" })
+			saveDataSessionStorage({ key: "shippingAddressesId", data: billingAddressId })
+		}
+		saveDataSessionStorage({ key: 'isSimplyDataSelected', data: true })
 
+		handleClosePopup()
+		if (isUserLoggedIn) {
+			location.reload();
+		}
 	}
 
 
@@ -186,83 +307,17 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 			if (event.target.checked) {
 				setSelectedShippingIndex(null)
 				handleExpandClick("shipping", false)
+				saveDataSessionStorage({ key: "sameDeliveryAddress", data: true })
 			} else {
 				setSelectedShippingIndex(0)
+				saveDataSessionStorage({ key: "sameDeliveryAddress", data: false })
 			}
 			return (event.target.checked)
 		});
 	};
 
-	interface IAddress {
-		addressName: string,
-		name: string,
-		surname: string,
-		street: string,
-		appartmentNumber?: string,
-		city: string,
-		postalCode: string,
-		country: string,
-		state?: string,
-		companyName?: string,
-		taxId?: string
-	}
-
-	const handlePhpScript = (data: IAddress, addresNameId: "billingAddressesId" | "shippingAddressesId") => {
-
-		const shippingData = (selectedShippingIndex !== null && userData?.shippingAddresses?.length) ? userData?.shippingAddresses[selectedShippingIndex || 0] : null
 
 
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		data.country = listOfCountries?.find((el: any) => el.iso_code === data?.country)?.id_country ?? 1
-
-		if (!data.addressName) {
-			data.addressName = `Adres ${addresNameId === "billingAddressesId" ? selectedBillingIndex : selectedShippingIndex}`
-		}
-
-
-		console.log(data);
-
-		const dataToSend = {
-			email: simplyInput,
-			addressData: data,
-			use_same_address: addresNameId === "shippingAddressesId" ? 0 : 1
-		}
-
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		const baseUrl = base_url || '.'
-		console.log(dataToSend);
-		// return
-		// axios.post('../modules/simplyin/api/createAddresses.php', { //stage
-		axios.post(`${baseUrl}/modules/simplyin/api/createAddresses.php`, {	//dev
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			dataToSend
-
-		})
-			.then(response => {
-				console.log(response.data);
-				saveDataSessionStorage({ key: addresNameId, data: response.data?.newAddressId })
-
-				if (!shippingData) {
-					saveDataSessionStorage({ key: "shippingAddressesId", data: response.data?.newAddressId })
-
-
-				}
-				if (response.data.status === 'success') {
-					// Handle the success response
-				} else {
-					// Handle any errors
-					console.error(response.data.message);
-				}
-			})
-			.catch(error => {
-				console.error('An error occurred:', error);
-			});
-
-	}
 
 
 	const handleChangeDelivery = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,19 +329,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				setPickupPointDelivery(true)
 			}
 		}
-	};
+		if ((event.target as HTMLInputElement).value === "address") {
 
-	useEffect(() => {
-
-		if (selectedDeliveryPointIndex !== null && selectedShippingIndex == null) {
-			console.log("MACHINE")
-
-			return setDeliveryType("machine")
+			setSameDeliveryAddress(true)
 		}
-		// console.log('address');
-		setDeliveryType("address")
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	};
 
 
 	return (
@@ -295,7 +342,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				<PopupHeader style={{ position: "relative", zIndex: 1, padding: 0, borderBottom: "none" }}>
 
 					<Step2Title >
-						Wybierz dane
+						{t('modal-step-2.selectData')}
 					</Step2Title>
 				</PopupHeader>
 			}
@@ -303,7 +350,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 			{!editItemIndex?.property && <>
 				<CardActions disableSpacing sx={{ padding: 0 }}>
-					<SectionTitle>Dane rozliczeniowe</SectionTitle>
+					<SectionTitle>{t('modal-step-2.billingData')}</SectionTitle>
 
 					<ExpandMore
 						expand={expanded.billing}
@@ -320,7 +367,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						?
 						<DataValueContainer style={{ padding: 8 }}>
 							<DataValueTitle>
-								{userData?.billingAddresses[selectedBillingIndex || 0]?.addressName ?? <>Adres{" "}{(+selectedBillingIndex || 0) + 1}</>}
+								{userData?.billingAddresses[selectedBillingIndex || 0]?.addressName ?? <>{t('modal-step-2.address')}{" "}{(+selectedBillingIndex || 0) + 1}</>}
 							</DataValueTitle>
 							{userData?.billingAddresses &&
 								<DataValueLabel>
@@ -332,7 +379,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						</DataValueContainer>
 						:
 						<CardContent>
-							<NoDataLabel>Brak danych</NoDataLabel>
+							<NoDataLabel>{t('modal-step-2.noData')}</NoDataLabel>
 						</CardContent>
 					}
 				</Collapse>
@@ -348,11 +395,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 								?
 								userData?.billingAddresses.map((el: any, index: number) => {
 									return (
-										<RadioElementContainer>
+										<RadioElementContainer key={index}>
 											<FormControlLabel value={index} control={<Radio />}
 												label={
 													<DataValueContainer>
-														<DataValueTitle>{el?.addressName ? el.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
+														<DataValueTitle>{el?.addressName ? el.addressName : <>{t('modal-step-2.address')}{" "}{index + 1}</>}</DataValueTitle>
 														<DataValueLabel>{el?.street || ""}
 															{el?.appartmentNumber.length ? "/" + el?.appartmentNumber : ""}
 															{", " + el?.city || ""}</DataValueLabel>
@@ -368,7 +415,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 								})
 								:
 
-								<NoDataLabel>Brak danych</NoDataLabel>
+								<NoDataLabel>{t('modal-step-2.noData')}</NoDataLabel>
 							}
 						</RadioGroup>
 
@@ -379,7 +426,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 				<AddNewData onClick={() => handleAddNewData("billingAddresses")} style={{ paddingBottom: 12, borderBottom: " 1px solid #D9D9D9" }}>
 
 					<PlusIcon />
-					<AddNewDataText>Dodaj nowe dane rozliczeniowe</AddNewDataText>
+					<AddNewDataText>{t('modal-step-2.addNewBillingData')}</AddNewDataText>
 				</AddNewData>
 
 
@@ -388,7 +435,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 				{/* <HorizontalLine /> */}
 				<FormControl style={{ fontFamily: "font-family: Inter, sans-serif;", borderBottom: " 1px solid #D9D9D9", marginBottom: 12, width: "100%" }}>
-					<SectionTitle>Dostawa</SectionTitle>
+					<SectionTitle>{t('modal-step-2.delivery')}</SectionTitle>
 					<RadioGroup
 						aria-labelledby="radioDeliveryType"
 						name="radioDeliveryType"
@@ -396,15 +443,15 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						onChange={handleChangeDelivery}
 						style={{ padding: "8px 8px 0 8px" }}
 					>
-						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>Dostawa pod drzwi</Typography>} />
-						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>Dostawa do automatu lub punktu</Typography>} />
+						<FormControlLabel value="address" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.doorDelivery')}</Typography>} />
+						<FormControlLabel value="machine" control={<Radio />} label={<Typography style={{ textAlign: 'left', fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: "16px", color: "rgb(35,35,35)" }}>{t('modal-step-2.parcelDelivery')}</Typography>} />
 
 					</RadioGroup>
 				</FormControl>
 
 				{deliveryType === "address" && <>
 					<CardActions disableSpacing sx={{ padding: 0 }}>
-						<SectionTitle>Dane dostawy</SectionTitle>
+						<SectionTitle>{t('modal-step-2.shippingData')}</SectionTitle>
 						<ExpandMore
 							expand={expanded.shipping}
 							onClick={() => handleExpandClick("shipping")}
@@ -421,7 +468,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 							'& .MuiTypography-root': {
 								fontFamily: 'Inter, sans-serif'
 							}
-						}} style={{ textAlign: 'left', fontFamily: "Inter, sans-serif" }} control={<Checkbox checked={sameDeliveryAddress} onChange={handleChangeShippingCheckbox} />} label="Dane dostawy są takie same jak dane rozliczeniowe." />
+						}} style={{ textAlign: 'left', fontFamily: "Inter, sans-serif" }} control={<Checkbox checked={sameDeliveryAddress} onChange={handleChangeShippingCheckbox} />} label={t('modal-step-2.sameData')} />
 
 					</FormGroup>
 					<Collapse in={!expanded.shipping} timeout="auto" unmountOnExit>
@@ -431,7 +478,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 								{!sameDeliveryAddress && (selectedShippingIndex !== null && !isNaN(selectedShippingIndex)) &&
 									<>
 										<DataValueTitle>
-											{userData?.shippingAddresses[selectedShippingIndex]?.addressName ?? <>Adres {+selectedShippingIndex + 1}</>}
+										{userData?.shippingAddresses[selectedShippingIndex]?.addressName ?? <>{t('modal-step-2.address')} {+selectedShippingIndex + 1}</>}
 										</DataValueTitle>
 										{userData?.shippingAddresses &&
 										<DataValueLabel>
@@ -463,11 +510,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									?
 									userData?.shippingAddresses.map((el: any, index: number) => {
 										return (
-											<RadioElementContainer>
+											<RadioElementContainer key={index}>
 												<FormControlLabel value={index} control={<Radio />}
 													label={
 														<DataValueContainer>
-															<DataValueTitle>{el?.addressName ? el?.addressName : <>Adres{" "}{index + 1}</>}</DataValueTitle>
+															<DataValueTitle>{el?.addressName ? el?.addressName : <>{t('modal-step-2.address')}{" "}{index + 1}</>}</DataValueTitle>
 															<DataValueLabel>
 																{el?.street || ""}
 																{el?.appartmentNumber.length ? "/" + el?.appartmentNumber : ""}
@@ -483,7 +530,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									})
 									:
 
-									<NoDataLabel>Brak danych</NoDataLabel>
+									<NoDataLabel>{t('modal-step-2.noData')}</NoDataLabel>
 
 								}
 
@@ -495,22 +542,23 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 					</Collapse>
 					<AddNewData onClick={() => handleAddNewData("shippingAddresses")}>
 						<PlusIcon />
-						<AddNewDataText>Dodaj nowe dane dostawy</AddNewDataText>
+						<AddNewDataText>{t('modal-step-2.addNewShippingData')}</AddNewDataText>
 					</AddNewData>
 				</>}
 
 				{deliveryType === "machine" &&
-					<><CardActions disableSpacing sx={{ padding: 0 }}>
-						<SectionTitle>Automaty paczkowe</SectionTitle>
-					<ExpandMore
-						expand={expanded.deliveryPoint}
-						onClick={() => handleExpandClick("deliveryPoint")}
-						aria-expanded={expanded.deliveryPoint}
-						aria-label="show more"
-					>
-						<ExpandMoreIcon />
-					</ExpandMore>
-				</CardActions>
+					<>
+						<CardActions disableSpacing sx={{ padding: 0 }}>
+						<SectionTitle>{t('modal-step-2.parcelMachines')}</SectionTitle>
+						<ExpandMore
+							expand={expanded.deliveryPoint}
+							onClick={() => handleExpandClick("deliveryPoint")}
+							aria-expanded={expanded.deliveryPoint}
+							aria-label="show more"
+						>
+							<ExpandMoreIcon />
+						</ExpandMore>
+					</CardActions>
 					{/* <FormGroup>
 						<FormControlLabel sx={{
 							textAlign: 'left',
@@ -530,7 +578,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 
 									<>
 										<DataValueTitle>
-											{userData?.parcelLockers[selectedDeliveryPointIndex]?.addressName || "Adres" + +selectedDeliveryPointIndex + 1}
+											{userData?.parcelLockers[selectedDeliveryPointIndex]?.addressName || t('modal-step-2.address') + +selectedDeliveryPointIndex + 1}
 
 										</DataValueTitle>
 										{userData?.deliveryPoints &&
@@ -542,7 +590,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									</>
 									:
 									<div style={{ padding: "8px" }}>
-										<NoDataLabel>Punkt odbioru nie został wybrany</NoDataLabel>
+										<NoDataLabel>{t('modal-step-2.notSelectedDeliveryPoint')}</NoDataLabel>
 									</div>
 
 								}
@@ -550,7 +598,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 							:
 
 							<CardContent>
-								<NoDataLabel>Brak danych</NoDataLabel>
+								<NoDataLabel>{t('modal-step-2.noData')}</NoDataLabel>
 							</CardContent>
 
 						}
@@ -569,7 +617,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									?
 									userData?.parcelLockers.map((el: any, index: number) => {
 										return (
-											<RadioElementContainer>
+											<RadioElementContainer key={el?._parcelLocker ?? index}>
 												<FormControlLabel value={index} control={<Radio />}
 													label={
 														<div style={{ display: "flex" }}>
@@ -583,18 +631,24 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 																	width: "50px",
 																	marginRight: "8px"
 																}}>
-																<img src={getLogo({ label: el.label || "" }) || ""} alt={el.label || "supplier logo"} style={{
+																<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
+
 																	width: '42px',
 																	height: '42px'
 																}} />
 															</div>
 															<DataValueContainer>
-																<DataValueTitle>{el?.addressName ?? el?.lockerId ?? <>Punkt{" "}{index + 1}</>}</DataValueTitle>
+																<DataValueTitle>{el?.addressName ?? el?.lockerId ?? <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
 																<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
 															</DataValueContainer>
 														</div>
 													} style={{ marginBottom: 0 }} />
-												<ContextMenu setUserData={setUserData} item={index} setEditItemIndex={setEditItemIndex} property={"parcelLockers"} userData={userData}
+												<ContextMenu
+													setUserData={setUserData}
+													item={index}
+													setEditItemIndex={setEditItemIndex}
+													property={"parcelLockers"}
+													userData={userData}
 													selectedPropertyIndex={selectedDeliveryPointIndex}
 													setSelectedPropertyIndex={setSelectedDeliveryPointIndex} />
 											</RadioElementContainer>)
@@ -602,7 +656,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 									})
 									:
 
-									<NoDataLabel>Brak danych</NoDataLabel>
+									<NoDataLabel>{t('modal-step-2.noData')}</NoDataLabel>
 								}
 							</RadioGroup>
 						</CardContent>
@@ -610,7 +664,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						</Collapse>
 						<AddNewData onClick={() => handleAddNewData("parcelLockers")}>
 							<PlusIcon />
-							<AddNewDataText>Dodaj nowe dane paczkomatu lub punktu</AddNewDataText>
+						<AddNewDataText>{t('modal-step-2.addNewParcelData')}</AddNewDataText>
 						</AddNewData></>}
 
 
@@ -627,7 +681,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, setSelectedUser
 						sx={{
 							fontFamily: 'Inter, sans-serif'
 						}}>
-						Wybierz
+						{t('modal-step-2.selectData')}
 					</Button>
 				</div>
 

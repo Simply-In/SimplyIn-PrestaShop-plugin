@@ -4,9 +4,8 @@
 import { useEffect } from "react"
 import { loadDataFromSessionStorage, removeDataSessionStorage, saveDataSessionStorage } from "../services/sessionStorageApi";
 import caseparser from 'caseparser';
-import { selectPickupPointInpost } from "../functions/selectInpostPoint";
+import { selectDeliveryMethod } from "../functions/selectDeliveryMethod";
 
-// const regexPattern = /^(?:[^0-9!<>,;?=+()\/\\@#"°*`{}_^$%:¤\[\]|\.。]|[\.。](?:\s|$))*$/;
 
 const fillForm = (data, formId, listOfCountries, customChanges) => {
 
@@ -17,8 +16,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 		const linkElement = document.querySelector('a[data-link-action="different-invoice-address"]');
 		if (linkElement) {
 			linkElement.click();
-		} else {
-			console.log("Element not found.");
 		}
 	}
 
@@ -35,7 +32,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+
 			// removeDataSessionStorage({ key: "billingAddressesId" })
 
 		}
@@ -45,14 +42,14 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			const allAddressPins = document.querySelectorAll(`input[type="radio"][name="id_address_invoice"]`);
 
 			if (allAddressPins.length) {
-				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current)
-				console.log("billingAddresIs", pinWithHighestValue);
+				const pinWithHighestValue = [...allAddressPins]?.reduce((prev, current) => (prev.value > current.value) ? prev : current, [])
+
 
 				pinWithHighestValue.checked = true;
 
 				const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 				pinWithHighestValue?.dispatchEvent(event);
-				console.log('billingAddressesId', loadDataFromSessionStorage({ key: "billingAddressesId" }));
+
 				// removeDataSessionStorage({ key: "billingAddressesId" })
 			}
 
@@ -74,7 +71,7 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 			addressPin.checked = true;
 			const event = new Event('change', { 'bubbles': true, 'cancelable': true });
 			addressPin?.dispatchEvent(event);
-			console.log('shippingAddressesId', loadDataFromSessionStorage({ key: "shippingAddressesId" }));
+
 			// removeDataSessionStorage({ key: "shippingAddressesId" })
 		}
 
@@ -82,20 +79,30 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 	if (data) {
 
-		const formContainer = document.getElementById(formId)
+		const formContainer = document?.getElementById(formId)
+
+
 
 		if (!formContainer) return
 
 		if ("name" in data && formContainer.querySelector('#field-firstname')) {
-			(formContainer.querySelector('#field-firstname') as HTMLInputElement).value = customChanges.fieldFirstname || data.name || ""
+			formContainer.querySelector('#field-firstname').value = customChanges.fieldFirstname || data.name || ""
 		}
 		if ("surname" in data && formContainer.querySelector('#field-lastname')) {
-			(formContainer.querySelector('#field-lastname') as HTMLInputElement).value = customChanges.fieldLastname || data.surname || ""
+			formContainer.querySelector('#field-lastname').value = customChanges.fieldLastname || data.surname || ""
 		}
 		if ("city" in data && formContainer.querySelector('#field-city')) { (formContainer.querySelector('#field-city') as HTMLInputElement).value = customChanges.fieldCity || data.city || "" }
 		if ("companyName" in data && formContainer.querySelector('#field-company')) { (formContainer.querySelector('#field-company') as HTMLInputElement).value = customChanges.fieldCompany || data.companyName || "" }
 		if ("taxId" in data && formContainer.querySelector('#field-vat_number')) { (formContainer.querySelector('#field-vat_number') as HTMLInputElement).value = customChanges.fieldVat_number || data.taxId || "" }
-		if ("phoneNumber" in data && formContainer.querySelector('#field-phone')) { (formContainer.querySelector('#field-phone') as HTMLInputElement).value = customChanges.fieldPhone || data.phoneNumber || "" }
+		if ("phoneNumber" in data && formContainer.querySelector('#field-phone')) {
+			let normalizedNumberFromDB = data.phoneNumber
+			if (data?.country?.toLowerCase() == "PL".toLowerCase()) {
+				if (data.phoneNumber.startsWith("+48")) {
+					normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
+				}
+			}
+			(formContainer.querySelector('#field-phone') as HTMLInputElement).value = customChanges.fieldPhone || normalizedNumberFromDB || data.phoneNumber || ""
+		}
 		if ("street" in data && formContainer.querySelector('#field-address1')) { (formContainer.querySelector('#field-address1') as HTMLInputElement).value = customChanges.fieldAddress1 || `${data.street}` || "" }
 		if ("appartmentNumber" in data && formContainer.querySelector('#field-address2')) { (formContainer.querySelector('#field-address2') as HTMLInputElement).value = customChanges.fieldAddress2 || data.appartmentNumber || "" }
 		if ("postalCode" in data && formContainer.querySelector('#field-postcode')) { (formContainer.querySelector('#field-postcode') as HTMLInputElement).value = customChanges.fieldPostcode || data.postalCode || "" }
@@ -103,7 +110,6 @@ const fillForm = (data, formId, listOfCountries, customChanges) => {
 
 
 			const countrySubstitute = listOfCountries.find((el) => el.iso_code === data?.country)
-
 
 			const options = Array.from(formContainer.querySelector('#field-id_country').options)
 
@@ -172,50 +178,68 @@ export const useInsertFormData = (userData: any, listOfCountries: any) => {
 			return
 		}
 
-		if ("name" in userData && document.getElementById("customer-form").querySelector('#field-firstname')) {
-			(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
-		}
-		if ("surname" in userData && document.getElementById("customer-form").querySelector('#field-lastname')) {
-			(document.getElementById("customer-form").querySelector('#field-lastname') as HTMLInputElement).value = customChanges?.customerForm?.fieldLastname || userData.surname || ""
+
+		if (document?.getElementById("customer-form")) {
+			if ("fieldEmail" in userData && document?.getElementById("customer-form")?.querySelector('#field-email')) {
+				(document.getElementById("customer-form").querySelector('#field-email') as HTMLInputElement).value = customChanges?.customerForm?.fieldEmail || userData.email || ""
+			}
+			if ("name" in userData && document?.getElementById("customer-form")?.querySelector('#field-firstname')) {
+				(document.getElementById("customer-form").querySelector('#field-firstname') as HTMLInputElement).value = customChanges?.customerForm?.fieldFirstname || userData.name || ""
+			}
+			if ("surname" in userData && document?.getElementById("customer-form")?.querySelector('#field-lastname')) {
+				(document.getElementById("customer-form").querySelector('#field-lastname') as HTMLInputElement).value = customChanges?.customerForm?.fieldLastname || userData.surname || ""
+			}
 		}
 
 
 		const BillingIndex = sessionStorage.getItem("BillingIndex")
 		const ShippingIndex = sessionStorage.getItem("ShippingIndex")
+		const ParcelIndex = sessionStorage.getItem("ParcelIndex")
 
+		const ShippingAddressesId = sessionStorage.getItem("shippingAddressesId")
+		const BillingAddressesId = sessionStorage.getItem("billingAddressesId")
 
-		const sameAddressCheckbox = document.getElementById('use_same_address')
+		const useSameAddressCheckbox = document.getElementById('use_same_address')
 
-		if (ShippingIndex === "null") {
+		if (ShippingIndex === "null" || (ShippingIndex === "null" && BillingAddressesId !== ShippingAddressesId)) {
 
-			if (sameAddressCheckbox) {
-				sameAddressCheckbox.checked = true
+			//Same address
+			if (useSameAddressCheckbox) {
+				useSameAddressCheckbox.checked = true
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm(userData?.billingAddresses[BillingIndex || 0], "delivery-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
 		} else {
 
-			if (sameAddressCheckbox) {
-				sameAddressCheckbox.checked = false
+			//Different address
+			if (useSameAddressCheckbox) {
+				useSameAddressCheckbox.checked = false
 			}
 
-
 			if (userData?.shippingAddresses?.length) {
-				fillForm(userData?.shippingAddresses[ShippingIndex || 0], "delivery-address", listOfCountries, customChanges.deliveryAddress)
+				fillForm({ ...userData?.shippingAddresses[ShippingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "delivery-address", listOfCountries, customChanges.deliveryAddress)
 			}
 
 			if (userData?.billingAddresses?.length) {
-				fillForm(userData?.billingAddresses[BillingIndex || 0], "invoice-address", listOfCountries, customChanges.invoiceAddress)
+				fillForm({ ...userData?.billingAddresses[BillingIndex ?? 0], phoneNumber: userData?.phoneNumber }, "invoice-address", listOfCountries, customChanges.invoiceAddress)
 			}
 
+
+
 		}
 
-		if (userData?.parcelLockers) {
-			selectPickupPointInpost({ deliveryPointID: userData?.parcelLockers?.lockerId })
+		if (ParcelIndex === "null") {
+			selectDeliveryMethod({ provider: "default" })
+		} else if (userData?.parcelLockers?.lockerId) {
+			selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers?.lockerId })
 		}
+
+
+
 
 	}, [userData])
 

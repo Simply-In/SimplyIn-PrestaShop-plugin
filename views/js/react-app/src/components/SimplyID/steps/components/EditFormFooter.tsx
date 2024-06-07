@@ -1,4 +1,5 @@
 import { Button, Grid } from '@mui/material'
+import { useTranslation } from "react-i18next";
 
 
 interface IEditFormFooter {
@@ -9,6 +10,7 @@ interface IEditFormFooter {
 
 
 export const EditFormFooter = ({ isNewData, handleCancel }: IEditFormFooter) => {
+	const { t } = useTranslation();
 
 	return (
 		<Grid container spacing={2} style={{
@@ -29,7 +31,7 @@ export const EditFormFooter = ({ isNewData, handleCancel }: IEditFormFooter) => 
 					border: "1px solid rgba(25, 118, 210, 0.5)",
 					color: "rgb(25, 118, 210)"
 
-				}}  >Anuluj</Button>
+				}}  >{t('modal-form.cancel')}</Button>
 			</Grid>
 			<Grid item xs={6} >
 				<Button type="submit" variant="contained" color="primary" fullWidth
@@ -41,7 +43,7 @@ export const EditFormFooter = ({ isNewData, handleCancel }: IEditFormFooter) => 
 						backgroundColor: "rgb(25, 118, 210)"
 
 					}}>
-					{isNewData ? "Dodaj" : "Zapisz"}
+					{isNewData ? t('modal-form.add') : t('modal-form.save')}
 				</Button>
 			</Grid>
 		</Grid>

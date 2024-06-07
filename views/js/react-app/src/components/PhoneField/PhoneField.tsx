@@ -10,6 +10,7 @@ import { saveDataSessionStorage } from "../../services/sessionStorageApi";
 import PhoneInput, { Country, isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { SimplyInFullLogo } from "../../assets/SimplyInFullLogo";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -30,6 +31,7 @@ export const PhoneField = () => {
 	const [checked, setChecked] = useState(false);
 	const [simplyinToken, setSimplyinToken] = useState<string>("")
 	const [countryCode, setCountryCode] = useState<Country>("PL")
+	const { t } = useTranslation();
 
 	const [error, setError] = useState("")
 	const checkedRef = useRef(false);
@@ -54,9 +56,7 @@ export const PhoneField = () => {
 			const allAddressDataArray = addressData?.querySelector('.address')?.innerHTML.split("<br>")
 		let phoneInputField = ""
 		let phoneVal = ""
-			if (allAddressDataArray?.length) {
-				console.log(allAddressDataArray[allAddressDataArray.length - 1]);
-
+		if (allAddressDataArray?.length) {
 				phoneInputField = allAddressDataArray[allAddressDataArray.length - 1]
 				phoneVal = allAddressDataArray[allAddressDataArray.length - 1].replace(/^00|^0/, '+')
 
@@ -74,7 +74,7 @@ export const PhoneField = () => {
 			if (phoneVal.startsWith("+")) {
 
 				setPhoneInput(phoneVal || "")
-				setError("Sprawdź poprawność wprowadzonego numeru")
+				setError(t("payment.checkPhoneNumber"))
 			} else {
 
 				try {
@@ -96,12 +96,12 @@ export const PhoneField = () => {
 
 					if (!isValidPhoneNumber(selectedCountryNumber?.number as string || "") && phoneVal) {
 
-						setError("Sprawdź poprawność wprowadzonego numeru")
+						setError(t("payment.checkPhoneNumber"))
 					}
 				}
 				catch (err) {
-					setError("Wystąpił błąd, wprowadź numer ręcznie")
-					console.log('błąd', err);
+					setError(t('payment.phoneNumberError'))
+					console.log(err);
 				}
 			}
 
@@ -135,7 +135,7 @@ export const PhoneField = () => {
 		if (isValidPhoneNumber(number || "") || !number) {
 			setError('');
 		} else {
-			setError('Numer telefonu jest nieprawidłowy.');
+			setError(t('payment.phoneNumberIncorrect'));
 		}
 	}
 
@@ -187,7 +187,8 @@ export const PhoneField = () => {
 					onChange={handleChangeCheckbox}
 					inputProps={{ 'aria-label': 'controlled' }} />
 				<CheckboxLabel onClick={() => handleChangeCheckbox()}>
-						<span>Nowość!</span> Zapisz swoje dane w Simply.IN aby łatwo i prosto kupować w tym i w innych sklepach.
+						<span>{t('payment.paymentTitle-1')}
+						</span> {t('payment.paymentTitle-2')}
 				</CheckboxLabel>
 			</CheckboxContainer>
 
@@ -211,19 +212,19 @@ export const PhoneField = () => {
 				</div>
 				{checked && <>
 					<PhoneInputDescription>
-					Następnym razem, gdy dokonasz płatności tutaj lub w innych sklepach używających
-						<PhoneInputDescriptionLink href="https://simply.in/" target="_blank">{" "}Simply.IN{" "}</PhoneInputDescriptionLink>
-					, otrzymasz kod SMS-em i będziesz mógł bezpiecznie robić zakupy za pomocą
-
+						{t('payment.createAccountDescription-1')}
+						<PhoneInputDescriptionLink href="https://simply.in/" target="_blank">{" "}Simply.IN</PhoneInputDescriptionLink>
+						{t('payment.createAccountDescription-2')}
 						<PhoneInputDescriptionLink href={"./"} target="_blank">{" "}Simply.IN.</PhoneInputDescriptionLink>
 				</PhoneInputDescription>
 				<PhoneInputDescriptionSecondary>
-						Klikając przycisk „Zamawiam” lub analogiczny, potwierdzam że zapoznałem się i akceptuję<PhoneInputDescriptionLink href="https://simply.in/terms-and-conditions" target="_blank">{" "}Regulamin
+						{t('payment.createAccountDescription-3')}
+						<PhoneInputDescriptionLink href="https://simply.in/terms-and-conditions" target="_blank">{" "}	{t('payment.createAccountDescription-4')}
 							{" "}Simply.In.{" "}</PhoneInputDescriptionLink >
-					Administratorem Twoich danych osobowych jest
+						{t('payment.createAccountDescription-5')}
 						<PhoneInputDescriptionLink href="https://simply.in/" target="_blank">{" "}Simply.In.</PhoneInputDescriptionLink>
-					Zobacz więcej w
-						<PhoneInputDescriptionLink href="https://simply.in/gdpr-rules" target="_blank">{" "}Polityce Prywatności. </PhoneInputDescriptionLink>
+						{t('payment.createAccountDescription-6')}
+						<PhoneInputDescriptionLink href="https://simply.in/gdpr-rules" target="_blank">{" "}{t('payment.createAccountDescription-7')}</PhoneInputDescriptionLink>
 				</PhoneInputDescriptionSecondary>
 
 
