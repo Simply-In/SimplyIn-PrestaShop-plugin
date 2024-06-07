@@ -229,9 +229,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		}
 
 		if (deliveryType === "address") {
-
-
-			// resetDeliveryMethod()
 			sessionStorage.setItem("BillingIndex", `${selectedBillingIndex}`)
 			sessionStorage.setItem("ShippingIndex", `${selectedShippingIndex}`)
 			sessionStorage.setItem("ParcelIndex", `null`)
@@ -244,8 +241,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 				removeDataSessionStorage({ key: 'isParcelAdded' })
 				selectDeliveryMethod({ deliveryPointID: userData?.parcelLockers[selectedDeliveryPointIndex]?.lockerId });
 			}
-
-
 		}
 
 
@@ -267,8 +262,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 				normalizedNumberFromDB = normalizedNumberFromDB.substring(3)
 			}
 		}
-
-
 
 		//if shipping and billing records are simillar then we don't need to generate by php shipping address
 		const isSameBillingAndShippingAddresses = sameDeliveryAddress || isSameShippingAndBillingAddresses({ billingAddress: billingData, shippingAddress: shippingData })

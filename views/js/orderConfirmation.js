@@ -1,3 +1,26 @@
+/**
+ * Copyright 2024-2027 Simply.IN Sp. z o.o.
+ *
+ * NOTICE OF LICENSE
+ *
+ * Licensed under the EUPL-1.2 or later.
+ * You may not use this work except in compliance with the Licence.
+ *
+ * Copy of the Licence is available at:
+ * https://joinup.ec.europa.eu/software/page/eupl
+ * It is bundled with this package in the file LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an as is basis,
+ * without warranties or conditions of any kind, either express or implied.
+ * Check the Licence for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * @author   Simply.IN Sp. z o.o.
+ * @copyright 2024-2027 Simply.IN Sp. z o.o.
+ * @license   https://joinup.ec.europa.eu/software/page/eupl
+ */
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
@@ -5,6 +28,7 @@ const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
 //@ts-ignore
 const userEmail = isUserLoggedIn ? customer?.email : "";
 
+console.log("order confirmation");
 const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -60,11 +84,13 @@ const loadDataFromSessionStorageTwo = ({ key }) => {
   }
 };
 
- const getLangBrowser = () => {
-   if (navigator.languages !== undefined) return navigator.languages[0];
-   else return navigator.language;
- };
+const getLangBrowser = () => {
+  if (navigator.languages !== undefined) return navigator.languages[0];
+  else return navigator.language;
+};
 $(document).ready(async function () {
+  // console.log({ order });
+
   let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
 
   const BillingIndex = loadDataFromSessionStorageTwo({
@@ -76,6 +102,7 @@ $(document).ready(async function () {
   const UserData = loadDataFromSessionStorageTwo({
     key: "UserData",
   });
+  console.log("staaaart");
 
   const billingAddresses = {
     _id: UserData?.billingAddresses[BillingIndex]?._id,
@@ -182,16 +209,16 @@ $(document).ready(async function () {
       requestBody: existingAccountSendData,
       token: simplyinToken,
     }).then((res) => {
-      sessionStorage.removeItem("isSimplyDataSelected");
-      sessionStorage.removeItem("UserData");
-      sessionStorage.removeItem("BillingIndex");
-      sessionStorage.removeItem("ShippingIndex");
-      sessionStorage.removeItem("ParcelIndex");
-      sessionStorage.removeItem("phoneNumber");
-      sessionStorage.removeItem("simplyinToken");
-      sessionStorage.removeItem("selectedShippingMethod");
-      sessionStorage.removeItem("CustomChanges");
-      sessionStorage.removeItem("inpost-delivery-point");
+      //   sessionStorage.removeItem("isSimplyDataSelected");
+      //   sessionStorage.removeItem("UserData");
+      //   sessionStorage.removeItem("BillingIndex");
+      //   sessionStorage.removeItem("ShippingIndex");
+      //   sessionStorage.removeItem("ParcelIndex");
+      //   sessionStorage.removeItem("phoneNumber");
+      //   sessionStorage.removeItem("simplyinToken");
+      //   sessionStorage.removeItem("selectedShippingMethod");
+      //   sessionStorage.removeItem("CustomChanges");
+      //   sessionStorage.removeItem("inpost-delivery-point");
     });
   }
 });

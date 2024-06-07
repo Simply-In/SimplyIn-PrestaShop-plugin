@@ -46,7 +46,8 @@
 		"styled-components": "^5.3.11",
 		"typescript": "^5.0.4",
 		"vite-plugin-css-injected-by-js": "^3.1.1",
-		"yup": "^1.2.0"
+		"yup": "^1.2.0",
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@types/jquery": "^3.5.16",
@@ -59,6 +60,7 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.3.4",
 		"typescript": "^5.0.2",
-		"vite": "4.5.3"
+		"vite": "4.5.3",
+		"vite-plugin-copy": "^0.1.6"
 	}
 }
