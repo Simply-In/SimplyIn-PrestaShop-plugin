@@ -83,7 +83,7 @@ export const Step1 = ({ handleClosePopup, phoneNumber, setModalStep, setUserData
 				lng: shortLang(i18n.language) ?? currentLanguage?.iso_code.toUpperCase() ?? shortLang(getLangBrowser()),
 
 			}
-		}).then(res => {
+		}).then((res: any) => {
 			removeDataSessionStorage({ key: 'customChanges' })
 			setModalError("")
 			setErrorPinCode("")

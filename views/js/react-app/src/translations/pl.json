@@ -50,12 +50,14 @@
 			"addNewShippingData": "Dodaj nowe dane dostawy",
 			"doorDelivery": "Dostawa pod drzwi",
 			"parcelDelivery": "Dostawa do PUDO lub paczkomaszyny",
-			"parcelMachines": "PUDO i paczkomaszyny",
 			"addNewParcelData": "Dodaj PUDO lub paczkomaszynę",
 			"sameData": "Dane rozliczeniowe są takie same jak dane dostawy",
 			"notSelectedDeliveryPoint": "Punkt odbioru nie został wybrany",
 			"delivery": "Dostawa",
-			"point": "Punkt"
+			"point": "Punkt",
+			"pudo": "PUDO",
+			"parcelMachines": "Paczkomaszyny",
+			"PudoAndParcelMachines": "PUDO i paczkomaszyny"
 		},
 		"modal-step-rejected": {
 			"loginRejected": "Logowanie odrzucone"
