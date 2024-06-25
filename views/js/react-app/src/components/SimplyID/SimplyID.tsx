@@ -150,10 +150,10 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	}, [])
 	useEffect(() => {
 		if (visible === false) {
-			const BillingIndex = (sessionStorage.getItem("BillingIndex") || 0) as number
-			const ShippingIndex = sessionStorage.getItem("ShippingIndex") as number | null
-			const ParcelIndex = sessionStorage.getItem("ParcelIndex") as number | null
-			const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
+			const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
+			const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
+			const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
+			const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) ?? "parcel_machine" as TabType
 
 			if ((isNumber(ShippingIndex))) {
 				setDeliveryType("address")

@@ -173,6 +173,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		isUserLoggedIn
 	} = useContext(SelectedDataContext)
 	const handleChangeTab = (_: React.SyntheticEvent, newValue: TabType) => {
+
 		setSelectedTab(newValue);
 		setSelectedDeliveryPointIndex(0)
 	};
@@ -362,7 +363,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		const BillingIndex = (sessionStorage.getItem("BillingIndex") || 0) as number
 		const ShippingIndex = sessionStorage.getItem("ShippingIndex") as number | null
 		const ParcelIndex = sessionStorage.getItem("ParcelIndex") as number | null
-		const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
+		// const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
 
 		if ((isNumber(ShippingIndex))) {
 			setDeliveryType("address")
@@ -373,10 +374,11 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		setSelectedBillingIndex(BillingIndex)
 		setSelectedShippingIndex(ShippingIndex)
 		setSelectedDeliveryPointIndex(ParcelIndex)
-		setSelectedTab(SelectedTab)
+		// setSelectedTab(SelectedTab)
 	}, [])
 
 
+	console.log('selectedTab 2', selectedTab);
 	return (
 		<>
 			{!editItemIndex?.property &&
@@ -669,35 +671,37 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 											?
 											filteredParcelLockers.map((el: any, index: number) => {
 												return (
-													<RadioElementContainer key={el?.id ?? index} >
-														<FormControlLabel value={index} control={<Radio />}
+													<RadioElementContainer key={el?.id ?? index} style={{ marginBottom: 0, flexBasis: "100%" }} >
+														<FormControlLabel value={index} control={<Radio />} 
+															style={{ marginBottom: 0, flexBasis: "100%" }} sx={{ "span:last-child": { flexBasis: "100%" } }}
 															label={
-																<div style={{ display: "flex" }}>
+																<div style={{ display: "flex", justifyContent: 'space-between', width: "100%", flex: "1 1 auto" }}>
+																	<div style={{ display: "flex" }}>
+																		<div className="logo"
+																			style={{
+																				display: "flex",
+																				justifyContent: "center",
+																				alignItems: "center",
+																				minWidth: "50px",
+																				width: "50px",
+																				marginRight: "8px"
+																			}}>
+																			<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
 
-																	<div className="logo"
-																		style={{
-																			display: "flex",
-																			justifyContent: "center",
-																			alignItems: "center",
-																			minWidth: "50px",
-																			width: "50px",
-																			marginRight: "8px"
-																		}}>
-																		<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
-
-																			width: '42px',
-																			height: '42px'
-																		}} />
+																				width: '42px',
+																				height: '42px'
+																			}} />
+																		</div>
+																		<DataValueContainer>
+																			<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
+																			<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
+																		</DataValueContainer>
 																	</div>
-																	<DataValueContainer>
-																		<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
-																		<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
-																	</DataValueContainer>
 																	<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
 																		{el?.icon || ""}
 																	</div>
 																</div>
-															} style={{ marginBottom: 0 }} />
+															} />
 														<ContextMenu
 															setUserData={setUserData}
 															item={index}
@@ -721,33 +725,40 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 											?
 											filteredParcelLockers.map((el: any, index: number) => {
 												return (
-													<RadioElementContainer key={el?.id ?? index} >
+													<RadioElementContainer key={el?.id ?? index} style={{ marginBottom: 0, flexBasis: "100%" }}>
 														<FormControlLabel value={index} control={<Radio />}
+
+															style={{ marginBottom: 0, flexBasis: "100%", flex: "1 1 auto" }}
+
+															sx={{ "span:last-child": { flexBasis: "100%" } }}
 															label={
-																<div style={{ display: "flex" }}>
-																	<div className="logo"
-																		style={{
-																			display: "flex",
-																			justifyContent: "center",
-																			alignItems: "center",
-																			minWidth: "50px",
-																			width: "50px",
-																			marginRight: "8px"
-																		}}>
-																		<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
-																			width: '42px',
-																			height: '42px'
-																		}} />
+																<div style={{ display: "flex", justifyContent: 'space-between', width: "100%", flex: "1 1 auto", flexBasis: "100%" }}>
+
+																	<div style={{ display: "flex", flexBasis: "100%" }}>
+																		<div className="logo"
+																			style={{
+																				display: "flex",
+																				justifyContent: "center",
+																				alignItems: "center",
+																				minWidth: "50px",
+																				width: "50px",
+																				marginRight: "8px"
+																			}}>
+																			<img src={el?.logoUrl || getPlaceholder()} alt={el.label || "supplier logo"} style={{
+																				width: '42px',
+																				height: '42px'
+																			}} />
+																		</div>
+																		<DataValueContainer>
+																			<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
+																			<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
+																		</DataValueContainer>
 																	</div>
-																	<DataValueContainer>
-																		<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
-																		<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
-																	</DataValueContainer>
 																	<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
 																		{el?.icon || ""}
 																	</div>
 																</div>
-															} style={{ marginBottom: 0 }} />
+															} />
 														<ContextMenu
 															setUserData={setUserData}
 															element={el}

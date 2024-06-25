@@ -255,6 +255,7 @@ export const Step2Form = ({
 						}
 						if (editItem.property === "parcelLockers") {
 							const filteredParcelLockers = newData?.parcelLockers.filter((el: any) => el.service_type === pointType)
+
 							setSelectedTab(pointType)
 							setSelectedDeliveryPointIndex(filteredParcelLockers.length - 1 || 0)
 						}

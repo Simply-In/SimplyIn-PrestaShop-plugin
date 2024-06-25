@@ -10,11 +10,9 @@ export const isNumber = (str: any) => {
 
 export const useSelectedSimplyData = () => {
 	// const BillingIndex = (sessionStorage.getItem("BillingIndex") || 0) as number
-	const ShippingIndex = sessionStorage.getItem("ShippingIndex") as number | null
+	const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
 	// const ParcelIndex = sessionStorage.getItem("ParcelIndex") as number | null
-	const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
-
-
+	const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) || "parcel_machine" as TabType
 
 
 	const [selectedBillingIndex, setSelectedBillingIndex] = useState(loadDataFromSessionStorage({ key: "BillingIndex" }) ?? 0);
@@ -22,7 +20,7 @@ export const useSelectedSimplyData = () => {
 	const [selectedDeliveryPointIndex, setSelectedDeliveryPointIndex] = useState<number | null>(loadDataFromSessionStorage({ key: 'ParcelIndex' }) ?? null)
 	const [sameDeliveryAddress, setSameDeliveryAddress] = useState<boolean>((loadDataFromSessionStorage({ key: "sameDeliveryAddress" })) ? true : false);
 	const [pickupPointDelivery, setPickupPointDelivery] = useState<boolean>(false);
-	const [selectedTab, setSelectedTab] = useState<TabType>(SelectedTab || "parcel_machine");
+	const [selectedTab, setSelectedTab] = useState<TabType>(SelectedTab ?? "parcel_machine");
 	const [deliveryType, setDeliveryType] = useState<DeliveryType>(isNumber(ShippingIndex) ? "address" : "machine");
 
 	return {
