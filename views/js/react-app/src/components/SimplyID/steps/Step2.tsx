@@ -378,7 +378,6 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 	}, [])
 
 
-	console.log('selectedTab 2', selectedTab);
 	return (
 		<>
 			{!editItemIndex?.property &&
