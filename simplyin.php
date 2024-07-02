@@ -33,7 +33,7 @@ class Simplyin extends Module
 	{
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
-		$this->version = $VERSION;
+		$this->version = "1.0.4";
 		$this->author = 'SimplyIN';
 		$this->need_instance = 1;
 		$this->bootstrap = true;
@@ -592,7 +592,7 @@ class Simplyin extends Module
 		$prestashop_version = Configuration::get('PS_VERSION_DB');
 
 		Media::addJsDef([
-			'extension_version' => $this->version,
+			'extension_version' => $this->version = "1.0.4";
 			'prestashop_version' => $prestashop_version,
 			'countries_list' => $countries_list,
 			'shippingMethods' => $shippingMethods,
