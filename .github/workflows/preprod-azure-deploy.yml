@@ -1,0 +1,95 @@
+name: Preprod Azure deploy
+
+on:
+  push:
+    branches:
+      - preprod
+
+env: 
+  BACKEND_ENVIRONMENT_PREPROD: ${{vars.BACKEND_ENVIRONMENT_PREPROD}}
+  APP_VERSION_PREFIX_PREPROD: ${{vars.APP_VERSION_PREFIX_PREPROD}}
+  AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_PROD}} #container-name 
+  AZURE_STORAGE_CONTAINER_NAME_WOO: ${{vars.AZURE_STORAGE_CONTAINER_NAME_WOO}}
+  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+jobs:
+ 
+  build-app:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Replace version in simplyin.php
+      run: |
+        VERSION=$(jq -r '.version' package.json)
+        sed -i "13s/.*/ * Version:           $VERSION /" simplyin.php
+
+    - name: Replace environment type in simplyin.php
+      run: |
+        sed -i '12s/.*/ * Description: SimplyIN application description. ${{ env.APP_VERSION_PREFIX_PREPROD }} /' simplyin.php
+    
+    - name: Replace environment in simplyin.php
+      run: |
+          sed -i "29s/.*/\$backendEnvironment = \$env['BACKEND_ENVIRONMENT_PREPROD']; /" simplyin.php
+
+    - name: Dependencies install 
+      run: |
+        cd public
+        yarn install
+
+    - name: Create react app bundle 
+      run: |
+        cd public
+        yarn deploy-build
+    
+    - name: Remove unnecessary files
+      run: |
+        rm -rf logs
+        rm -rf .git
+        rm -rf .github
+        cd public
+        rm -rf src
+        rm -rf node_modules
+
+    - name: Upload files
+      uses: actions/upload-artifact@v2
+      with:
+        name: simplyin-woo-preprod
+        path: .
+
+  create-zip-file:
+    runs-on: ubuntu-latest
+    needs: [build-app]
+
+    steps:
+    - name: Download files
+      uses: actions/download-artifact@v2
+      with:
+        name: simplyin-woo-preprod
+        path: .
+    
+    - name: Zip files excluding the ZIP file itself
+      run: |
+        # Exclude the ZIP file from being included in the ZIP itself
+        zip -r simplyin-woo-preprod.zip .
+
+  deploy-zip-file-in-azure:
+    runs-on: ubuntu-latest
+    needs: [create-zip-file]
+
+    steps:
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ env.AZURE_CREDENTIALS }}
+    
+    - name: Upload files to Azure Storage
+      run: |
+        pwd
+        ls -lahtr
+        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_WOO }} --source ./simplyin-woo-preprod.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
+        az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_WOO }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
