@@ -7,9 +7,10 @@ on:
 
 env: 
   BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
+  BACKEND_ENVIRONMENT_STAGE_URL: ${{vars.BACKEND_ENVIRONMENT_STAGE_URL}}
   APP_VERSION_PREFIX_STAGE: ${{vars.APP_VERSION_PREFIX_STAGE}}
   AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_PROD}} #container-name 
-  AZURE_STORAGE_CONTAINER_NAME_WOO: ${{vars.AZURE_STORAGE_CONTAINER_NAME_WOO}}
+  AZURE_STORAGE_CONTAINER_NAME_PRESTA: ${{vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA}}
   AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
 jobs:
   version:
@@ -31,15 +32,13 @@ jobs:
     - name: Replace version in simplyin.php
       run: |
         VERSION=$(jq -r '.version' package.json)
-        sed -i "13s/.*/ * Version:           $VERSION /" simplyin.php
+        sed -i 's|$this->version =.*|$this->version = "$VERSION";|g' simplyin.php
+        sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
 
-    - name: Replace environment type in simplyin.php
+    - name: Replace $backend_url in simplyin.php and api/submitData.php
       run: |
-        sed -i '12s/.*/ * Description: SimplyIN application ${{ env.APP_VERSION_PREFIX_STAGE }} /' simplyin.php
-    
-    - name: Replace environment in simplyin.php
-      run: |
-          sed -i "29s/.*/\$backendEnvironment = \$env['BACKEND_ENVIRONMENT_STAGE']; /" simplyin.php
+        sed -i 's|$backend_url =.*|$backend_url = "${{ env.BACKEND_ENVIRONMENT_STAGE_URL }}";|g' simplyin.php
+        sed -i 's|$backend_url =.*|$backend_url = "${{ env.BACKEND_ENVIRONMENT_STAGE_URL }}";|g' api/submitData.php
         
     - name: Commit and push if it changed
       run: |
@@ -61,17 +60,21 @@ jobs:
     
     - name: Remove unnecessary files
       run: |
-        rm -rf logs
         rm -rf .git
         rm -rf .github
-        cd public
+        rm -rf .gitignore
+        rm -rf vendor
+        rm -rf .php-cs-fixer.cache
+        rm -rf .php-cs-fixer.dist.php
+        rm -rf setup_php_cs_fixer.sh
+        cd views/js/react-app
         rm -rf src
         rm -rf node_modules
 
     - name: Upload files
       uses: actions/upload-artifact@v2
       with:
-        name: simplyin-woo-stage
+        name: simplyin-stage-presta
         path: .
 
   create-zip-file:
@@ -82,18 +85,18 @@ jobs:
     - name: Download files
       uses: actions/download-artifact@v2
       with:
-        name: simplyin-woo-stage
+        name: simplyin-stage-presta
         path: .
     
     - name: Zip files excluding the ZIP file itself
       run: |
         # Exclude the ZIP file from being included in the ZIP itself
-        zip -r simplyin-woo-stage.zip . 
+        zip -r simplyin-stage-presta.zip . 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
       with:
-        name: simplyin-woo-stage
-        path: simplyin-woo-stage.zip
+        name: simplyin-stage-presta
+        path: simplyin-stage-presta.zip
 
   deploy-zip-file-in-azure:
     runs-on: ubuntu-latest
@@ -103,7 +106,7 @@ jobs:
     - name: Download zip file
       uses: actions/download-artifact@v2
       with:
-        name: simplyin-woo-stage
+        name: simplyin-stage-presta
         path: .
 
     - name: Install Azure CLI
@@ -118,7 +121,7 @@ jobs:
       run: |
         pwd
         ls -lahtr
-        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_WOO }} --source ./simplyin-woo-stage.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
-        az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_WOO }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
+        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source ./simplyin-stage-presta.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
+        az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
 
 
