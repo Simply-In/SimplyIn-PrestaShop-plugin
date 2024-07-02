@@ -1,6 +1,6 @@
 {
   "name": "simplyin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "devDependencies": {
     "semver": "^7.6.0",
     "shelljs": "^0.8.5"
