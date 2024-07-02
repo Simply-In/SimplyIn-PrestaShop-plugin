@@ -29,7 +29,6 @@
 		position: absolute;
 		padding: 0px 8px;
 		z-index: 100;
-		background: #f4fcfd;
 	}
 	#eye-container{
 		position:absolute;

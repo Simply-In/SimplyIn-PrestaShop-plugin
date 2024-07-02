@@ -40,6 +40,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [attributeObject, setAttributeObject] = useState({});
 	const [visible, setVisible] = useState<boolean>(true)
 	const [phoneNumber, setPhoneNumber] = useState("")
+	const [downloadIconsAllowed, setDownloadIconsAllowed] = useState(true)
+
 	// const [simplyinToken, setSimplyinToken] = useState("")
 	const [isSimplyIdVisible, setIsSimplyIdVisible] = useState<boolean>(false)
 	const [loginType, setLoginType] = useState<TypedLoginType>()
@@ -152,19 +154,22 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		if (visible === false) {
 			const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
 			const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
+
 			const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
-			const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) ?? "parcel_machine" as TabType
+			// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
+			const SelectedTab = sessionStorage.getItem("selectedTab") as TabType
+
 
 			if ((isNumber(ShippingIndex))) {
 				setDeliveryType("address")
-			} else {
+			} else if (isNumber(ParcelIndex)) {
 				setDeliveryType("machine")
 			}
 
 			setSelectedBillingIndex(BillingIndex)
 			setSelectedShippingIndex(ShippingIndex)
 			setSelectedDeliveryPointIndex(ParcelIndex)
-			setSelectedTab(SelectedTab)
+			setSelectedTab(SelectedTab || "parcel_machine")
 
 
 		}
@@ -282,6 +287,9 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
 
+						if (userUsedPushNotifications) {
+							setDownloadIconsAllowed(false)
+						}
 						setPhoneNumber(phoneNumber)
 						saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
 						setVisible(true)
@@ -369,7 +377,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			selectedTab,
 			setSelectedTab,
 			deliveryType,
-			setDeliveryType
+			setDeliveryType,
+			downloadIconsAllowed
 		}
 	}, [selectedBillingIndex,
 		setSelectedBillingIndex,
@@ -384,7 +393,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		selectedTab,
 		setSelectedTab,
 		deliveryType,
-		setDeliveryType])
+		setDeliveryType,
+		downloadIconsAllowed])
 
 	const counterProps = useMemo(() => {
 		return {

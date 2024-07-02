@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { PopupHeader, Step2Title, SectionTitle, RadioElementContainer, DataValueContainer, DataValueLabel, DataValueTitle, AddNewData, AddNewDataText, NoDataLabel } from '../SimplyID.styled'
+import { PopupHeader, Step2Title, SectionTitle, RadioElementContainer, DataValueContainer, DataValueLabel, DataValueTitle, AddNewData, AddNewDataText, NoDataLabel, RadioElementContainerMachine, DeliveryPointContainer } from '../SimplyID.styled'
 import { IconButton, CardContent, CardActions, Collapse, Button, FormControl, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { IconButtonProps } from '@mui/material/IconButton';
@@ -175,7 +175,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 	const handleChangeTab = (_: React.SyntheticEvent, newValue: TabType) => {
 
 		setSelectedTab(newValue);
-		setSelectedDeliveryPointIndex(0)
+		setSelectedDeliveryPointIndex(selectedShippingIndex || 0)
+
 	};
 
 	useEffect(() => {
@@ -223,6 +224,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 
 			setSelectedShippingIndex(+(event.target as HTMLInputElement).value);
 			setSameDeliveryAddress(false)
+			setPickupPointDelivery(false)
 		}
 		else if (type === "parcelLockers") {
 			setSelectedDeliveryPointIndex(+(event.target as HTMLInputElement).value);
@@ -237,7 +239,8 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		setEditItemIndex({ property: property, itemIndex: userData[property]?.length ? userData[property]?.length : 0, isNewData: true })
 	}
 
-	const filteredParcelLockers = useMemo(() => userData?.parcelLockers?.filter((el: any) => selectedTab === "parcel_machine" ? el.service_type !== "service_point" : el.service_type === "service_point"), [selectedTab, userData?.parcelLockers])
+	const filteredParcelLockers = useMemo(() => userData?.parcelLockers.filter((el: any) => selectedTab === "parcel_machine" ? el.service_type === "parcel_machine" : el.service_type !== "parcel_machine"), [selectedTab, userData?.parcelLockers])
+
 
 
 	const handleSelectData = () => {
@@ -360,21 +363,23 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 	};
 
 	useEffect(() => {
-		const BillingIndex = (sessionStorage.getItem("BillingIndex") || 0) as number
-		const ShippingIndex = sessionStorage.getItem("ShippingIndex") as number | null
-		const ParcelIndex = sessionStorage.getItem("ParcelIndex") as number | null
-		// const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
+		const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
+		const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
+
+		const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
+		// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
+		const SelectedTab = sessionStorage.getItem("SelectedTab")
 
 		if ((isNumber(ShippingIndex))) {
 			setDeliveryType("address")
-		} else {
+		} else if (isNumber(ParcelIndex)) {
 			setDeliveryType("machine")
 		}
 
 		setSelectedBillingIndex(BillingIndex)
 		setSelectedShippingIndex(ShippingIndex)
 		setSelectedDeliveryPointIndex(ParcelIndex)
-		// setSelectedTab(SelectedTab)
+		setSelectedTab(SelectedTab || "parcel_machine")
 	}, [])
 
 
@@ -657,7 +662,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 												'&.Mui-selected': {
 													outline: 'none',
 												}
-											}} label={t('modal-step-2.parcelMachines')} value="parcel_machine" style={{ padding: "0px", fontSize: "16px", fontWeight: "700", fontFamily: "Inter, sans-serif" }} />
+											}} label={t('modal-step-2.parcelMachines')} value="parcel_machine" style={{ padding: "0px", fontSize: "16px", fontWeight: "700", fontFamily: "Inter, sans-serif", textTransform: "none" }} />
 											<Tab sx={{
 												'&.Mui-selected': {
 													outline: 'none',
@@ -670,9 +675,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 											?
 											filteredParcelLockers.map((el: any, index: number) => {
 												return (
-													<RadioElementContainer key={el?.id ?? index} style={{ marginBottom: 0, flexBasis: "100%" }} >
-														<FormControlLabel value={index} control={<Radio />} 
-															style={{ marginBottom: 0, flexBasis: "100%" }} sx={{ "span:last-child": { flexBasis: "100%" } }}
+													<RadioElementContainerMachine key={el?.id ?? index} style={{ flexBasis: "100%" }} >
+														<FormControlLabel value={index} control={<Radio />}
+															style={{ flexBasis: "100%" }} sx={{ "span:last-child": { flexBasis: "100%" } }}
 															label={
 																<div style={{ display: "flex", justifyContent: 'space-between', width: "100%", flex: "1 1 auto" }}>
 																	<div style={{ display: "flex" }}>
@@ -691,17 +696,19 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 																				height: '42px'
 																			}} />
 																		</div>
-																		<DataValueContainer>
-																			<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
-																			<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
-																		</DataValueContainer>
-																	</div>
-																	<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
-																		{el?.icon || ""}
+																		<DeliveryPointContainer>
+																			<DataValueContainer>
+																				<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
+																				<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
+																			</DataValueContainer>
+																			<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
+																				{el?.icon || ""}
+																			</div>
+																		</DeliveryPointContainer>
 																	</div>
 																</div>
 															} />
-														<ContextMenu
+														< ContextMenu
 															setUserData={setUserData}
 															item={index}
 															element={el}
@@ -711,7 +718,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 															selectedPropertyIndex={selectedDeliveryPointIndex}
 															setSelectedPropertyIndex={setSelectedDeliveryPointIndex}
 															selectedTab={selectedTab} />
-													</RadioElementContainer>)
+													</RadioElementContainerMachine>)
 
 											})
 											:
@@ -724,10 +731,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 											?
 											filteredParcelLockers.map((el: any, index: number) => {
 												return (
-													<RadioElementContainer key={el?.id ?? index} style={{ marginBottom: 0, flexBasis: "100%" }}>
+													<RadioElementContainerMachine key={el?.id ?? index} style={{ flexBasis: "100%" }}>
 														<FormControlLabel value={index} control={<Radio />}
 
-															style={{ marginBottom: 0, flexBasis: "100%", flex: "1 1 auto" }}
+															style={{ flexBasis: "100%", flex: "1 1 auto" }}
 
 															sx={{ "span:last-child": { flexBasis: "100%" } }}
 															label={
@@ -748,13 +755,15 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 																				height: '42px'
 																			}} />
 																		</div>
-																		<DataValueContainer>
-																			<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
-																			<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
-																		</DataValueContainer>
-																	</div>
-																	<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
-																		{el?.icon || ""}
+																		<DeliveryPointContainer >
+																			<DataValueContainer>
+																				<DataValueTitle>{el?.addressName || el?.lockerId || <>{t('modal-step-2.point')}{" "}{index + 1}</>}</DataValueTitle>
+																				<DataValueLabel>{el?.address ?? ""}</DataValueLabel>
+																			</DataValueContainer>
+																			<div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", transform: "scale(1.4)" }}>
+																				{el?.icon || ""}
+																			</div>
+																		</DeliveryPointContainer>
 																	</div>
 																</div>
 															} />
@@ -768,7 +777,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 															selectedPropertyIndex={selectedDeliveryPointIndex}
 															setSelectedPropertyIndex={setSelectedDeliveryPointIndex}
 															selectedTab={selectedTab} />
-													</RadioElementContainer>)
+													</RadioElementContainerMachine>)
 
 											})
 											:

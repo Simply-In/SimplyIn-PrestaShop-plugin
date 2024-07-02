@@ -9,19 +9,26 @@ export const isNumber = (str: any) => {
 }
 
 export const useSelectedSimplyData = () => {
-	// const BillingIndex = (sessionStorage.getItem("BillingIndex") || 0) as number
+	const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
 	const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
-	// const ParcelIndex = sessionStorage.getItem("ParcelIndex") as number | null
-	const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) || "parcel_machine" as TabType
+
+	const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
+	// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
+	const SelectedTab = sessionStorage.getItem("selectedTab") as TabType
 
 
-	const [selectedBillingIndex, setSelectedBillingIndex] = useState(loadDataFromSessionStorage({ key: "BillingIndex" }) ?? 0);
-	const [selectedShippingIndex, setSelectedShippingIndex] = useState<number | null>(loadDataFromSessionStorage({ key: "ShippingIndex" }) ?? null);
+
+
+	const [selectedBillingIndex, setSelectedBillingIndex] = useState(BillingIndex || 0);
+
+	const [selectedShippingIndex, setSelectedShippingIndex] = useState<number | null>(ShippingIndex || null);
+
 	const [selectedDeliveryPointIndex, setSelectedDeliveryPointIndex] = useState<number | null>(loadDataFromSessionStorage({ key: 'ParcelIndex' }) ?? null)
 	const [sameDeliveryAddress, setSameDeliveryAddress] = useState<boolean>((loadDataFromSessionStorage({ key: "sameDeliveryAddress" })) ? true : false);
 	const [pickupPointDelivery, setPickupPointDelivery] = useState<boolean>(false);
 	const [selectedTab, setSelectedTab] = useState<TabType>(SelectedTab ?? "parcel_machine");
-	const [deliveryType, setDeliveryType] = useState<DeliveryType>(isNumber(ShippingIndex) ? "address" : "machine");
+	const [deliveryType, setDeliveryType] = useState<DeliveryType>(isNumber(ParcelIndex) ? "machine" : "address");
+
 
 	return {
 		selectedBillingIndex,
