@@ -32,7 +32,7 @@ jobs:
     - name: Replace version in simplyin.php
       run: |
         VERSION=$(jq -r '.version' package.json)
-        sed -i 's|$this->version.*|$this->version = "'$VERSION'";|g' simplyin.php
+        sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
         sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
 
     - name: Replace $backend_url in simplyin.php and api/submitData.php
