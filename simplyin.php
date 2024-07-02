@@ -33,13 +33,13 @@ class Simplyin extends Module
 	{
 		$this->name = 'simplyin';
 		$this->tab = 'shipping_logistics';
-		$this->version = '1.0.0';
+		$this->version = "$VERSION";
 		$this->author = 'SimplyIN';
 		$this->need_instance = 1;
 		$this->bootstrap = true;
 		parent::__construct();
 		$this->displayName = 'SimplyIN';
-		$this->description = 'simplyin module - quick checkout process';
+		$this->description = "simplyin module - quick checkout process st";
 		$this->confirmUninstall = $this->l('');
 		$this->ps_versions_compliancy = ['min' => '8.0', 'max' => _PS_VERSION_];
 	}
