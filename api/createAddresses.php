@@ -27,7 +27,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-define('_DB_PREFIX_', 'ps_');
+
 $context = Context::getContext();
 $data = json_decode(Tools::file_get_contents('php://input'), true);
 
@@ -60,7 +60,7 @@ function addNewAddress($customerId, $addressData)
     // $address->id_country = $addressData['id_country']; // Set the country ID
     $address->id_country = $addressData['country'];
 
-    $address->vat_number = $addressData['taxId'];
+	$address->vat_number = $addressData['taxId'] ?? "";
     $address->company = $addressData['companyName'];
     $address->phone = $addressData['phoneNumber'];
 

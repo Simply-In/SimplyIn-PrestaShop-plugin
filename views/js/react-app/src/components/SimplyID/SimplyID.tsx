@@ -7,12 +7,14 @@ import { debounce } from 'lodash';
 import PinCodeModal from "./PinCodeModal.tsx";
 import { loadDataFromSessionStorage, saveDataSessionStorage } from "../../services/sessionStorageApi.ts";
 import { useInsertFormData } from "../../hooks/useInsertFormData.ts";
-import { useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
+import { isNumber, useSelectedSimplyData } from "../../hooks/useSelectedSimplyData.ts";
+
 import { predefinedFill } from "./steps/functions.ts";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { useCounterData } from "../../hooks/useCounterData.ts";
 import { shortLang } from "./steps/Step1.tsx";
+import { TabType } from "./steps/Step2.tsx";
 
 
 export type TypedLoginType = "pinCode" | "app" | undefined
@@ -38,6 +40,8 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 	const [attributeObject, setAttributeObject] = useState({});
 	const [visible, setVisible] = useState<boolean>(true)
 	const [phoneNumber, setPhoneNumber] = useState("")
+	const [downloadIconsAllowed, setDownloadIconsAllowed] = useState(true)
+
 	// const [simplyinToken, setSimplyinToken] = useState("")
 	const [isSimplyIdVisible, setIsSimplyIdVisible] = useState<boolean>(false)
 	const [loginType, setLoginType] = useState<TypedLoginType>()
@@ -59,6 +63,10 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		setSameDeliveryAddress,
 		pickupPointDelivery,
 		setPickupPointDelivery,
+		selectedTab,
+		setSelectedTab,
+		deliveryType,
+		setDeliveryType
 	} = useSelectedSimplyData();
 	const {
 		countdown,
@@ -142,7 +150,31 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 		setPhoneNumber(simplyinPhoneFromStorage() ?? "")
 	}, [])
+	useEffect(() => {
+		if (visible === false) {
+			const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
+			const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
 
+			const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
+			// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
+			const SelectedTab = sessionStorage.getItem("selectedTab") as TabType
+
+
+			if ((isNumber(ShippingIndex))) {
+				setDeliveryType("address")
+			} else if (isNumber(ParcelIndex)) {
+				setDeliveryType("machine")
+			}
+
+			setSelectedBillingIndex(BillingIndex)
+			setSelectedShippingIndex(ShippingIndex)
+			setSelectedDeliveryPointIndex(ParcelIndex)
+			setSelectedTab(SelectedTab || "parcel_machine")
+
+
+		}
+
+	}, [visible])
 	const handleOpenSmsPopup = () => {
 		setVisible((prev) => !prev)
 	};
@@ -255,6 +287,9 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 					}).then(({ data: phoneNumber, userUsedPushNotifications, notificationTokenId }) => {
 
 
+						if (userUsedPushNotifications) {
+							setDownloadIconsAllowed(false)
+						}
 						setPhoneNumber(phoneNumber)
 						saveDataSessionStorage({ key: 'phoneNumber', data: phoneNumber })
 						setVisible(true)
@@ -338,7 +373,12 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 			selectedDeliveryPointIndex,
 			setSelectedDeliveryPointIndex,
 			pickupPointDelivery,
-			setPickupPointDelivery
+			setPickupPointDelivery,
+			selectedTab,
+			setSelectedTab,
+			deliveryType,
+			setDeliveryType,
+			downloadIconsAllowed
 		}
 	}, [selectedBillingIndex,
 		setSelectedBillingIndex,
@@ -349,7 +389,12 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 		selectedDeliveryPointIndex,
 		setSelectedDeliveryPointIndex,
 		pickupPointDelivery,
-		setPickupPointDelivery])
+		setPickupPointDelivery,
+		selectedTab,
+		setSelectedTab,
+		deliveryType,
+		setDeliveryType,
+		downloadIconsAllowed])
 
 	const counterProps = useMemo(() => {
 		return {
