@@ -592,7 +592,7 @@ class Simplyin extends Module
 		$prestashop_version = Configuration::get('PS_VERSION_DB');
 
 		Media::addJsDef([
-			'extension_version' => $this->version = "1.0.4";
+			'extension_version' => $this->version,
 			'prestashop_version' => $prestashop_version,
 			'countries_list' => $countries_list,
 			'shippingMethods' => $shippingMethods,
