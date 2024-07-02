@@ -19,7 +19,8 @@ type ISessionStorageData = {
 	"hasSimplyAlreadyBeenCalled" |
 	"isSimplyDataSelected" |
 	"selectedShippingMethod" |
-	"sameDeliveryAddress"
+	"sameDeliveryAddress" |
+	"SelectedTab"
 	data: any
 } | {
 	key: "createSimplyAccount"
