@@ -34,6 +34,8 @@ jobs:
         VERSION=$(jq -r '.version' package.json)
         sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
         sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
+        sed -i "5s|<version><!\[CDATA\[.*\]\]></version>|<version><![CDATA[$VERSION]]></version>|" config.xml
+        sed -i "6s|<description><![CDATA[simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}]]></description>|" config.xml
 
     - name: Replace $backend_url in simplyin.php and api/submitData.php
       run: |
@@ -89,9 +91,10 @@ jobs:
         path: .
     
     - name: Zip files excluding the ZIP file itself
-      run: |
-        # Exclude the ZIP file from being included in the ZIP itself
-        zip -r simplyin-stage-presta.zip . 
+        run: |
+          mkdir simplyin
+          mv {your-files} simplyin/
+          zip -r simplyin-stage-presta.zip simplyin
     - name: Upload zip file
       uses: actions/upload-artifact@v2
       with:
