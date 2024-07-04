@@ -91,10 +91,11 @@ jobs:
         path: .
     
     - name: Zip files excluding the ZIP file itself
-        run: |
+      run: |
           mkdir simplyin
           mv {your-files} simplyin/
           zip -r simplyin-stage-presta.zip simplyin
+
     - name: Upload zip file
       uses: actions/upload-artifact@v2
       with:
