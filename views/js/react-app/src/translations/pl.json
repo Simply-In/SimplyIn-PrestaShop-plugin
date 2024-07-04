@@ -1,11 +1,11 @@
 {
 	"translation": {
 		"taxID": "NIP",
-		"emailPlaceholder": "Wprowadź swój email. 🤠🙈💥",
-		"headerTitle": "Szybko i bezpiecznie z",
+		"emailPlaceholder": "Wprowadź swój email",
+		"headerTitle": "Zakupy jednym klikiem",
 		"payment": {
 			"paymentTitle-1": "Nowość!",
-			"paymentTitle-2": "Zapisz swoje dane w Simply.IN aby łatwo i prosto kupować w tym i w innych sklepach.",
+			"paymentTitle-2": "Zapisz swoje dane by następnym razem kupować jednym klikiem w tym i w innych sklepach.",
 			"createAccountDescription-1": "Następnym razem, gdy dokonasz płatności tutaj lub w innych sklepach używających",
 			"createAccountDescription-2": ", otrzymasz kod SMS-em i będziesz mógł bezpiecznie robić zakupy za pomocą",
 			"createAccountDescription-3": "Klikając przycisk „Zamawiam” lub analogiczny, potwierdzam że zapoznałem się i akceptuję",
