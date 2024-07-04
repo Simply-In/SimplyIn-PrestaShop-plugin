@@ -157,7 +157,7 @@ export const SimplyID = ({ listOfCountries, isUserLoggedIn }: ISimplyID) => {
 
 			const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
 			// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
-			const SelectedTab = sessionStorage.getItem("selectedTab") as TabType
+			const SelectedTab = sessionStorage.getItem("SelectedTab") as TabType
 
 
 			if ((isNumber(ShippingIndex))) {

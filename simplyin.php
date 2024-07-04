@@ -80,8 +80,13 @@ class Simplyin extends Module
 
 	public function send_encrypted_data($encrypted_data)
 	{
+<<<<<<< HEAD
 		$backend_url = "https://preprod.backend.simplyin.app/api";
 		$url = $backend_url . '/encryption/saveEncryptedOrderStatusChange';
+=======
+		$backend_url = "https://stage.backend.simplyin.app/api/";
+		$url = $backend_url . 'encryption/saveEncryptedOrderStatusChange';
+>>>>>>> stage
 		$base_url = __PS_BASE_URI__;
 		$headers = ['Content-Type: application/json', 'Origin: ' . $base_url];
 		$ch = curl_init();
