@@ -88,21 +88,19 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: simplyin-stage-presta
-        path: ./downloaded_files
-      
-    - name: Verify downloaded files
-      run: |
-        echo "Contents of downloaded_files:"
-        ls -la ./downloaded_files
-
-    - name: Prepare simplyin directory
-      run: |
-        mkdir -p simplyin
-        mv downloaded_files/* simplyin/ || echo "No files to move"
-      
-    - name: Zip files into simplyin-stage-presta.zip
-      run: |
-        zip -r simplyin-stage-presta.zip simplyin
+        path: .
+    
+    - name: Prepare files
+        run: |
+          mkdir simplyin
+          # Example: Copy all files from the root directory to 'simplyin'
+          cp -r * simplyin
+          
+    - name: Create ZIP file
+        run: |
+          cd simplyin
+          zip -r ../simplyin-stage-presta.zip .
+          cd ..
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
