@@ -93,8 +93,7 @@ jobs:
     - name: Prepare simplyin directory
       run: |
         mkdir -p simplyin
-        shopt -s extglob
-        mv !(simplyin|simplyin-stage-presta.zip) simplyin/
+        mv downloaded_files/* simplyin/
       
     - name: Zip files into simplyin-stage-presta.zip
       run: |
