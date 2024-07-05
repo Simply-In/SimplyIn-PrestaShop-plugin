@@ -90,18 +90,12 @@ jobs:
         name: simplyin-stage-presta
         path: .
     
-    # - name: Prepare files
-      # run: |
-          # mkdir simplyin
-          # Example: Copy all files from the root directory to 'simplyin'
-          # cp -r * simplyin
-          
-    # - name: Create ZIP file
-    #   run: |
-          
-    #       zip -r ./simplyin-stage-presta.zip .
+    - name: Create wrapper directory
+        run: mkdir simplyin
 
-
+    - name: Move files to wrapper directory
+        run: mv * simplyin/
+    
     - name: Upload zip file
       uses: actions/upload-artifact@v2
       with:
