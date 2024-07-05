@@ -12,7 +12,6 @@ env:
   AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_PROD}} #container-name 
   AZURE_STORAGE_CONTAINER_NAME_PRESTA: ${{vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA}}
   AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
-  PAT: ${{secrets.PAT}}
 jobs:
   version:
     name: Version bump
@@ -35,7 +34,7 @@ jobs:
         VERSION=$(jq -r '.version' package.json)
         sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
         sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
-        # sed -i '5s|<version><!\[CDATA\[.*\]\]></version>|<version><![CDATA['"$VERSION"']]></version>|' config.xml
+        # sed -i "5s|<version><!\[CDATA\[.*\]\]></version>|<version><![CDATA[$VERSION]]></version>|" config.xml
         # sed -i "6s|<description><!\[CDATA\[simplyin module - quick checkout process.*\]\]></description>|<description><![CDATA[simplyin module - quick checkout process st]]></description>|" config.xml
 
     - name: Replace $backend_url in simplyin.php and api/submitData.php
@@ -49,7 +48,7 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "GitHub Actions Bot"
         git commit -am "Update backend environment variable" || exit 0
-        git push https://${{ secrets.PAT }}@github.com/Simply-In/SimplyIn-PrestaShop-plugin.git
+        git push
 
     - name: Dependencies install 
       run: |
@@ -93,9 +92,9 @@ jobs:
     
     - name: Zip files excluding the ZIP file itself
       run: |
-          # mkdir simplyin
+          mkdir simplyin
           # mv * simplyin/
-          zip -r simplyin-stage-presta.zip simplyin
+          zip -r simplyin.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
