@@ -93,7 +93,7 @@ jobs:
     - name: Zip files excluding the ZIP file itself
       run: |
           mkdir simplyin
-          mv {your-files} simplyin/
+          mv * simplyin/
           zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
