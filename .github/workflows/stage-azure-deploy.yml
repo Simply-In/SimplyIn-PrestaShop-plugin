@@ -90,16 +90,16 @@ jobs:
         name: simplyin-stage-presta
         path: .
     
-    - name: Prepare files
-      run: |
-          mkdir simplyin
+    # - name: Prepare files
+      # run: |
+          # mkdir simplyin
           # Example: Copy all files from the root directory to 'simplyin'
-          cp -r * simplyin
+          # cp -r * simplyin
           
     - name: Create ZIP file
       run: |
-          cd simplyin
-          zip -r ../simplyin-stage-presta.zip .
+          
+          zip -r ./simplyin-stage-presta.zip .
           cd ..
 
     - name: Upload zip file
