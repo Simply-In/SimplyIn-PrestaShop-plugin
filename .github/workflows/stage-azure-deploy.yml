@@ -90,11 +90,13 @@ jobs:
         name: simplyin-stage-presta
         path: .
     
-    - name: Create wrapper directory
-      run: mkdir simplyin
-
     - name: Move files to wrapper directory
-      run: mv * simplyin/
+      run: |
+          shopt -s dotglob
+          mv !(simplyin) simplyin/
+
+    - name: Zip files with wrapper directory
+      run: zip -r simplyin-stage-presta.zip simplyin
     
     - name: Upload zip file
       uses: actions/upload-artifact@v2
