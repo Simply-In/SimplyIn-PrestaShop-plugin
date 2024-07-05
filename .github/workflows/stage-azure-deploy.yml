@@ -91,13 +91,13 @@ jobs:
         path: .
     
     - name: Prepare files
-        run: |
+      run: |
           mkdir simplyin
           # Example: Copy all files from the root directory to 'simplyin'
           cp -r * simplyin
           
     - name: Create ZIP file
-        run: |
+      run: |
           cd simplyin
           zip -r ../simplyin-stage-presta.zip .
           cd ..
