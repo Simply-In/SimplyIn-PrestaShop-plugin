@@ -93,19 +93,13 @@ jobs:
     - name: Create wrapper directory
       run: mkdir simplyin
 
-    - name: Move files to wrapper directory
+    - name: Move files to 'simplyin' directory
       run: |
-          shopt -s extglob dotglob
-          mv !(simplyin) simplyin/
+        shopt -s extglob dotglob
+        mv !(simplyin) simplyin/
 
-    - name: Zip files with wrapper directory
+    - name: Create zip file
       run: zip -r simplyin-stage-presta.zip simplyin
-
-    - name: Upload zip file
-      uses: actions/upload-artifact@v2
-      with:
-        name: simplyin-stage-presta
-        path: simplyin-stage-presta.zip
 
   deploy-zip-file-in-azure:
     runs-on: ubuntu-latest
