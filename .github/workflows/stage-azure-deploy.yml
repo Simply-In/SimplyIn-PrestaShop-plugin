@@ -91,10 +91,10 @@ jobs:
         path: .
     
     - name: Create wrapper directory
-        run: mkdir simplyin
+      run: mkdir simplyin
 
     - name: Move files to wrapper directory
-        run: mv * simplyin/
+      run: mv * simplyin/
     
     - name: Upload zip file
       uses: actions/upload-artifact@v2
