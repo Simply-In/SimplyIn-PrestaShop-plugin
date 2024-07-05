@@ -94,7 +94,7 @@ jobs:
       run: |
           mkdir simplyin
           # mv * simplyin/
-          zip -r simplyin.zip simplyin
+          zip -r simplyin.zip .
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
