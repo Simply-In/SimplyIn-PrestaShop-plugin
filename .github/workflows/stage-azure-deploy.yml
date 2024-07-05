@@ -96,9 +96,11 @@ jobs:
           # Example: Copy all files from the root directory to 'simplyin'
           # cp -r * simplyin
           
-    - name: Create ZIP file
-      run: |
-          zip -r ./simplyin-stage-presta.zip .
+    # - name: Create ZIP file
+    #   run: |
+          
+    #       zip -r ./simplyin-stage-presta.zip .
+
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
