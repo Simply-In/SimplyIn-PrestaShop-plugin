@@ -95,7 +95,7 @@ jobs:
 
     - name: Move files to wrapper directory
       run: |
-          shopt -s dotglob
+          shopt -s extglob dotglob
           mv !(simplyin) simplyin/
 
     - name: Zip files with wrapper directory
