@@ -89,13 +89,16 @@ jobs:
       with:
         name: simplyin-stage-presta
         path: .
-    
-    - name: Zip files excluding the ZIP file itself
+
+    - name: Prepare simplyin directory
       run: |
-          mkdir -p simplyin
-          shopt -s extglob
-          mv !(simplyin|simplyin.zip) simplyin/
-          zip -r simplyin-stage-presta.zip simplyin
+        mkdir -p simplyin
+        shopt -s extglob
+        mv !(simplyin|simplyin-stage-presta.zip) simplyin/
+      
+    - name: Zip files into simplyin-stage-presta.zip
+      run: |
+        zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
