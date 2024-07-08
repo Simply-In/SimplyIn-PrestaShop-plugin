@@ -72,9 +72,9 @@ jobs:
         rm -rf node_modules
 
     - name: Create simplyin directory and move files
-        run: |
-          mkdir simplyin
-          mv * simplyin
+      run: |
+        mkdir simplyin
+        mv * simplyin
 
     - name: Zip the simplyin directory
       run: |
