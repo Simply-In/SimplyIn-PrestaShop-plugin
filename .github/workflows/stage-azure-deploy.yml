@@ -83,23 +83,45 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-app]
 
+    # steps:
+    # - name: Download artifact
+    #   uses: actions/download-artifact@v2
+    #   with:
+    #       name: simplyin-stage-presta
+    #       path: .
+
+    # - name: Create wrapper directory
+    #   run: mkdir simplyin
+
+    # - name: Move files to wrapper directory
+    #   run: |
+    #       shopt -s extglob dotglob
+    #       mv !(simplyin) simplyin/
+
+    # - name: Zip files with wrapper directory
+    #   run: zip -r simplyin-stage-presta.zip simplyin
+
+    # - name: Upload zip file
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: simplyin-stage-presta
+    #     path: simplyin-stage-presta.zip
+    
     steps:
-    - name: Download artifact
+    - name: Download files
       uses: actions/download-artifact@v2
       with:
-          name: simplyin-stage-presta
-          path: .
-
-    - name: Create wrapper directory
-      run: mkdir simplyin
-
-    - name: Move files to wrapper directory
+        name: simplyin-stage-presta
+        path: .
+    
+    - name: Create simplyin directory and move files
       run: |
-          shopt -s extglob dotglob
-          mv !(simplyin) simplyin/
-
-    - name: Zip files with wrapper directory
-      run: zip -r simplyin-stage-presta.zip simplyin
+          mkdir simplyin
+          mv $(ls -A | grep -v simplyin) simplyin/
+    
+    - name: Zip files excluding the ZIP file itself
+      run: |
+          zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
