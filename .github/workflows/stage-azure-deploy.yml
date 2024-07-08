@@ -34,8 +34,6 @@ jobs:
         VERSION=$(jq -r '.version' package.json)
         sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
         sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
-        # sed -i "5s|<version><!\[CDATA\[.*\]\]></version>|<version><![CDATA[$VERSION]]></version>|" config.xml
-        # sed -i "6s|<description><!\[CDATA\[simplyin module - quick checkout process.*\]\]></description>|<description><![CDATA[simplyin module - quick checkout process st]]></description>|" config.xml
 
     - name: Replace $backend_url in simplyin.php and api/submitData.php
       run: |
@@ -73,55 +71,14 @@ jobs:
         rm -rf src
         rm -rf node_modules
 
-    - name: Upload files
-      uses: actions/upload-artifact@v2
-      with:
-        name: simplyin-stage-presta
-        path: .
-
-  create-zip-file:
-    runs-on: ubuntu-latest
-    needs: [build-app]
-
-    # steps:
-    # - name: Download artifact
-    #   uses: actions/download-artifact@v2
-    #   with:
-    #       name: simplyin-stage-presta
-    #       path: .
-
-    # - name: Create wrapper directory
-    #   run: mkdir simplyin
-
-    # - name: Move files to wrapper directory
-    #   run: |
-    #       shopt -s extglob dotglob
-    #       mv !(simplyin) simplyin/
-
-    # - name: Zip files with wrapper directory
-    #   run: zip -r simplyin-stage-presta.zip simplyin
-
-    # - name: Upload zip file
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: simplyin-stage-presta
-    #     path: simplyin-stage-presta.zip
-    
-    steps:
-    - name: Download files
-      uses: actions/download-artifact@v2
-      with:
-        name: simplyin-stage-presta
-        path: .
-    
     - name: Create simplyin directory and move files
       run: |
-          mkdir simplyin
-          mv $(ls -A | grep -v simplyin) simplyin/
+        mkdir simplyin
+        mv $(ls -A | grep -v simplyin) simplyin/
     
     - name: Zip files excluding the ZIP file itself
       run: |
-          zip -r simplyin-stage-presta.zip simplyin
+        zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
