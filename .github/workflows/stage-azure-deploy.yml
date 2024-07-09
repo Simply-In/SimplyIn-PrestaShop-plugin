@@ -71,10 +71,8 @@ jobs:
         rm -rf src
         rm -rf node_modules
 
-    - name: Create simplyin directory and move files
-      run: |
-        mkdir simplyin
-        mv $(ls -A | grep -v simplyin) simplyin/
+    - name: Create wrapper directory
+      run: mkdir simplyin
 
     - name: Zip the simplyin directory
       run: |
