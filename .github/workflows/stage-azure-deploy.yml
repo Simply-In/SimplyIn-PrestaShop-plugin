@@ -3,7 +3,7 @@ name: Stage Azure deploy
 on:
   push:
     branches:
-      - stage
+      - stage-cicd
 
 env: 
   BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
