@@ -78,13 +78,13 @@ jobs:
 
     - name: Zip the simplyin directory
       run: |
-        zip -r simplyin-stage-presta.zip simplyin
+        zip -r simplyin-presta17-stage.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
       with:
-        name: simplyin-stage-presta
-        path: simplyin-stage-presta.zip
+        name: simplyin-presta17-stage
+        path: simplyin-presta17-stage.zip
 
   deploy-zip-file-in-azure:
     runs-on: ubuntu-latest
@@ -109,7 +109,7 @@ jobs:
       run: |
         pwd
         ls -lahtr
-        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source ./simplyin-stage-presta.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
+        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source ./simplyin-presta17-stage.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
         az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
 
 
