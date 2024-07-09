@@ -28,7 +28,7 @@ jobs:
     - name: Fetch latest changes
       run: |
         git fetch origin
-        git reset --hard origin/stage-cicd
+        git reset --hard origin/stage
 
     - name: Replace version in simplyin.php
       run: |
