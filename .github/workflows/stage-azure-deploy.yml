@@ -35,7 +35,9 @@ jobs:
         VERSION=$(jq -r '.version' package.json)
         sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
         sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{ env.APP_VERSION_PREFIX_STAGE }}";|g' simplyin.php
-
+        sed -i "5s|<version><!\[CDATA\[.*\]\]></version>|<version><![CDATA[$VERSION]]></version>|" config.xml
+        sed -i "6s|<description><!\[CDATA\[simplyin module - quick checkout process.*\]\]></description>|<description><![CDATA[simplyin module - quick checkout process st]]></description>|" config.xml
+        
     - name: Replace $backend_url in simplyin.php and api/submitData.php
       run: |
         sed -i 's|$backend_url =.*|$backend_url = "${{ env.BACKEND_ENVIRONMENT_STAGE_URL }}";|g' simplyin.php
@@ -64,6 +66,8 @@ jobs:
         rm -rf .git
         rm -rf .github
         rm -rf .gitignore
+        rm -rf .gitignore
+        rm -rf scripts
         rm -rf vendor
         rm -rf .php-cs-fixer.cache
         rm -rf .php-cs-fixer.dist.php
