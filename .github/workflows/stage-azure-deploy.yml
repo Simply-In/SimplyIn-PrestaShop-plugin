@@ -3,16 +3,15 @@ name: Stage Azure deploy
 on:
   push:
     branches:
-      - stage-cicd
+      - stage
 
 env: 
   BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
   BACKEND_ENVIRONMENT_STAGE_URL: ${{vars.BACKEND_ENVIRONMENT_STAGE_URL}}
   APP_VERSION_PREFIX_STAGE: ${{vars.APP_VERSION_PREFIX_STAGE}}
-  AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_STAGE}} #container-name 
+  AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_PROD}} #container-name 
   AZURE_STORAGE_CONTAINER_NAME_PRESTA: ${{vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA}}
   AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
-
 jobs:
   version:
     name: Version bump
@@ -72,22 +71,14 @@ jobs:
         rm -rf src
         rm -rf node_modules
 
-    - name: Upload files
-      uses: actions/upload-artifact@v2
-      with:
-        name: simplyin-stage-presta
-        path: .
+    - name: Create simplyin directory and move files
+      run: |
+        mkdir simplyin
+        mv $(ls -A | grep -v simplyin) simplyin/
 
-  create-zip-file:
-    runs-on: ubuntu-latest
-    needs: [build-app]
-
-    steps:
-    - name: Download files
-      uses: actions/download-artifact@v2
-      with:
-        name: simplyin-stage-presta
-        path: .
+    - name: Zip the simplyin directory
+      run: |
+        zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
@@ -97,7 +88,7 @@ jobs:
 
   deploy-zip-file-in-azure:
     runs-on: ubuntu-latest
-    needs: [create-zip-file]
+    needs: [build-app]
 
     steps:
     - name: Download zip file
@@ -118,4 +109,7 @@ jobs:
       run: |
         pwd
         ls -lahtr
+        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source ./simplyin-stage-presta.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
         az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
+
+
