@@ -74,7 +74,7 @@ jobs:
     - name: Create simplyin directory and move files
       run: |
         mkdir simplyin
-        mv * simplyin
+        mv $(ls -A | grep -v simplyin) simplyin/
 
     - name: Zip the simplyin directory
       run: |
