@@ -51,6 +51,10 @@ jobs:
         git commit -am "Update backend environment variable" || exit 0
         git push
 
+    - name: Set execute permissions for php-cs-fixer
+      run: |
+        chmod +x vendor/bin/php-cs-fixer
+
     - name: Run setup_php_cs_fixer.sh
       run: |
         bash setup_php_cs_fixer.sh
