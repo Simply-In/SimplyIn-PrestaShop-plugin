@@ -51,14 +51,13 @@ $body['merchantApiKey'] = $apiKey;
 
 $backend_url = "https://preprod.backend.simplyin.app/api/";
 
-
 if (!empty($token)) {
-	$url = $backend_url . $endpoint . '?api_token=' . urlencode($token);
+    $url = $backend_url . $endpoint . '?api_token=' . urlencode($token);
 } else {
-	$url = $backend_url . $endpoint;
+    $url = $backend_url . $endpoint;
 }
 // $headers = ['Content-Type: application/json'];
-$headers = array('Content-Type: application/json', 'Origin: ' . $origin);
+$headers = ['Content-Type: application/json', 'Origin: ' . $origin];
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);

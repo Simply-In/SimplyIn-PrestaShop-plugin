@@ -148,6 +148,9 @@ export const PhoneField = () => {
 			setSimplyinToken(simplyinTokenFromStorage || "")
 		}
 
+		sessionStorage.setItem("createSimplyAccount", `${valueRegister || false}`)
+
+
 	}, [])
 
 
