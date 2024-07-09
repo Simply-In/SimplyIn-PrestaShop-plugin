@@ -88,15 +88,6 @@ jobs:
       with:
         name: simplyin-stage-presta
         path: .
-    
-    - name: Create simplyin directory and move files
-      run: |
-          mkdir simplyin
-          mv $(ls -A | grep -v simplyin) simplyin/
-    
-    - name: Zip files excluding the ZIP file itself
-      run: |
-          zip -r simplyin-stage-presta.zip simplyin
 
     - name: Upload zip file
       uses: actions/upload-artifact@v2
