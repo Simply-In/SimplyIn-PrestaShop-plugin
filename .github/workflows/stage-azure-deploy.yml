@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - stage-cicd
+      - cicd-2
 
 env: 
   BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
