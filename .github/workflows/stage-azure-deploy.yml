@@ -6,12 +6,13 @@ on:
       - stage-cicd
 
 env: 
-  BACKEND_ENVIRONMENT_STAGE: ${{vars.BACKEND_ENVIRONMENT_STAGE}}
-  BACKEND_ENVIRONMENT_STAGE_URL: ${{vars.BACKEND_ENVIRONMENT_STAGE_URL}}
-  APP_VERSION_PREFIX_STAGE: ${{vars.APP_VERSION_PREFIX_STAGE}}
-  AZURE_STORAGE_ACCOUNT_PROD: ${{vars.AZURE_STORAGE_ACCOUNT_STAGE}} #container-name 
-  AZURE_STORAGE_CONTAINER_NAME_PRESTA: ${{vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA}}
-  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+  BACKEND_ENVIRONMENT_STAGE: ${{ vars.BACKEND_ENVIRONMENT_STAGE }}
+  BACKEND_ENVIRONMENT_STAGE_URL: ${{ vars.BACKEND_ENVIRONMENT_STAGE_URL }}
+  APP_VERSION_PREFIX_STAGE: ${{ vars.APP_VERSION_PREFIX_STAGE }}
+  AZURE_STORAGE_ACCOUNT_PROD: ${{ vars.AZURE_STORAGE_ACCOUNT_STAGE }}
+  AZURE_STORAGE_CONTAINER_NAME_PRESTA: ${{ vars.AZURE_STORAGE_CONTAINER_NAME_PRESTA }}
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
 jobs:
   version:
     name: Version bump
@@ -27,13 +28,13 @@ jobs:
     - name: Fetch latest changes
       run: |
         git fetch origin
-        git reset --hard origin/stage
+        git reset --hard origin/stage-cicd
 
     - name: Replace version in simplyin.php
       run: |
         VERSION=$(jq -r '.version' package.json)
         sed '0,/$this->version/{s/$this->version.*/$this->version = "'$VERSION'";/}' simplyin.php > temp && mv temp simplyin.php
-        sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{env.APP_VERSION_PREFIX_STAGE}}";|g' simplyin.php
+        sed -i 's|$this->description =.*|$this->description = "simplyin module - quick checkout process ${{ env.APP_VERSION_PREFIX_STAGE }}";|g' simplyin.php
 
     - name: Replace $backend_url in simplyin.php and api/submitData.php
       run: |
@@ -74,7 +75,8 @@ jobs:
     - name: Create simplyin directory and move files
       run: |
         mkdir simplyin
-        mv $(ls -A | grep -v simplyin) simplyin/
+        shopt -s extglob
+        mv !(simplyin) simplyin
 
     - name: Zip the simplyin directory
       run: |
@@ -100,6 +102,7 @@ jobs:
     - name: Install Azure CLI
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
     - name: Azure authentication
       uses: azure/login@v1
       with:
@@ -107,9 +110,4 @@ jobs:
     
     - name: Upload files to Azure Storage
       run: |
-        pwd
-        ls -lahtr
-        #az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source ./simplyin-stage-presta.zip --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
-        az storage blob upload-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --destination ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --source . --pattern "*.zip" --auth-mode login ${{env.SUBSCRIPTION}} --overwrite
-
-
+        az storage blob upload --account-name ${{ env.AZURE_STORAGE_ACCOUNT_PROD }} --container-name ${{ env.AZURE_STORAGE_CONTAINER_NAME_PRESTA }} --file simplyin-stage-presta.zip --name simplyin-stage-presta.zip --auth-mode login --overwrite
