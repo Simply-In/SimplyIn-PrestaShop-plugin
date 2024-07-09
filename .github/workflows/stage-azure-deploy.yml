@@ -51,6 +51,10 @@ jobs:
         git commit -am "Update backend environment variable" || exit 0
         git push
 
+    - name: Run setup_php_cs_fixer.sh
+      run: |
+        bash setup_php_cs_fixer.sh
+
     - name: Dependencies install 
       run: |
         cd views/js/react-app
