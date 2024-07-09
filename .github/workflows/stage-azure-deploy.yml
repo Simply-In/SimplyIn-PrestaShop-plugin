@@ -67,6 +67,7 @@ jobs:
         rm -rf .github
         rm -rf .gitignore
         rm -rf vendor
+        rm -rf scripts
         rm -rf .php-cs-fixer.cache
         rm -rf .php-cs-fixer.dist.php
         rm -rf setup_php_cs_fixer.sh
