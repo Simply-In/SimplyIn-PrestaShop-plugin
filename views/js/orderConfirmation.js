@@ -89,7 +89,7 @@ const getLangBrowser = () => {
   else return navigator.language;
 };
 $(document).ready(async function () {
-  // console.log({ order });
+
 
   let shortLang = (lang) => lang.substring(0, 2).toUpperCase();
 
@@ -102,8 +102,7 @@ $(document).ready(async function () {
   const UserData = loadDataFromSessionStorageTwo({
     key: "UserData",
   });
-  console.log("staaaart");
-
+  
   const billingAddresses = {
     _id: UserData?.billingAddresses[BillingIndex]?._id,
     icon: "🏡",
