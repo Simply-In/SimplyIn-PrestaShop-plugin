@@ -32,7 +32,7 @@ class Simplyin extends Module
     {
         $this->name = 'simplyin';
         $this->tab = 'shipping_logistics';
-        $this->version = "1.0.20";
+        $this->version = "1.0.21";
         $this->author = 'SimplyIN';
         $this->need_instance = 1;
         $this->bootstrap = true;
