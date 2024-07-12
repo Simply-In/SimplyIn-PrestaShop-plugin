@@ -106,8 +106,7 @@ class Simplyin extends Module
         $newOrderStatus = $params['newOrderStatus']->template;
         $stopStatuses = [
             'order_canceled',
-            'payment_error',
-            '',
+			'payment_error',
             'cheque',
             'bankwire',
             'cashondelivery',
