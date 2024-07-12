@@ -32,7 +32,7 @@ class Simplyin extends Module
     {
         $this->name = 'simplyin';
         $this->tab = 'shipping_logistics';
-        $this->version = "1.0.19";
+        $this->version = "1.0.20";
         $this->author = 'SimplyIN';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -106,8 +106,7 @@ class Simplyin extends Module
         $newOrderStatus = $params['newOrderStatus']->template;
         $stopStatuses = [
             'order_canceled',
-            'payment_error',
-            '',
+			'payment_error',
             'cheque',
             'bankwire',
             'cashondelivery',
