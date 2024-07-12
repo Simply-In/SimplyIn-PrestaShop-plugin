@@ -96,7 +96,6 @@ jobs:
     - name: Create .htaccess file in simplyin directory
       run: |
         touch simplyin/.htaccess
-
     - name: Zip the simplyin directory
       run: |
         zip -r simplyin-prod-presta.zip simplyin
