@@ -32,7 +32,7 @@ class Simplyin extends Module
     {
         $this->name = 'simplyin';
         $this->tab = 'shipping_logistics';
-        $this->version = "1.0.18";
+        $this->version = "1.0.19";
         $this->author = 'SimplyIN';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -154,7 +154,7 @@ class Simplyin extends Module
 
         $plaintext = json_encode($body_data, JSON_UNESCAPED_SLASHES);
 
-        $key = getSecretKey($order_email);
+		$key = $this->getSecretKey($order_email);
 
         $encryptedData = $this->encrypt($plaintext, $key);
 
