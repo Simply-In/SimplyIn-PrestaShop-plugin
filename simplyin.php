@@ -156,7 +156,7 @@ class Simplyin extends Module
 			'trackings' => $tracking_numbers,
 		];
 
-		PrestaShopLogger::addLog(json_encode($body_data), 1, null, 'Order', 10, true);
+		// PrestaShopLogger::addLog(json_encode($body_data), 1, null, 'Order', 10, true);
 
 		$plaintext = json_encode($body_data, JSON_UNESCAPED_SLASHES);
 
