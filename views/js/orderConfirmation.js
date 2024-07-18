@@ -28,7 +28,6 @@ const isUserLoggedIn = customer?.logged === true && customer?.is_guest !== "1";
 //@ts-ignore
 const userEmail = isUserLoggedIn ? customer?.email : "";
 
-console.log("order confirmation");
 const middlewareApiTwo = async ({ endpoint, method, requestBody, token }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -164,6 +163,8 @@ $(document).ready(async function () {
         marketingConsent: false,
       },
       newOrderData: {
+        payment_method: order?.module || "",
+        payment_method_title: order?.payment || "",
         shopOrderNumber: order_number || "",
         price: Number(totalPaid),
         currency: currency,
@@ -182,12 +183,26 @@ $(document).ready(async function () {
       endpoint: "checkout/createOrderAndAccount",
       method: "POST",
       requestBody: newAccountSendData,
-    }).then((res) => {});
+    }).then((res) => {
+      sessionStorage.removeItem("isSimplyDataSelected");
+      sessionStorage.removeItem("UserData");
+      sessionStorage.removeItem("BillingIndex");
+      sessionStorage.removeItem("ShippingIndex");
+      sessionStorage.removeItem("ParcelIndex");
+      sessionStorage.removeItem("phoneNumber");
+      sessionStorage.removeItem("simplyinToken");
+      sessionStorage.removeItem("selectedShippingMethod");
+      sessionStorage.removeItem("customChanges");
+      sessionStorage.removeItem("inpost-delivery-point");
+      sessionStorage.removeItem("SelectedTab");
+    });
   }
 
   if (simplyinToken) {
     const existingAccountSendData = {
       newOrderData: {
+        payment_method: order?.module || "",
+        payment_method_title: order?.payment || "",
         shopOrderNumber: order_number || "",
         price: Number(totalPaid),
         currency: currency,
@@ -208,16 +223,17 @@ $(document).ready(async function () {
       requestBody: existingAccountSendData,
       token: simplyinToken,
     }).then((res) => {
-      //   sessionStorage.removeItem("isSimplyDataSelected");
-      //   sessionStorage.removeItem("UserData");
-      //   sessionStorage.removeItem("BillingIndex");
-      //   sessionStorage.removeItem("ShippingIndex");
-      //   sessionStorage.removeItem("ParcelIndex");
-      //   sessionStorage.removeItem("phoneNumber");
-      //   sessionStorage.removeItem("simplyinToken");
-      //   sessionStorage.removeItem("selectedShippingMethod");
-      //   sessionStorage.removeItem("CustomChanges");
-      //   sessionStorage.removeItem("inpost-delivery-point");
+      sessionStorage.removeItem("isSimplyDataSelected");
+      sessionStorage.removeItem("UserData");
+      sessionStorage.removeItem("BillingIndex");
+      sessionStorage.removeItem("ShippingIndex");
+      sessionStorage.removeItem("ParcelIndex");
+      sessionStorage.removeItem("phoneNumber");
+      sessionStorage.removeItem("simplyinToken");
+      sessionStorage.removeItem("selectedShippingMethod");
+      sessionStorage.removeItem("customChanges");
+      sessionStorage.removeItem("inpost-delivery-point");
+      sessionStorage.removeItem("SelectedTab");
     });
   }
 });
