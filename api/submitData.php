@@ -49,7 +49,7 @@ $body['apiKey'] = $apiKey;
 
 $body['merchantApiKey'] = $apiKey;
 
-$backend_url = "https://prod.backend.simply.in/api/";
+$backend_url = "https://preprod.backend.simplyin.app/api/";
 
 
 if (!empty($token)) {
