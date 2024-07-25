@@ -32,13 +32,15 @@ class Simplyin extends Module
     {
         $this->name = 'simplyin';
         $this->tab = 'shipping_logistics';
+
         $this->version = "1.0.23";
+
         $this->author = 'SimplyIN';
         $this->need_instance = 1;
         $this->bootstrap = true;
         parent::__construct();
         $this->displayName = 'SimplyIN';
-        $this->description = "simplyin module - quick checkout process pp";
+        $this->description = "simplyin module - quick checkout process";
         $this->confirmUninstall = $this->l('');
         $this->ps_versions_compliancy = ['min' => '8.0', 'max' => _PS_VERSION_];
     }
@@ -79,7 +81,7 @@ class Simplyin extends Module
 
     public function send_encrypted_data($encrypted_data)
     {
-        $backend_url = "https://preprod.backend.simplyin.app/api/";
+        $backend_url = "https://prod.backend.simply.in/api/";
         $url = $backend_url . 'encryption/saveEncryptedOrderStatusChange';
         $base_url = __PS_BASE_URI__;
         $headers = ['Content-Type: application/json', 'Origin: ' . $base_url];
