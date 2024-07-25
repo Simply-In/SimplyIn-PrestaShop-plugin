@@ -207,6 +207,7 @@ export const PhoneField = () => {
 							countryCallingCodeEditable={false}
 							defaultCountry={countryCode || "PL"}
 							value={phoneInput}
+							//@ts-ignore
 							onChange={phoneChange}
 							inputComponent={MyCustomInput} /> 
 
