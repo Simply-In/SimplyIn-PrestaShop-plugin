@@ -11,19 +11,19 @@ import PhoneInput, { Country, isValidPhoneNumber, parsePhoneNumber } from 'react
 import 'react-phone-number-input/style.css'
 import { SimplyInFullLogo } from "../../assets/SimplyInFullLogo";
 import { useTranslation } from "react-i18next";
-
-
-
+import styled from "styled-components";
 
 const phoneLabel = document.querySelector("[for=billing_phone]")
 phoneLabel?.remove()
-
 
 const MyCustomInput = React.forwardRef((props, ref: any) => (
 	<div style={{ display: 'flex', flex: "1 1 auto" }}>
 		<input ref={ref} {...props} className="" style={{ flex: "1 1 auto" }} />
 	</div>
 ))
+
+
+const ClickedDiv = styled.div``
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -41,75 +41,64 @@ export const PhoneField = () => {
 	const checkedRef = useRef(false);
 
 	useEffect(() => {
+		setError("");
 
-		// if (checked && !checkedRef.current) {
-		setError("")
+		const getAddressData = () => {
+			const selectedInvoiceAddress = document.getElementById("invoice-addresses")?.querySelector(".selected");
+			if (selectedInvoiceAddress) return selectedInvoiceAddress;
 
-			const selectedInvoiceAddress = document.getElementById("invoice-addresses")?.querySelector(".selected")
+			return document.getElementById("delivery-addresses")?.querySelector(".selected");
+		};
 
-			let selectedDeliveryAddress = null
-			if (!selectedInvoiceAddress) {
-				selectedDeliveryAddress = document.getElementById("delivery-addresses")?.querySelector(".selected")
-			}
+		const getPhoneNumberFromAddress = (addressData: any) => {
+			const allAddressDataArray = addressData?.querySelector('.address')?.innerHTML.split("<br>");
+			if (!allAddressDataArray?.length) return "";
 
+			return allAddressDataArray[allAddressDataArray.length - 1].replace(/^00|^0/, '+');
+		};
 
-			const addressData = selectedInvoiceAddress ?? selectedDeliveryAddress
-			const allAddressDataArray = addressData?.querySelector('.address')?.innerHTML.split("<br>")
-		let phoneInputField = ""
-		let phoneVal = ""
-		if (allAddressDataArray?.length) {
-				phoneInputField = allAddressDataArray[allAddressDataArray.length - 1]
-				phoneVal = allAddressDataArray[allAddressDataArray.length - 1].replace(/^00|^0/, '+')
+		const updatePhoneNumber = (phoneVal: any) => {
+			if (!phoneVal) return;
 
-			}
-
-		if (!phoneVal) return
-
-
-		if (isValidPhoneNumber(phoneVal || "")) {
-
-			setPhoneInput(phoneVal || "")
-		} else {
-
-
-			if (phoneVal.startsWith("+")) {
-
-				setPhoneInput(phoneVal || "")
-				setError(t("payment.checkPhoneNumber"))
+			if (isValidPhoneNumber(phoneVal)) {
+				setPhoneInput(phoneVal);
 			} else {
-
-				try {
-
-					const countrySelect = document.getElementById('billing_country') as HTMLSelectElement
-
-					const countryCode = countrySelect?.options[countrySelect?.selectedIndex]?.value || "PL"
-
-
-					const selectedCountryNumber = parsePhoneNumber(phoneInputField, countryCode as Country || "PL")
-
-
-					if (!selectedCountryNumber) {
-						return
-					}
-					setCountryCode(countryCode as Country)
-
-					setPhoneInput(selectedCountryNumber?.number || "")
-
-					if (!isValidPhoneNumber(selectedCountryNumber?.number as string || "") && phoneVal) {
-
-						setError(t("payment.checkPhoneNumber"))
-					}
-				}
-				catch (err) {
-					setError(t('payment.phoneNumberError'))
-					console.log(err);
+				if (phoneVal.startsWith("+")) {
+					setPhoneInput(phoneVal);
+					setError(t("payment.checkPhoneNumber"));
+				} else {
+					updatePhoneNumberWithCountryCode(phoneVal);
 				}
 			}
+		};
 
-		}
+		const updatePhoneNumberWithCountryCode = (phoneVal: any) => {
+			try {
+				const countrySelect = document.getElementById('billing_country') as HTMLSelectElement;
+				const countryCode = countrySelect?.options[countrySelect?.selectedIndex]?.value || "PL";
+				const selectedCountryNumber = parsePhoneNumber(phoneVal, countryCode as Country || "PL");
+
+				if (!selectedCountryNumber) return;
+
+				setCountryCode(countryCode as Country);
+				setPhoneInput(selectedCountryNumber.number || "");
+
+				if (!isValidPhoneNumber(selectedCountryNumber.number) && phoneVal) {
+					setError(t("payment.checkPhoneNumber"));
+				}
+			} catch (err) {
+				setError(t('payment.phoneNumberError'));
+				console.log(err);
+			}
+		};
+
+		const addressData = getAddressData();
+		const phoneVal = getPhoneNumberFromAddress(addressData);
+
+		updatePhoneNumber(phoneVal);
+
 		checkedRef.current = true;
-	}, [checked])
-
+	}, [checked]);
 
 	const handleChangeCheckbox = () => {
 		setChecked((prev: any) => {
@@ -117,7 +106,6 @@ export const PhoneField = () => {
 			return !prev
 		});
 	};
-
 
 	const debouncedValidation = useCallback(
 		debounce((number) => {
@@ -131,7 +119,6 @@ export const PhoneField = () => {
 		debouncedValidation(number);
 	}
 
-
 	const validatePhoneNumber = (number: string) => {
 		if (isValidPhoneNumber(number || "") || !number) {
 			setError('');
@@ -144,21 +131,14 @@ export const PhoneField = () => {
 
 		const simplyinTokenFromStorage = sessionStorage.getItem("simplyinToken")
 		if (simplyinTokenFromStorage) {
-
 			setSimplyinToken(simplyinTokenFromStorage || "")
 		}
-
 		sessionStorage.setItem("createSimplyAccount", `${valueRegister || false}`)
-
-
 	}, [])
-
 
 	const BubblingHandling = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.stopPropagation()
 	}
-
-
 
 	useEffect(() => {
 		const debouncedRequest = debounce(() => {
@@ -196,7 +176,7 @@ export const PhoneField = () => {
 				</CheckboxLabel>
 			</CheckboxContainer>
 
-				<div onClick={BubblingHandling}>
+				<ClickedDiv onClick={BubblingHandling}>
 					{checked && <>
 						<SimplyInFullLogo style={{ marginBottom: "8px" }} />
 
@@ -214,7 +194,7 @@ export const PhoneField = () => {
 						{error && <div style={{ color: '#ff8000' }}>{error}</div>}
 						<Divider style={{ marginTop: "16px", marginBottom: "16px" }} />
 					</>}
-				</div>
+				</ClickedDiv>
 				{checked && <>
 					<PhoneInputDescription>
 						{t('payment.createAccountDescription-1')}
