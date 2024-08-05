@@ -161,13 +161,10 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 		setSameDeliveryAddress,
 		selectedDeliveryPointIndex,
 		setSelectedDeliveryPointIndex,
-
 		pickupPointDelivery,
 		setPickupPointDelivery,
-
 		selectedTab,
 		setSelectedTab,
-
 		deliveryType,
 		setDeliveryType,
 		isUserLoggedIn
@@ -175,7 +172,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 	const handleChangeTab = (_: React.SyntheticEvent, newValue: TabType) => {
 
 		setSelectedTab(newValue);
-		setSelectedDeliveryPointIndex(selectedShippingIndex || 0)
+		setSelectedDeliveryPointIndex(selectedShippingIndex ?? 0)
 
 	};
 
@@ -365,9 +362,7 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 	useEffect(() => {
 		const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
 		const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
-
 		const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
-		// const SelectedTab = loadDataFromSessionStorage({ key: "SelectedTab" }) as TabType
 		const SelectedTab = sessionStorage.getItem("SelectedTab")
 
 		if ((isNumber(ShippingIndex))) {
@@ -828,12 +823,9 @@ export const Step2 = ({ handleClosePopup, userData, setUserData, editItemIndex, 
 					setSelectedShippingIndex={setSelectedShippingIndex}
 					setSelectedDeliveryPointIndex={setSelectedDeliveryPointIndex}
 					setSameDeliveryAddress={setSameDeliveryAddress}
-					selectedTab={selectedTab}
 					setSelectedTab={setSelectedTab}
 				/>
 			}
-
-			{/* <button onClick={handlePhpScript}> call php script</button> */}
 		</>
 	)
 }
