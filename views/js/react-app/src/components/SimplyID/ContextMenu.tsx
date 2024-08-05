@@ -34,9 +34,6 @@ align-items: center;
 gap: 10px;
 width: 100%;
 color: #3167B9;
-&:hover{
-	// color:red;
-}
 
 `
 
