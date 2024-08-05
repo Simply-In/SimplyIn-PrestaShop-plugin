@@ -9,7 +9,7 @@ export const isNumber = (str: any) => {
 }
 
 export const useSelectedSimplyData = () => {
-	const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) || 0) as number
+	const BillingIndex = (loadDataFromSessionStorage({ key: "BillingIndex" }) ?? 0) as number
 	const ShippingIndex = loadDataFromSessionStorage({ key: "ShippingIndex" }) as number | null
 
 	const ParcelIndex = loadDataFromSessionStorage({ key: "ParcelIndex" }) as number | null
@@ -24,7 +24,7 @@ export const useSelectedSimplyData = () => {
 	const [selectedShippingIndex, setSelectedShippingIndex] = useState<number | null>(ShippingIndex || null);
 
 	const [selectedDeliveryPointIndex, setSelectedDeliveryPointIndex] = useState<number | null>(loadDataFromSessionStorage({ key: 'ParcelIndex' }) ?? null)
-	const [sameDeliveryAddress, setSameDeliveryAddress] = useState<boolean>((loadDataFromSessionStorage({ key: "sameDeliveryAddress" })) ? true : false);
+	const [sameDeliveryAddress, setSameDeliveryAddress] = useState<boolean>((!!loadDataFromSessionStorage({ key: "sameDeliveryAddress" })));
 	const [pickupPointDelivery, setPickupPointDelivery] = useState<boolean>(false);
 	const [selectedTab, setSelectedTab] = useState<TabType>(SelectedTab ?? "parcel_machine");
 	const [deliveryType, setDeliveryType] = useState<DeliveryType>(isNumber(ParcelIndex) ? "machine" : "address");

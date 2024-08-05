@@ -179,6 +179,8 @@ $(document).ready(async function () {
       shopUserEmail: userEmail || undefined,
     };
 
+    console.log("newacc", newAccountSendData);
+
     middlewareApiTwo({
       endpoint: "checkout/createOrderAndAccount",
       method: "POST",
@@ -216,6 +218,7 @@ $(document).ready(async function () {
       shopVersion: prestashopVersion,
       shopUserEmail: userEmail || undefined,
     };
+    console.log("existingAccountSendData", existingAccountSendData);
 
     middlewareApiTwo({
       endpoint: "checkout/createOrderWithoutAccount",

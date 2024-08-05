@@ -62,10 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		deleteSimplyContent()
 		return
 	}
-	else {
-		isValid = true
 
-	}
 	if ($('#checkout').length > 0) {
 
 		const personalInformation = document.getElementById('checkout-personal-information-step');
