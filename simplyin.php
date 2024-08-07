@@ -50,7 +50,7 @@ class Simplyin extends Module
 		PrestaShopLogger::addLog('install', 1, null, 'Order', '', true);
 
 		Configuration::updateValue('SIMPLYIN_LIVE_MODE', false);
-		include dirname(__FILE__) . '/sql/install.php';
+		include_once dirname(__FILE__) . '/sql/install.php';
 
 		return parent::install()
 			&& $this->registerHook('header')
@@ -158,7 +158,6 @@ class Simplyin extends Module
 			'trackings' => $tracking_numbers,
 		];
 
-		// PrestaShopLogger::addLog(json_encode($body_data), 1, null, 'Order', 10, true);
 
 		$plaintext = json_encode($body_data, JSON_UNESCAPED_SLASHES);
 
@@ -177,14 +176,12 @@ class Simplyin extends Module
 
 	public function hookDisplayOrderConfirmation($params)
 	{
-		// $orderId = $params['order']->id;
-		// $customerId = $params['customer']->id;
 
 		$context = Context::getContext();
 		$shopName = Configuration::get('PS_SHOP_NAME');
 		// Get the order object from the params
 		$order = $params['order'];
-		// $currency = $order->getCurrency();
+		
 		// Get the customer's delivery and billing address id from the order
 		$deliveryAddressId = $order->id_address_delivery;
 		$billingAddressId = $order->id_address_invoice;
@@ -209,9 +206,7 @@ class Simplyin extends Module
 			'id_order' => (int) $order->id,
 			'reference' => $order->reference,
 			'total_paid' => $order->total_paid,
-			// 'quantity' => (int) $order->quantity,
 			'id_customer' => $this->context->customer->id,
-			// 'data-order' => $params->order,
 		];
 
 		$customer_info['products'] = [];
@@ -225,7 +220,6 @@ class Simplyin extends Module
 
 			$productImage = Image::getCover($productId);
 			if ($productImage) {
-				// $productImageUrl = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $productImage['id_image'] . '-large_default/' . $productName . '.jpg';
 				$productImageUrl = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $productImage['id_image'] . '-' . ImageType::getFormattedName('large') . '/' . $productName . '.jpg';
 			} else {
 				// If no image is available, you can use a default image or handle it as needed
@@ -252,7 +246,6 @@ class Simplyin extends Module
 		}
 
 		$context = Context::getContext();
-		$id_lang = $context->language->id; // this will give you the id of the current language
 		$language_code = $context->language->language_code; // this will give you the language code i.e 'en' for English
 		$language_name = $context->language->name; // this will give you the name of the language i.e 'English'
 
@@ -260,8 +253,6 @@ class Simplyin extends Module
 
 		$delivery_method = [
 			'id_reference' => $carrier->id_reference,
-			// 'id_tax_rules_group' => $carrier->id_tax_rules_group,
-			// 'id_carrier' => $carrier->id_carrier,
 			'deleted' => $carrier->deleted,
 			'shipping_handling' => $carrier->shipping_handling,
 			'range_behavior' => $carrier->range_behavior,
@@ -272,8 +263,6 @@ class Simplyin extends Module
 			'external_module_name' => $carrier->external_module_name,
 			'shipping_method' => $carrier->shipping_method,
 			'position' => $carrier->position,
-			// 'win_distance' => $carrier->win_distance,
-			// 'max_delivery_delay' => $carrier->max_delivery_delay,
 			'grade' => $carrier->grade,
 			'url' => $carrier->url,
 			'active' => $carrier->active,
@@ -283,8 +272,6 @@ class Simplyin extends Module
 		];
 
 		$order_carrier = new OrderCarrier((int) $order->getIdOrderCarrier());
-
-		$order_id = $order_carrier->id_order;
 
 		// getting delivery point from inpost module
 		if (Module::isInstalled('inpostshipping') && Module::isEnabled('inpostshipping')) {
@@ -333,14 +320,13 @@ class Simplyin extends Module
 			['position' => 'bottom', 'priority' => 150] // Position and priority
 		);
 
-		// return $this->display(__FILE__, 'orderConfirmation.tpl');
 	}
 
 	public function uninstall()
 	{
 		Configuration::deleteByName('SIMPLYIN_LIVE_MODE');
 
-		include dirname(__FILE__) . '/sql/uninstall.php';
+		include_once dirname(__FILE__) . '/sql/uninstall.php';
 
 		return parent::uninstall();
 	}
@@ -560,7 +546,6 @@ class Simplyin extends Module
 	public function hookDisplayBackOfficeHeader()
 	{
 		if (Tools::getValue('configure') == $this->name) {
-			// $this->context->controller->addJS($this->_path . 'views/js/back.js');
 			$this->context->controller->addCSS($this->_path . 'views/css/back.css');
 		}
 	}

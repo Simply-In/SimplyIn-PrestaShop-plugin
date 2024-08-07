@@ -15,7 +15,6 @@ import { EditFormMachine } from './EditFormMachine';
 import { EditFormFooter } from './EditFormFooter';
 import { EditFormAddress } from './EditFormAddress';
 import { useTranslation } from "react-i18next";
-import { TabType } from '../Step2';
 
 
 declare global {
@@ -35,7 +34,6 @@ interface IStep2Form {
 	setSelectedShippingIndex: any
 	setSelectedDeliveryPointIndex: any
 	setSameDeliveryAddress: any
-	selectedTab: TabType,
 	setSelectedTab: any
 }
 

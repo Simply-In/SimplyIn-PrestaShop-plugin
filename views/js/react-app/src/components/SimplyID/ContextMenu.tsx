@@ -34,9 +34,6 @@ align-items: center;
 gap: 10px;
 width: 100%;
 color: #3167B9;
-&:hover{
-	// color:red;
-}
 
 `
 
@@ -102,78 +99,85 @@ export const ContextMenu = ({ userData, element, item, setEditItemIndex, propert
 
 		const requestData = { userData: { ...userData, [property]: updatedProperty } }
 
+		const handleResponse = (res: any) => {
+			if (res.error) {
+				throw new Error(res.error);
+			}
+
+			if (res.data) {
+				const newData = { ...res.data };
+				cleanUpData(newData);
+				setUserData(newData);
+				saveDataSessionStorage({ key: 'UserData', data: newData });
+				selectPreviouslySelectedRadio(res.data);
+			}
+		};
+
+		const cleanUpData = (data: any) => {
+			if (data?.createdAt) {
+				delete data.createdAt;
+			}
+			if (data?.updatedAt) {
+				delete data.updatedAt;
+			}
+		};
+
+		const getCustomKey = (property: any) => {
+			switch (property) {
+				case "parcelLockers":
+					return "ParcelIndex";
+				case "billingAddresses":
+					return "BillingIndex";
+				case "shippingAddresses":
+					return "ShippingIndex";
+				default:
+					return null;
+			}
+		};
+
+		const filterParcelLockers = (parcelLockers: any, selectedTab: any) => {
+			if (selectedTab) {
+				return parcelLockers.filter((el: any) => selectedTab === el.service_type);
+			} else {
+				return parcelLockers;
+			}
+		};
+
+		const setIndex = (filteredItems: any, customKey: any, currentlySelectedItem: any) => {
+			filteredItems.forEach((el: any, id: any) => {
+				if (currentlySelectedItem && currentlySelectedItem._id === el._id) {
+					setSelectedPropertyIndex(id);
+					saveDataSessionStorage({ key: customKey, data: id });
+				}
+			});
+		};
+
+		const selectPreviouslySelectedRadio = (data: any) => {
+			if (data[property]?.length) {
+				const customKey = getCustomKey(property);
+				if (!customKey) return;
+
+				let filteredParcelLockers = filterParcelLockers(data.parcelLockers, selectedTab);
+				setIndex(filteredParcelLockers, customKey, currentlySelectedItem);
+
+				if (selectedRadioItem && !filteredParcelLockers.length) {
+					setSelectedPropertyIndex(0);
+					saveDataSessionStorage({ key: customKey, data: 0 });
+				}
+			} else {
+				setSelectedPropertyIndex(null);
+			}
+		};
 
 		middlewareApi({
 			endpoint: "userData",
 			method: 'PATCH',
 			token: authToken,
 			requestBody: requestData
-		}).then(res => {
-			if (res.error) {
-				throw new Error(res.error)
-			} else if (res.data) {
-				const newData = { ...res.data }
-				if (newData?.createdAt) {
-					delete newData.createdAt
-				}
-				if (newData?.updatedAt) {
-					delete newData.updatedAt
-				}
-
-				setUserData(newData)
-				saveDataSessionStorage({ key: 'UserData', data: newData })
-				//selection of previously selected radio element
-				if (res.data[property].length) {
-
-					let customKey: any
-					if (property === "parcelLockers") {
-
-						customKey = "ParcelIndex"
-					} else if (property === "billingAddresses") {
-						customKey = "BillingIndex"
-					} else if (property === "shippingAddresses") {
-						customKey = "ShippingIndex"
-					}
-					if (!customKey) {
-						return
-					}
-
-
-
-					let filteredParcelLockers
-
-					if (selectedTab) {
-						filteredParcelLockers = res.data?.parcelLockers.filter((el: any) => selectedTab === el.service_type)
-
-
-						filteredParcelLockers.filter((el: any, id: number) => {
-							if (currentlySelectedItem && currentlySelectedItem?._id === el?._id) {
-								setSelectedPropertyIndex(id)
-								saveDataSessionStorage({ key: customKey as "ParcelIndex" | "BillingIndex" | "ShippingIndex", data: id })
-							}
-						})
-
-					} else {
-						filteredParcelLockers = res.data[property].filter((el: any, id: number) => {
-							if (currentlySelectedItem && el._id === (currentlySelectedItem as any)._id) {
-								setSelectedPropertyIndex(id)
-							}
-							return el._id === selectedRadioItem?._id
-						})
-					}
-
-
-					if (selectedRadioItem && !filteredParcelLockers.length) {
-
-						setSelectedPropertyIndex(0)
-						saveDataSessionStorage({ key: customKey as "ParcelIndex" | "BillingIndex" | "ShippingIndex", data: 0 })
-
-					}
-				} else {
-					setSelectedPropertyIndex(null)
-				}
-			}
+		}).then((res: any) => {
+			handleResponse(res)
 		})
+
 
 		handleCloseDialog();
 		handleClose();

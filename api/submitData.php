@@ -21,8 +21,8 @@
  * @copyright 2024-2027 Simply.IN Sp. z o.o.
  * @license   https://joinup.ec.europa.eu/software/page/eupl
  */
-require dirname(__FILE__) . '/../../../config/config.inc.php';
-require dirname(__FILE__) . '/../../../init.php';
+require_once dirname(__FILE__) . '/../../../config/config.inc.php';
+require_once dirname(__FILE__) . '/../../../init.php';
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -57,7 +57,6 @@ if (!empty($token)) {
 } else {
     $url = $backend_url . $endpoint;
 }
-// $headers = ['Content-Type: application/json'];
 $headers = ['Content-Type: application/json', 'Origin: ' . $origin];
 
 $ch = curl_init();
